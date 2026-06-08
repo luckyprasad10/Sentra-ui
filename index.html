@@ -33,8 +33,10 @@
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  @keyframes slideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 200px; } }
   @keyframes dragPulse { 0%,100% { border-color: var(--accent); } 50% { border-color: var(--accent-2); } }
+  @keyframes progressPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+  @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes borderPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); } 50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); } }
   .fade-in { animation: fadeIn 0.2s ease-out; }
   .animate-pulse { animation: pulse 2s infinite; }
   .card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.75rem; transition: border-color 0.15s; }
@@ -49,6 +51,8 @@
   .btn-subtle:hover:not(:disabled) { background: var(--border-hover); }
   .btn-danger { background: var(--danger); color: white; }
   .btn-danger:hover { filter: brightness(1.1); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { filter: brightness(1.1); }
   input, select, textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 13px; width: 100%; transition: all 0.15s; }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
   input::placeholder, textarea::placeholder { color: var(--text-dim); }
@@ -62,13 +66,12 @@
   .nav-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.5rem 0.75rem; margin: 0 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 14px; color: var(--text-muted); transition: all 0.15s; position: relative; }
   .nav-item:hover { background: var(--bg-hover); color: var(--text); }
   .nav-item.active { background: var(--bg-hover); color: var(--text); border-left: 3px solid var(--accent); margin-left: calc(0.5rem - 3px); }
-  .nav-item.active .nav-icon { color: var(--accent); }
   .kbd { display: inline-flex; align-items: center; justify-content: center; padding: 1px 6px; background: var(--bg-hover); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
   #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
   .toast { pointer-events: auto; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; display: flex; align-items: center; gap: 10px; box-shadow: 0 12px 32px -8px rgba(0,0,0,0.3); min-width: 280px; max-width: 400px; animation: slideInRight 0.25s ease-out; }
   .toast.removing { animation: slideInRight 0.2s ease-in reverse; opacity: 0; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.7); backdrop-filter: blur(4px); z-index: 900; display: flex; align-items: flex-start; justify-content: center; padding-top: 80px; animation: fadeIn 0.15s ease-out; overflow-y: auto; }
-  .modal-content { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; width: 600px; max-width: 92vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 32px 64px -16px rgba(0,0,0,0.5); animation: scaleIn 0.15s ease-out; margin-bottom: 40px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.7); backdrop-filter: blur(4px); z-index: 900; display: flex; align-items: flex-start; justify-content: center; padding-top: 60px; animation: fadeIn 0.15s ease-out; overflow-y: auto; }
+  .modal-content { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; width: 700px; max-width: 92vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 32px 64px -16px rgba(0,0,0,0.5); animation: scaleIn 0.15s ease-out; margin-bottom: 40px; }
   .focus-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 800; display: flex; flex-direction: column; animation: fadeIn 0.2s ease-out; }
   .cmd-result { padding: 0.625rem 0.75rem; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.75rem; cursor: pointer; transition: background 0.1s; }
   .cmd-result:hover, .cmd-result.selected { background: var(--bg-hover); }
@@ -93,7 +96,6 @@
   .date-picker button:hover { color: var(--text); }
   .date-picker button.active { background: var(--bg-elevated); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .live-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 2s infinite; }
-  /* PHASE 3: Bulk select, drop zone, editor, hierarchy */
   .checkbox-custom { width: 16px; height: 16px; border: 2px solid var(--border-hover); border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; background: transparent; }
   .checkbox-custom:hover { border-color: var(--accent); }
   .checkbox-custom.checked { background: var(--accent); border-color: var(--accent); }
@@ -116,9 +118,40 @@
   .tree-add-menu { position: absolute; left: 100%; top: 0; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; padding: 4px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.3); min-width: 140px; }
   .tree-add-menu button { display: block; width: 100%; text-align: left; padding: 6px 10px; font-size: 12px; background: transparent; border: none; color: var(--text); border-radius: 4px; cursor: pointer; }
   .tree-add-menu button:hover { background: var(--bg-hover); }
-  button:focus-visible, .nav-item:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .evidence-item { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
   .hash-display { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); word-break: break-all; }
+  /* PHASE 4: Deployment focus mode */
+  .deploy-step-card { transition: all 0.3s ease; border: 1px solid var(--border); }
+  .deploy-step-card.running { border-color: var(--accent); box-shadow: 0 0 20px -6px rgba(99,102,241,0.4); animation: borderPulse 2s infinite; }
+  .deploy-step-card.completed { border-color: rgba(16,185,129,0.3); }
+  .deploy-step-card.pending { opacity: 0.6; }
+  .timer-display { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--accent); animation: progressPulse 2s infinite; }
+  .approval-chain { display: flex; flex-direction: column; gap: 12px; position: relative; padding-left: 24px; }
+  .approval-chain::before { content: ''; position: absolute; left: 10px; top: 24px; bottom: 8px; width: 2px; background: var(--border); }
+  .approval-node { position: relative; }
+  .approval-node::before { content: ''; position: absolute; left: -19px; top: 8px; width: 14px; height: 14px; border-radius: 999px; background: var(--bg-elevated); border: 2px solid var(--border); z-index: 1; }
+  .approval-node.approved::before { background: var(--success); border-color: var(--success); }
+  .approval-node.rejected::before { background: var(--danger); border-color: var(--danger); }
+  .approval-node.pending::before { background: var(--bg-elevated); border-color: var(--warning); animation: pulse 2s infinite; }
+  /* Template diff */
+  .diff-line { display: flex; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; }
+  .diff-line.added { background: rgba(16,185,129,0.08); border-left: 3px solid var(--success); }
+  .diff-line.removed { background: rgba(239,68,68,0.08); border-left: 3px solid var(--danger); }
+  .diff-line.modified { background: rgba(245,158,11,0.08); border-left: 3px solid var(--warning); }
+  .diff-line.context { border-left: 3px solid transparent; color: var(--text-muted); }
+  .diff-line .line-num { width: 36px; color: var(--text-dim); flex-shrink: 0; user-select: none; }
+  .diff-line .line-content { flex: 1; }
+  /* Suggestion workflow */
+  .suggestion-status-flow { display: flex; align-items: center; gap: 4px; padding: 8px; background: var(--bg); border-radius: 6px; font-size: 11px; }
+  .status-dot { width: 20px; height: 20px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid var(--border); background: var(--bg-elevated); }
+  .status-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .status-dot.completed { background: var(--success); border-color: var(--success); color: white; }
+  .status-line { flex: 1; height: 2px; background: var(--border); }
+  .status-line.completed { background: var(--success); }
+  /* Rollback preview */
+  .rollback-step { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-left: 2px solid var(--danger); background: rgba(239,68,68,0.03); border-radius: 0 6px 6px 0; margin-bottom: 4px; font-size: 12px; }
+  .rollback-step .rollback-order { width: 20px; height: 20px; border-radius: 999px; background: var(--danger); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; flex-shrink: 0; }
+  button:focus-visible, .nav-item:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
 <body class="h-screen overflow-hidden" data-theme="dark">
@@ -138,16 +171,24 @@ const state = {
   selectedTemplate: null,
   focusMode: null, cmdPaletteOpen: false,
   activityFeed: [], activityInterval: null,
-  // Phase 3 additions
   selectedTests: new Set(),
   expandedTest: null,
   editingTestCase: null,
   hierarchy: null,
   selectedHierarchyNode: 'h3',
   showTreeAddMenu: null,
-  testCases: [], // mutable copy
-  evidencePerTest: {}, // {testId: [{name, hash, size, verified}]}
-  commentsPerTest: {}  // {testId: [{text, author, time}]}
+  testCases: [],
+  evidencePerTest: {},
+  commentsPerTest: {},
+  // Phase 4 additions
+  deployExecution: null, // {steps: [], currentIdx: 0, paused: false, timers: {}}
+  deployTimer: null,
+  approvalModal: null, // {stepId, step}
+  rollbackModal: null, // {deployId}
+  diffViewer: null, // {templateId, v1, v2}
+  suggestionSubmission: null, // open form
+  suggestionDetail: null, // viewing single suggestion
+  activeTimers: {} // per-step elapsed timers
 };
 document.body.setAttribute('data-theme', state.theme);
 
@@ -179,9 +220,11 @@ const TEMPLATES = [
   { id: 't2', name: 'Regression Suite — Ecom',    type: 'test',   ver: 'v5.0', updated: 'Jun 6', author: 'Sarah Chen', status: 'published', uses: 89 }
 ];
 const SUGGESTIONS = [
-  { id: 's1', title: 'Add DB backup verification', type: 'deploy', priority: 'high', status: 'submitted', submitter: 'David Park', time: '2h ago', reason: 'Corrupt backup caused 45m rollback last month.' },
-  { id: 's2', title: 'Test: empty cart checkout',  type: 'test',   priority: 'medium', status: 'submitted', submitter: 'Sarah Chen', time: '4h ago', reason: 'Edge case not covered.' },
-  { id: 's3', title: 'Cache clearing in deploy',   type: 'deploy', priority: 'high', status: 'approved', submitter: 'Lisa Wang', time: '1d ago', reason: 'Stale cache caused errors.' }
+  { id: 's1', title: 'Add DB backup verification step', type: 'deployment', priority: 'high', status: 'submitted', submitter: 'David Park', time: '2h ago', context: 'Release 2.4.1 — Step 3', reason: 'Last month a corrupt backup caused a 45-min rollback delay. Verifying backup integrity before proceeding would prevent this class of failure entirely.', attachments: 1, comments: 3 },
+  { id: 's2', title: 'Test: empty cart checkout attempt', type: 'test', priority: 'medium', status: 'submitted', submitter: 'Sarah Chen', time: '4h ago', context: 'Sprint 24 — Cart module', reason: 'Edge case not covered in current suite. Users have reported 500 errors when attempting checkout with an empty cart via direct URL manipulation.', attachments: 0, comments: 1 },
+  { id: 's3', title: 'Cache clearing in deploy checklist', type: 'deployment', priority: 'high', status: 'approved', submitter: 'Lisa Wang', time: '1d ago', context: 'Hotfix — Payment Gateway', reason: 'Stale cache caused user-visible errors post-deploy. Automated cache invalidation would prevent this class of issues.', attachments: 2, comments: 5, approvedBy: 'Jordan Diaz', approvedAt: '1d ago', appliedTo: 'v3.3' },
+  { id: 's4', title: 'Pre-flight service dependency check', type: 'deployment', priority: 'medium', status: 'under_review', submitter: 'Mike Johnson', time: '6h ago', context: 'All deployments', reason: 'Deployments occasionally fail because upstream services are still warming up. Adding a dependency readiness check would reduce false failures.', attachments: 0, comments: 2 },
+  { id: 's5', title: 'Validate special chars in username field', type: 'test', priority: 'medium', status: 'clarification', submitter: 'Alex Kumar', time: '3d ago', context: 'User Management tests', reason: 'XSS vector discovered in pentest. Need clarity on exact character set to test.', attachments: 1, comments: 4 }
 ];
 const AUDIT = [
   { id: '#12847', actor: 'David Park', action: 'step.completed', entity: 'Release 2.4.1', time: '09:47', result: 'Step 17' },
@@ -211,24 +254,58 @@ const INITIAL_HIERARCHY = {
       { id: 'h8', name: 'Cart Operations', type: 'module', children: [
         { id: 'h9', name: 'Add/Remove Items', type: 'suite', count: 54 }
       ]}
-    ]},
-    { id: 'h10', name: 'Payments', type: 'category', children: [
-      { id: 'h11', name: 'Checkout', type: 'module', children: [
-        { id: 'h12', name: 'Payment Flow', type: 'suite', count: 68 }
-      ]}
     ]}
   ]
 };
-const DEPLOY_STEPS = [
-  { id: 1, name: 'Pre-flight validation', status: 'completed', dur: '1m 12s', desc: 'Verify all services reachable' },
-  { id: 2, name: 'DB backup snapshot',    status: 'completed', dur: '4m 31s', crit: true, desc: 'Create full backup' },
-  { id: 3, name: 'Deploy build v2.4.1',   status: 'completed', dur: '6m 42s', crit: true, desc: 'Roll out new build' },
-  { id: 4, name: 'Run migrations',        status: 'completed', dur: '3m 18s', crit: true, desc: 'Execute DB migrations' },
-  { id: 5, name: 'Health checks',         status: 'completed', dur: '0m 52s', desc: 'Verify endpoints' },
-  { id: 6, name: 'Approval gate',         status: 'running',   dur: '—', crit: true, gate: true, desc: 'Manager approval required' },
-  { id: 7, name: 'Switch DNS traffic',    status: 'pending',   dur: '—', crit: true, desc: 'Update DNS' },
-  { id: 8, name: 'Monitor error rate',    status: 'pending',   dur: '—', crit: true, desc: 'Watch 15 minutes' }
+const INITIAL_DEPLOY_STEPS = [
+  { id: 1, name: 'Pre-flight validation', status: 'completed', dur: '1m 12s', expectedDur: 72, desc: 'Verify all services reachable', command: 'curl -sSf http://api/health' },
+  { id: 2, name: 'DB backup snapshot',    status: 'completed', dur: '4m 31s', expectedDur: 271, crit: true, desc: 'Create full database backup', command: 'pg_dump --format=custom db > backup.dump' },
+  { id: 3, name: 'Deploy build v2.4.1',   status: 'completed', dur: '6m 42s', expectedDur: 402, crit: true, desc: 'Roll out new application build', command: 'kubectl rollout deploy/app --image=v2.4.1' },
+  { id: 4, name: 'Run migrations',        status: 'completed', dur: '3m 18s', expectedDur: 198, crit: true, desc: 'Execute DB migrations', command: 'alembic upgrade head' },
+  { id: 5, name: 'Health checks',         status: 'completed', dur: '0m 52s', expectedDur: 52, desc: 'Verify all endpoints responding', command: 'for svc in api web worker; do curl $svc/health; done' },
+  { id: 6, name: 'Approval gate',         status: 'running',   dur: '—', expectedDur: null, crit: true, gate: true, desc: 'Manager approval required before traffic switch', approvers: ['Jordan Diaz', 'Lisa Wang'], approvalHistory: [] },
+  { id: 7, name: 'Switch DNS traffic',    status: 'pending',   dur: '—', expectedDur: 180, crit: true, desc: 'Update DNS records to point to new version', command: 'aws route53 change-resource-record-sets ...' },
+  { id: 8, name: 'Monitor error rate',    status: 'pending',   dur: '—', expectedDur: 900, crit: true, desc: 'Watch error rate for 15 minutes', command: 'watch -n10 "curl metrics/error_rate"' }
 ];
+
+// Template diff data
+const TEMPLATE_DIFFS = {
+  't1': {
+    v1: 'v3.1',
+    v2: 'v3.2',
+    approvedBy: 'Lisa Wang',
+    approvedAt: 'Jun 5, 2026 14:32',
+    reason: 'Improves deployment reliability and reduces manual steps',
+    changes: [
+      { type: 'added', line: 3, content: '## Pre-flight environment validation', desc: 'New section' },
+      { type: 'added', line: 4, content: '- Verify all upstream services are reachable (timeout: 30s)' },
+      { type: 'added', line: 5, content: '- Check disk space on target nodes (> 10GB free)' },
+      { type: 'added', line: 6, content: '- Validate DB connection pool is healthy' },
+      { type: 'context', line: 7, content: '' },
+      { type: 'modified', line: 12, content: '## Database backup procedure', prev: '## Database backup (full)' },
+      { type: 'removed', line: 13, content: '- Run full pg_dump with compression' },
+      { type: 'added', line: 13, content: '- Run incremental pg_dump (last 24h only)' },
+      { type: 'added', line: 14, content: '- Verify backup checksum before proceeding' },
+      { type: 'context', line: 15, content: '' },
+      { type: 'removed', line: 22, content: '- Manually clear application cache' },
+      { type: 'added', line: 22, content: '- Trigger automated cache invalidation via webhook' },
+      { type: 'context', line: 23, content: '' },
+      { type: 'added', line: 28, content: '## Auto-rollback trigger' },
+      { type: 'added', line: 29, content: '- If health check fails twice in 60s, auto-initiate rollback plan' }
+    ]
+  }
+};
+
+// Rollback plan
+const ROLLBACK_PLAN = [
+  { order: 1, action: 'Switch DNS back to previous version', duration: '3m', command: 'aws route53 rollback' },
+  { order: 2, action: 'Scale down new deployment pods', duration: '2m', command: 'kubectl scale deploy/app-v2.4.1 --replicas=0' },
+  { order: 3, action: 'Restore database from backup', duration: '8m', command: 'pg_restore backup.dump', critical: true },
+  { order: 4, action: 'Roll back migrations', duration: '2m', command: 'alembic downgrade -1', critical: true },
+  { order: 5, action: 'Verify previous version healthy', duration: '2m', command: 'curl api-v2.4.0/health' },
+  { order: 6, action: 'Send rollback notification', duration: '1m', command: 'notify --channel=incidents' }
+];
+
 const CHART_DATA = {
   trend: {
     '7d': [{day:'Mon',tests:45,deploys:2},{day:'Tue',tests:68,deploys:3},{day:'Wed',tests:92,deploys:4},{day:'Thu',tests:78,deploys:2},{day:'Fri',tests:112,deploys:5},{day:'Sat',tests:34,deploys:1},{day:'Sun',tests:21,deploys:0}],
@@ -262,22 +339,19 @@ const LIVE_ACTION_TEMPLATES = [
   {action:'requested approval',color:'var(--warning)'},{action:'submitted suggestion',color:'var(--warning)'}
 ];
 const LIVE_ENTITY_POOL = ['Sprint 24','Release 2.4.1','TC-2811','Step 12','Payment Flow','Auth Module'];
-
 const COMMANDS = [
   { id: 'dashboard', label: 'Go to Dashboard', icon: '📊', action: () => navigate('dashboard'), keywords: 'home' },
   { id: 'mywork', label: 'Go to My Work', icon: '⚡', action: () => navigate('mywork'), keywords: 'tasks' },
-  { id: 'projects', label: 'Go to Projects', icon: '📁', action: () => navigate('projects'), keywords: '' },
   { id: 'testing', label: 'Go to Testing', icon: '🧪', action: () => navigate('testing'), keywords: 'qa' },
   { id: 'deployments', label: 'Go to Deployments', icon: '🚀', action: () => navigate('deployments'), keywords: 'release' },
   { id: 'templates', label: 'Go to Templates', icon: '📄', action: () => navigate('templates'), keywords: '' },
   { id: 'suggestions', label: 'Go to Suggestions', icon: '💡', action: () => navigate('suggestions'), keywords: 'ideas' },
   { id: 'audit', label: 'Go to Audit Center', icon: '🛡️', action: () => navigate('audit'), keywords: 'logs' },
   { id: 'reports', label: 'Go to Reports', icon: '📈', action: () => navigate('reports'), keywords: 'analytics' },
-  { id: 'settings', label: 'Go to Settings', icon: '⚙️', action: () => navigate('settings'), keywords: 'prefs' },
   { id: 'new-test', label: 'New Test Case', icon: '➕', action: () => openTestCaseEditor(), keywords: 'create' },
-  { id: 'new-deploy', label: 'Start Deployment', icon: '🚀', action: () => openDeployFocusMode(), keywords: '' },
+  { id: 'new-deploy', label: 'Start Deployment', icon: '🚀', action: () => startDeploymentExecution(), keywords: '' },
+  { id: 'submit-suggestion', label: 'Submit Suggestion', icon: '💡', action: () => openSuggestionSubmission(), keywords: 'idea feedback' },
   { id: 'toggle-theme', label: 'Toggle Theme', icon: '🌓', action: () => toggleTheme(), keywords: 'dark light' },
-  { id: 'export-csv', label: 'Export CSV', icon: '📥', action: () => exportCSV(), keywords: 'download' },
   { id: 'logout', label: 'Sign Out', icon: '🚪', action: () => { state.user = null; navigate('login'); }, keywords: 'exit' }
 ];
 
@@ -338,37 +412,19 @@ function getChartColors() {
 function renderDonutChart(canvasId, data) {
   const ctx = document.getElementById(canvasId); if (!ctx) return; destroyChart(canvasId);
   const c = getChartColors();
-  activeCharts[canvasId] = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels: data.map(d => d.label), datasets: [{ data: data.map(d => d.value), backgroundColor: data.map(d => d.color), borderWidth: 0, hoverOffset: 8 }] },
-    options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: c.text, padding: 12, font: { size: 11 } } }, tooltip: { backgroundColor: c.tooltipBg, titleColor: c.tooltipText, bodyColor: c.tooltipText, borderColor: c.tooltipBorder, borderWidth: 1, padding: 10, cornerRadius: 8 } } }
-  });
+  activeCharts[canvasId] = new Chart(ctx, { type: 'doughnut', data: { labels: data.map(d => d.label), datasets: [{ data: data.map(d => d.value), backgroundColor: data.map(d => d.color), borderWidth: 0, hoverOffset: 8 }] }, options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: c.text, padding: 12, font: { size: 11 } } }, tooltip: { backgroundColor: c.tooltipBg, titleColor: c.tooltipText, bodyColor: c.tooltipText, borderColor: c.tooltipBorder, borderWidth: 1, padding: 10, cornerRadius: 8 } } } });
 }
 function renderBarChart(canvasId, data, opts = {}) {
   const ctx = document.getElementById(canvasId); if (!ctx) return; destroyChart(canvasId);
   const c = getChartColors();
-  activeCharts[canvasId] = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: data.map(d => d.label), datasets: [{ label: opts.label || 'Value', data: data.map(d => d.value), backgroundColor: data.map((d, i) => d.color || ['#6366f1','#8b5cf6','#a855f7','#c084fc','#22d3ee','#3b82f6'][i % 6]), borderRadius: 4, barThickness: opts.horizontal ? 14 : 28 }] },
-    options: { indexAxis: opts.horizontal ? 'y' : 'x', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: c.tooltipBg, titleColor: c.tooltipText, bodyColor: c.tooltipText, borderColor: c.tooltipBorder, borderWidth: 1 } }, scales: { x: { grid: opts.horizontal ? { display: false } : { color: c.grid, drawBorder: false }, ticks: { color: c.text, font: { size: 10 } }, ...(opts.horizontal ? { max: opts.max || 100, beginAtZero: true } : {}) }, y: { grid: opts.horizontal ? { display: false } : { color: c.grid, drawBorder: false }, ticks: { color: c.text, font: { size: 11 } } } } }
-  });
+  activeCharts[canvasId] = new Chart(ctx, { type: 'bar', data: { labels: data.map(d => d.label), datasets: [{ label: opts.label || 'Value', data: data.map(d => d.value), backgroundColor: data.map((d, i) => d.color || ['#6366f1','#8b5cf6','#a855f7','#c084fc','#22d3ee','#3b82f6'][i % 6]), borderRadius: 4, barThickness: opts.horizontal ? 14 : 28 }] }, options: { indexAxis: opts.horizontal ? 'y' : 'x', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: c.tooltipBg, titleColor: c.tooltipText, bodyColor: c.tooltipText, borderColor: c.tooltipBorder, borderWidth: 1 } }, scales: { x: { grid: opts.horizontal ? { display: false } : { color: c.grid, drawBorder: false }, ticks: { color: c.text, font: { size: 10 } }, ...(opts.horizontal ? { max: opts.max || 100, beginAtZero: true } : {}) }, y: { grid: opts.horizontal ? { display: false } : { color: c.grid, drawBorder: false }, ticks: { color: c.text, font: { size: 11 } } } } } });
 }
 function renderLineChart(canvasId, data) {
   const ctx = document.getElementById(canvasId); if (!ctx) return; destroyChart(canvasId);
   const c = getChartColors();
-  activeCharts[canvasId] = new Chart(ctx, {
-    type: 'line',
-    data: { labels: data.map(d => d.day || d.month || d.q), datasets: [
-      { label: 'Tests', data: data.map(d => d.tests), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#6366f1' },
-      { label: 'Deploys', data: data.map(d => d.deploys), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#8b5cf6', yAxisID: 'y1' }
-    ] },
-    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top', align: 'end', labels: { color: c.text, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } }, tooltip: { backgroundColor: c.tooltipBg, titleColor: c.tooltipText, bodyColor: c.tooltipText, borderColor: c.tooltipBorder, borderWidth: 1, padding: 10, cornerRadius: 8 } }, scales: { x: { grid: { display: false }, ticks: { color: c.text, font: { size: 10 } } }, y: { grid: { color: c.grid, drawBorder: false }, ticks: { color: c.text, font: { size: 10 } }, position: 'left' }, y1: { grid: { display: false }, ticks: { color: c.text, font: { size: 10 } }, position: 'right' } } }
-  });
+  activeCharts[canvasId] = new Chart(ctx, { type: 'line', data: { labels: data.map(d => d.day || d.month || d.q), datasets: [{ label: 'Tests', data: data.map(d => d.tests), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#6366f1' }, { label: 'Deploys', data: data.map(d => d.deploys), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#8b5cf6', yAxisID: 'y1' }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top', align: 'end', labels: { color: c.text, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } }, tooltip: { backgroundColor: c.tooltipBg, titleColor: c.tooltipText, bodyColor: c.tooltipText, borderColor: c.tooltipBorder, borderWidth: 1, padding: 10, cornerRadius: 8 } }, scales: { x: { grid: { display: false }, ticks: { color: c.text, font: { size: 10 } } }, y: { grid: { color: c.grid, drawBorder: false }, ticks: { color: c.text, font: { size: 10 } }, position: 'left' }, y1: { grid: { display: false }, ticks: { color: c.text, font: { size: 10 } }, position: 'right' } } } });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// EXPORT
-// ═══════════════════════════════════════════════════════════════
 function exportCSV() {
   const headers = ['ID', 'Actor', 'Action', 'Entity', 'Time', 'Result'];
   const rows = AUDIT.map(a => [a.id, a.actor, a.action, a.entity, a.time, a.result]);
@@ -378,77 +434,15 @@ function exportCSV() {
   const a = document.createElement('a');
   a.href = url; a.download = `sentra-audit-${new Date().toISOString().split('T')[0]}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  toast('CSV downloaded successfully', 'success');
-}
-function exportPDF() {
-  toast('Generating PDF report...', 'info');
-  setTimeout(() => toast('PDF ready: sentra-report.pdf', 'success'), 1500);
+  toast('CSV downloaded', 'success');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SHA-256 HASHING (Web Crypto API)
-// ═══════════════════════════════════════════════════════════════
 async function computeSHA256(file) {
   const buffer = await file.arrayBuffer();
   const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PHASE 3: BULK OPERATIONS
-// ═══════════════════════════════════════════════════════════════
-function toggleTestSelection(testId, event) {
-  if (event) event.stopPropagation();
-  if (state.selectedTests.has(testId)) state.selectedTests.delete(testId);
-  else state.selectedTests.add(testId);
-  renderTesting();
-}
-function toggleSelectAll() {
-  if (state.selectedTests.size === state.testCases.length) {
-    state.selectedTests.clear();
-  } else {
-    state.testCases.forEach(tc => state.selectedTests.add(tc.id));
-  }
-  renderTesting();
-}
-function bulkMarkStatus(status) {
-  const count = state.selectedTests.size;
-  state.testCases.forEach(tc => {
-    if (state.selectedTests.has(tc.id)) tc.status = status;
-  });
-  const labels = { passed: 'passed', failed: 'failed', blocked: 'blocked' };
-  const types = { passed: 'success', failed: 'error', blocked: 'warning' };
-  toast(`${count} tests marked as ${labels[status]}`, types[status]);
-  state.selectedTests.clear();
-  renderTesting();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 3: EVIDENCE UPLOAD
-// ═══════════════════════════════════════════════════════════════
-async function handleEvidenceUpload(testId, files) {
-  for (const file of files) {
-    const hash = await computeSHA256(file);
-    const evidence = {
-      name: file.name,
-      size: file.size,
-      hash: hash,
-      type: file.type || 'application/octet-stream',
-      uploadedAt: new Date().toISOString(),
-      verified: true
-    };
-    if (!state.evidencePerTest[testId]) state.evidencePerTest[testId] = [];
-    state.evidencePerTest[testId].push(evidence);
-    toast(`Uploaded: ${file.name}`, 'success');
-  }
-  if (state.focusMode) renderFocusMode(); else renderTesting();
-}
-function removeEvidence(testId, idx) {
-  state.evidencePerTest[testId].splice(idx, 1);
-  toast('Evidence removed', 'info');
-  if (state.focusMode) renderFocusMode(); else renderTesting();
-}
 function formatSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
@@ -456,45 +450,47 @@ function formatSize(bytes) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// PHASE 3: COMMENTS
+// PHASE 3 (retained): Bulk, Evidence, Comments, Editor, Hierarchy
 // ═══════════════════════════════════════════════════════════════
+function toggleTestSelection(testId, event) { if (event) event.stopPropagation(); if (state.selectedTests.has(testId)) state.selectedTests.delete(testId); else state.selectedTests.add(testId); renderTesting(); }
+function toggleSelectAll() { if (state.selectedTests.size === state.testCases.length) state.selectedTests.clear(); else state.testCases.forEach(tc => state.selectedTests.add(tc.id)); renderTesting(); }
+function bulkMarkStatus(status) {
+  const count = state.selectedTests.size;
+  state.testCases.forEach(tc => { if (state.selectedTests.has(tc.id)) tc.status = status; });
+  toast(`${count} tests marked as ${status}`, status === 'passed' ? 'success' : status === 'failed' ? 'error' : 'warning');
+  state.selectedTests.clear(); renderTesting();
+}
+async function handleEvidenceUpload(testId, files) {
+  for (const file of files) {
+    const hash = await computeSHA256(file);
+    if (!state.evidencePerTest[testId]) state.evidencePerTest[testId] = [];
+    state.evidencePerTest[testId].push({ name: file.name, size: file.size, hash, type: file.type, verified: true });
+    toast(`Uploaded: ${file.name}`, 'success');
+  }
+  if (state.focusMode) renderFocusMode(); else renderTesting();
+}
+function removeEvidence(testId, idx) { state.evidencePerTest[testId].splice(idx, 1); toast('Evidence removed', 'info'); if (state.focusMode) renderFocusMode(); else renderTesting(); }
 function addComment(testId) {
   const input = document.getElementById(`comment-input-${testId}`);
   if (!input || !input.value.trim()) return;
   if (!state.commentsPerTest[testId]) state.commentsPerTest[testId] = [];
-  state.commentsPerTest[testId].push({
-    text: input.value.trim(),
-    author: state.user.name,
-    time: 'just now'
-  });
+  state.commentsPerTest[testId].push({ text: input.value.trim(), author: state.user.name, time: 'just now' });
   input.value = '';
   toast('Comment added', 'success');
   if (state.focusMode) renderFocusMode(); else renderTesting();
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 3: TEST CASE EDITOR
-// ═══════════════════════════════════════════════════════════════
 function openTestCaseEditor(testCase = null) {
   state.editingTestCase = testCase ? { ...testCase } : { id: '', name: '', desc: '', status: 'not-run', dur: '—' };
   renderTestCaseEditor();
 }
-function closeTestCaseEditor() {
-  state.editingTestCase = null;
-  document.getElementById('modal-root').innerHTML = '';
-}
+function closeTestCaseEditor() { state.editingTestCase = null; document.getElementById('modal-root').innerHTML = ''; }
 function saveTestCase() {
   const tc = state.editingTestCase;
   if (!tc.name.trim()) { toast('Name is required', 'error'); return; }
   if (!tc.id.trim()) tc.id = 'TC-' + (2800 + state.testCases.length + 1);
   const existing = state.testCases.findIndex(t => t.id === tc.id);
-  if (existing >= 0) {
-    state.testCases[existing] = { ...tc };
-    toast('Test case updated', 'success');
-  } else {
-    state.testCases.push({ ...tc });
-    toast('Test case created', 'success');
-  }
+  if (existing >= 0) { state.testCases[existing] = { ...tc }; toast('Test case updated', 'success'); }
+  else { state.testCases.push({ ...tc }); toast('Test case created', 'success'); }
   closeTestCaseEditor();
   if (state.view === 'testing') renderTesting();
 }
@@ -506,72 +502,28 @@ function renderTestCaseEditor() {
       <div class="modal-content p-6" onclick="event.stopPropagation()" style="max-width: 500px;">
         <h2 class="text-lg font-semibold mb-4">${isEdit ? 'Edit' : 'New'} Test Case</h2>
         <div class="space-y-3">
-          <div>
-            <label class="text-xs block mb-1" style="color: var(--text-muted);">Test ID ${isEdit ? '(readonly)' : '(auto-generated if blank)'}</label>
-            <input value="${tc.id}" ${isEdit ? 'readonly style="opacity:0.6"' : ''} oninput="state.editingTestCase.id = this.value" placeholder="TC-2809">
-          </div>
-          <div>
-            <label class="text-xs block mb-1" style="color: var(--text-muted);">Name *</label>
-            <input value="${tc.name}" oninput="state.editingTestCase.name = this.value" placeholder="e.g. Login with valid credentials">
-          </div>
-          <div>
-            <label class="text-xs block mb-1" style="color: var(--text-muted);">Description</label>
-            <textarea rows="3" oninput="state.editingTestCase.desc = this.value" placeholder="What does this test verify?">${tc.desc || ''}</textarea>
-          </div>
+          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Test ID</label><input value="${tc.id}" ${isEdit ? 'readonly style="opacity:0.6"' : ''} oninput="state.editingTestCase.id = this.value" placeholder="TC-2809"></div>
+          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Name *</label><input value="${tc.name}" oninput="state.editingTestCase.name = this.value" placeholder="Login with valid credentials"></div>
+          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Description</label><textarea rows="3" oninput="state.editingTestCase.desc = this.value" placeholder="What does this test verify?">${tc.desc || ''}</textarea></div>
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs block mb-1" style="color: var(--text-muted);">Initial Status</label>
-              <select onchange="state.editingTestCase.status = this.value">
-                ${['not-run','passed','failed','blocked'].map(s => `<option value="${s}" ${tc.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-              </select>
-            </div>
-            <div>
-              <label class="text-xs block mb-1" style="color: var(--text-muted);">Expected Duration</label>
-              <input value="${tc.dur || '—'}" oninput="state.editingTestCase.dur = this.value" placeholder="e.g. 2.3s">
-            </div>
+            <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Status</label><select onchange="state.editingTestCase.status = this.value">${['not-run','passed','failed','blocked'].map(s => `<option value="${s}" ${tc.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+            <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Duration</label><input value="${tc.dur || '—'}" oninput="state.editingTestCase.dur = this.value"></div>
           </div>
         </div>
         <div class="flex gap-2 mt-5 pt-4" style="border-top: 1px solid var(--border);">
           <button class="btn btn-ghost flex-1" onclick="closeTestCaseEditor()">Cancel</button>
-          <button class="btn btn-primary flex-1" onclick="saveTestCase()">${isEdit ? 'Save Changes' : 'Create Test Case'}</button>
+          <button class="btn btn-primary flex-1" onclick="saveTestCase()">${isEdit ? 'Save' : 'Create'}</button>
         </div>
       </div>
     </div>
   `;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 3: HIERARCHY BUILDER
-// ═══════════════════════════════════════════════════════════════
-function findNodeById(node, id) {
-  if (node.id === id) return node;
-  if (node.children) {
-    for (const c of node.children) {
-      const found = findNodeById(c, id);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-function findParent(node, id, parent = null) {
-  if (node.id === id) return parent;
-  if (node.children) {
-    for (const c of node.children) {
-      const found = findParent(c, id, node);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-function toggleTreeAddMenu(nodeId, event) {
-  if (event) event.stopPropagation();
-  state.showTreeAddMenu = state.showTreeAddMenu === nodeId ? null : nodeId;
-  renderTesting();
-}
+function findNodeById(node, id) { if (node.id === id) return node; if (node.children) for (const c of node.children) { const f = findNodeById(c, id); if (f) return f; } return null; }
+function findParent(node, id, parent = null) { if (node.id === id) return parent; if (node.children) for (const c of node.children) { const f = findParent(c, id, node); if (f) return f; } return null; }
+function toggleTreeAddMenu(nodeId, event) { if (event) event.stopPropagation(); state.showTreeAddMenu = state.showTreeAddMenu === nodeId ? null : nodeId; renderTesting(); }
 function addHierarchyNode(parentId, type) {
   const parent = findNodeById(state.hierarchy, parentId);
-  if (!parent) return;
-  if (!parent.children) parent.children = [];
+  if (!parent || !parent.children) return;
   const newId = 'h' + Date.now();
   const names = { category: 'New Category', module: 'New Module', suite: 'New Suite' };
   parent.children.push({ id: newId, name: names[type], type, children: type !== 'suite' ? [] : undefined, count: type === 'suite' ? 0 : undefined });
@@ -580,96 +532,17 @@ function addHierarchyNode(parentId, type) {
   renderTesting();
   setTimeout(() => renameHierarchyNode(newId), 100);
 }
-function renameHierarchyNode(nodeId) {
-  const node = findNodeById(state.hierarchy, nodeId);
-  if (!node) return;
-  const newName = prompt('Rename node:', node.name);
-  if (newName && newName.trim()) {
-    node.name = newName.trim();
-    toast('Node renamed', 'success');
-    renderTesting();
-  }
-}
-function deleteHierarchyNode(nodeId) {
-  if (!confirm('Delete this node and all children?')) return;
-  const parent = findParent(state.hierarchy, nodeId);
-  if (!parent) return;
-  parent.children = parent.children.filter(c => c.id !== nodeId);
-  toast('Node deleted', 'info');
-  renderTesting();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// HIERARCHY TREE RENDERER
-// ═══════════════════════════════════════════════════════════════
+function renameHierarchyNode(nodeId) { const node = findNodeById(state.hierarchy, nodeId); if (!node) return; const n = prompt('Rename node:', node.name); if (n && n.trim()) { node.name = n.trim(); toast('Node renamed', 'success'); renderTesting(); } }
+function deleteHierarchyNode(nodeId) { if (!confirm('Delete this node?')) return; const parent = findParent(state.hierarchy, nodeId); if (!parent) return; parent.children = parent.children.filter(c => c.id !== nodeId); toast('Node deleted', 'info'); renderTesting(); }
 function renderHierarchyNode(node, depth = 0) {
   const hasChildren = node.children && node.children.length > 0;
   const typeIcons = { project: '📦', category: '📂', module: '🧩', suite: '🧪' };
-  const typeColors = { project: 'var(--accent)', category: 'var(--warning)', module: 'var(--info)', suite: 'var(--success)' };
-  const canAddTypes = {
-    project: ['category'], category: ['module'], module: ['suite'], suite: []
-  };
+  const canAddTypes = { project: ['category'], category: ['module'], module: ['suite'], suite: [] };
   const allowedAdd = canAddTypes[node.type] || [];
-  
-  return `
-    <div>
-      <div class="tree-node ${state.selectedHierarchyNode === node.id ? 'selected' : ''}" style="padding-left: ${8 + depth * 14}px;" onclick="selectHierarchyNode('${node.id}')">
-        ${hasChildren ? '<span style="color: var(--text-dim); font-size: 10px;">▾</span>' : '<span style="width: 10px; display: inline-block;"></span>'}
-        <span style="color: ${typeColors[node.type]}; font-size: 12px;">${typeIcons[node.type]}</span>
-        <span class="flex-1 truncate text-xs">${node.name}</span>
-        ${node.count !== undefined ? `<span class="text-[10px] mono" style="color: var(--text-dim);">${node.count}</span>` : ''}
-        <div class="tree-node-actions">
-          ${allowedAdd.length > 0 ? `<button class="btn btn-ghost p-0.5" onclick="event.stopPropagation(); toggleTreeAddMenu('${node.id}', event)" title="Add child" style="padding: 2px 4px;">${icons.plus}</button>` : ''}
-          ${node.type !== 'project' ? `<button class="btn btn-ghost p-0.5" onclick="event.stopPropagation(); renameHierarchyNode('${node.id}')" title="Rename" style="padding: 2px 4px;">${icons.edit}</button>` : ''}
-          ${node.type !== 'project' ? `<button class="btn btn-ghost p-0.5" onclick="event.stopPropagation(); deleteHierarchyNode('${node.id}')" title="Delete" style="padding: 2px 4px; color: var(--danger);">${icons.trash}</button>` : ''}
-        </div>
-        ${state.showTreeAddMenu === node.id ? `
-          <div class="tree-add-menu">
-            ${allowedAdd.map(t => `<button onclick="event.stopPropagation(); addHierarchyNode('${node.id}', '${t}')">+ Add ${t}</button>`).join('')}
-          </div>
-        ` : ''}
-      </div>
-      ${hasChildren ? node.children.map(c => renderHierarchyNode(c, depth + 1)).join('') : ''}
-    </div>
-  `;
+  return `<div><div class="tree-node ${state.selectedHierarchyNode === node.id ? 'selected' : ''}" style="padding-left: ${8 + depth * 14}px;" onclick="state.selectedHierarchyNode = '${node.id}'; renderTesting();">${hasChildren ? '<span style="color: var(--text-dim); font-size: 10px;">▾</span>' : '<span style="width: 10px; display: inline-block;"></span>'}<span style="font-size: 12px;">${typeIcons[node.type]}</span><span class="flex-1 truncate text-xs">${node.name}</span>${node.count !== undefined ? `<span class="text-[10px] mono" style="color: var(--text-dim);">${node.count}</span>` : ''}<div class="tree-node-actions">${allowedAdd.length > 0 ? `<button class="btn btn-ghost" onclick="event.stopPropagation(); toggleTreeAddMenu('${node.id}', event)" style="padding: 2px 4px;">${icons.plus}</button>` : ''}${node.type !== 'project' ? `<button class="btn btn-ghost" onclick="event.stopPropagation(); renameHierarchyNode('${node.id}')" style="padding: 2px 4px;">${icons.edit}</button><button class="btn btn-ghost" onclick="event.stopPropagation(); deleteHierarchyNode('${node.id}')" style="padding: 2px 4px; color: var(--danger);">${icons.trash}</button>` : ''}</div>${state.showTreeAddMenu === node.id ? `<div class="tree-add-menu">${allowedAdd.map(t => `<button onclick="event.stopPropagation(); addHierarchyNode('${node.id}', '${t}')">+ Add ${t}</button>`).join('')}</div>` : ''}</div>${hasChildren ? node.children.map(c => renderHierarchyNode(c, depth + 1)).join('') : ''}</div>`;
 }
-function selectHierarchyNode(id) {
-  state.selectedHierarchyNode = id;
-  renderTesting();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// HEATMAP & TIMELINE (Phase 2 retained)
-// ═══════════════════════════════════════════════════════════════
 function renderHeatmap(modules) {
-  return `
-    <div>
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold">Test Coverage Heatmap</h3>
-        <div class="flex items-center gap-2 text-[10px]" style="color: var(--text-dim);">
-          <span>0%</span>
-          <div class="flex gap-0.5">
-            <div class="w-3 h-3 rounded-sm" style="background: #dc2626;"></div>
-            <div class="w-3 h-3 rounded-sm" style="background: #ea580c;"></div>
-            <div class="w-3 h-3 rounded-sm" style="background: #f59e0b;"></div>
-            <div class="w-3 h-3 rounded-sm" style="background: #84cc16;"></div>
-            <div class="w-3 h-3 rounded-sm" style="background: #10b981;"></div>
-          </div>
-          <span>100%</span>
-        </div>
-      </div>
-      <div class="heatmap-grid" style="grid-template-columns: repeat(9, 1fr);">
-        ${modules.map(m => {
-          let color = '#dc2626';
-          if (m.coverage >= 50) color = '#ea580c';
-          if (m.coverage >= 70) color = '#f59e0b';
-          if (m.coverage >= 80) color = '#84cc16';
-          if (m.coverage >= 90) color = '#10b981';
-          return `<div class="heat-cell" style="background: ${color};">${m.coverage}<div class="tooltip"><strong>${m.name}</strong><br>Coverage: ${m.coverage}% · ${m.tests} tests</div></div>`;
-        }).join('')}
-      </div>
-    </div>
-  `;
+  return `<div><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold">Test Coverage Heatmap</h3><div class="flex items-center gap-2 text-[10px]" style="color: var(--text-dim);"><span>0%</span><div class="flex gap-0.5"><div class="w-3 h-3 rounded-sm" style="background: #dc2626;"></div><div class="w-3 h-3 rounded-sm" style="background: #ea580c;"></div><div class="w-3 h-3 rounded-sm" style="background: #f59e0b;"></div><div class="w-3 h-3 rounded-sm" style="background: #84cc16;"></div><div class="w-3 h-3 rounded-sm" style="background: #10b981;"></div></div><span>100%</span></div></div><div class="heatmap-grid" style="grid-template-columns: repeat(9, 1fr);">${modules.map(m => { let c = '#dc2626'; if (m.coverage >= 50) c = '#ea580c'; if (m.coverage >= 70) c = '#f59e0b'; if (m.coverage >= 80) c = '#84cc16'; if (m.coverage >= 90) c = '#10b981'; return `<div class="heat-cell" style="background: ${c};">${m.coverage}<div class="tooltip"><strong>${m.name}</strong><br>${m.coverage}% · ${m.tests} tests</div></div>`; }).join('')}</div></div>`;
 }
 function renderTimeline() {
   const steps = [
@@ -684,53 +557,34 @@ function renderTimeline() {
   ];
   const totalDuration = 120;
   const colorMap = { completed: 'var(--success)', running: 'var(--accent)', pending: 'var(--border-hover)' };
-  return `
-    <div class="card p-4 mt-4">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold">Execution Timeline — Release 2.4.1</h3>
-        <span class="text-xs" style="color: var(--text-muted);">Total: 120 min</span>
-      </div>
-      <div class="timeline-axis"><span>0m</span><span>30m</span><span>60m</span><span>90m</span><span>120m</span></div>
-      <div class="space-y-1">
-        ${steps.map(s => `<div class="timeline-row"><div class="timeline-label">${s.name}${s.crit ? '<span class="pill pill-fail text-[9px] ml-1">Crit</span>' : ''}</div><div class="timeline-track"><div class="timeline-bar" style="left: ${(s.start/totalDuration)*100}%; width: ${(s.duration/totalDuration)*100}%; background: ${colorMap[s.status]};">${s.duration}m</div></div></div>`).join('')}
-      </div>
-    </div>
-  `;
+  return `<div class="card p-4 mt-4"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold">Execution Timeline — Release 2.4.1</h3><span class="text-xs" style="color: var(--text-muted);">Total: 120 min</span></div><div class="timeline-axis"><span>0m</span><span>30m</span><span>60m</span><span>90m</span><span>120m</span></div><div class="space-y-1">${steps.map(s => `<div class="timeline-row"><div class="timeline-label">${s.name}${s.crit ? '<span class="pill pill-fail text-[9px] ml-1">Crit</span>' : ''}</div><div class="timeline-track"><div class="timeline-bar" style="left: ${(s.start/totalDuration)*100}%; width: ${(s.duration/totalDuration)*100}%; background: ${colorMap[s.status]};">${s.duration}m</div></div></div>`).join('')}</div></div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
 // LIVE FEED
 // ═══════════════════════════════════════════════════════════════
-function initActivityFeed() {
-  state.activityFeed = AUDIT.slice(0, 8).map((a, i) => ({ id: i, actor: a.actor, action: a.action, entity: a.entity, time: a.time, result: a.result, isNew: false }));
-}
+function initActivityFeed() { state.activityFeed = AUDIT.slice(0, 8).map((a, i) => ({ id: i, actor: a.actor, action: a.action, entity: a.entity, time: a.time, result: a.result, isNew: false })); }
 function startLiveFeed() {
   stopLiveFeed();
   state.activityInterval = setInterval(() => {
     if (state.view !== 'dashboard' || state.dashboardTab !== 'activity') return;
-    addLiveActivityEvent();
+    const actor = LIVE_ACTOR_POOL[Math.floor(Math.random() * LIVE_ACTOR_POOL.length)];
+    const t = LIVE_ACTION_TEMPLATES[Math.floor(Math.random() * LIVE_ACTION_TEMPLATES.length)];
+    const entity = LIVE_ENTITY_POOL[Math.floor(Math.random() * LIVE_ENTITY_POOL.length)];
+    state.activityFeed.unshift({ id: Date.now(), actor, action: t.action, entity, time: 'just now', result: 'Live', isNew: true, color: t.color });
+    if (state.activityFeed.length > 20) state.activityFeed.pop();
+    const feed = document.getElementById('live-feed');
+    if (feed) {
+      const ni = document.createElement('div');
+      ni.className = 'flex items-start gap-3 text-sm p-2 rounded mb-1 fade-in';
+      ni.style.background = 'var(--bg-hover)';
+      ni.innerHTML = `<div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background: ${t.color};"></div><div class="flex-1 min-w-0"><div><span class="font-medium">${actor}</span> <span style="color: var(--text-muted);">${t.action}</span> <span class="font-medium">${entity}</span></div><div class="text-xs mt-0.5" style="color: var(--text-dim);">just now · Live</div></div>`;
+      feed.insertBefore(ni, feed.firstChild);
+      while (feed.children.length > 15) feed.removeChild(feed.lastChild);
+    }
   }, 3000);
 }
-function stopLiveFeed() {
-  if (state.activityInterval) { clearInterval(state.activityInterval); state.activityInterval = null; }
-}
-function addLiveActivityEvent() {
-  const actor = LIVE_ACTOR_POOL[Math.floor(Math.random() * LIVE_ACTOR_POOL.length)];
-  const template = LIVE_ACTION_TEMPLATES[Math.floor(Math.random() * LIVE_ACTION_TEMPLATES.length)];
-  const entity = LIVE_ENTITY_POOL[Math.floor(Math.random() * LIVE_ENTITY_POOL.length)];
-  const newEvent = { id: Date.now(), actor, action: template.action, entity, time: 'just now', result: 'Live event', isNew: true, color: template.color };
-  state.activityFeed.unshift(newEvent);
-  if (state.activityFeed.length > 20) state.activityFeed.pop();
-  const feed = document.getElementById('live-feed');
-  if (feed) {
-    const newItem = document.createElement('div');
-    newItem.className = 'flex items-start gap-3 text-sm p-2 rounded mb-1 fade-in';
-    newItem.style.background = 'var(--bg-hover)';
-    newItem.innerHTML = `<div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background: ${newEvent.color};"></div><div class="flex-1 min-w-0"><div><span class="font-medium">${newEvent.actor}</span> <span style="color: var(--text-muted);">${newEvent.action}</span> <span class="font-medium">${newEvent.entity}</span></div><div class="text-xs mt-0.5" style="color: var(--text-dim);">${newEvent.time} · ${newEvent.result}</div></div>`;
-    feed.insertBefore(newItem, feed.firstChild);
-    while (feed.children.length > 15) feed.removeChild(feed.lastChild);
-  }
-}
+function stopLiveFeed() { if (state.activityInterval) { clearInterval(state.activityInterval); state.activityInterval = null; } }
 
 // ═══════════════════════════════════════════════════════════════
 // COMMAND PALETTE
@@ -739,20 +593,7 @@ function openCommandPalette() { state.cmdPaletteOpen = true; renderCommandPalett
 function closeCommandPalette() { state.cmdPaletteOpen = false; document.getElementById('modal-root').innerHTML = ''; }
 function renderCommandPalette(query = '') {
   const filtered = query ? COMMANDS.filter(c => (c.label + ' ' + c.keywords).toLowerCase().split(' ').some(w => query.toLowerCase().includes(w))) : COMMANDS;
-  document.getElementById('modal-root').innerHTML = `
-    <div class="modal-overlay" onclick="closeCommandPalette()">
-      <div class="modal-content" onclick="event.stopPropagation()" style="width: 600px;">
-        <div class="flex items-center gap-3 px-4 py-3" style="border-bottom: 1px solid var(--border);">
-          <span style="color: var(--text-dim);">${icons.search}</span>
-          <input type="text" id="cmd-input" placeholder="Type a command..." value="${query}" autocomplete="off" oninput="handleCmdInput(this.value)" onkeydown="handleCmdKeydown(event)" style="background: transparent; border: none; outline: none; padding: 0; flex: 1;">
-          <kbd class="kbd">ESC</kbd>
-        </div>
-        <div class="max-h-[400px] overflow-y-auto scroll p-2" id="cmd-results">
-          ${filtered.length === 0 ? '<div class="text-center py-8 text-sm" style="color: var(--text-muted);">No results</div>' : filtered.map((c, i) => `<div class="cmd-result ${i === 0 ? 'selected' : ''}" onclick="executeCommand('${c.id}')"><span class="text-lg">${c.icon}</span><span class="flex-1 text-sm">${c.label}</span><kbd class="kbd">↵</kbd></div>`).join('')}
-        </div>
-      </div>
-    </div>
-  `;
+  document.getElementById('modal-root').innerHTML = `<div class="modal-overlay" onclick="closeCommandPalette()"><div class="modal-content" onclick="event.stopPropagation()" style="width: 600px;"><div class="flex items-center gap-3 px-4 py-3" style="border-bottom: 1px solid var(--border);"><span style="color: var(--text-dim);">${icons.search}</span><input type="text" id="cmd-input" placeholder="Type a command..." value="${query}" autocomplete="off" oninput="handleCmdInput(this.value)" onkeydown="handleCmdKeydown(event)" style="background: transparent; border: none; outline: none; padding: 0; flex: 1;"><kbd class="kbd">ESC</kbd></div><div class="max-h-[400px] overflow-y-auto scroll p-2">${filtered.length === 0 ? '<div class="text-center py-8 text-sm" style="color: var(--text-muted);">No results</div>' : filtered.map((c, i) => `<div class="cmd-result ${i === 0 ? 'selected' : ''}" onclick="executeCommand('${c.id}')"><span class="text-lg">${c.icon}</span><span class="flex-1 text-sm">${c.label}</span><kbd class="kbd">↵</kbd></div>`).join('')}</div></div></div>`;
   setTimeout(() => { const i = document.getElementById('cmd-input'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 50);
 }
 let cmdSelectedIdx = 0;
@@ -766,19 +607,719 @@ function handleCmdKeydown(e) {
 function executeCommand(id) { const c = COMMANDS.find(x => x.id === id); if (c) { closeCommandPalette(); c.action(); } }
 
 // ═══════════════════════════════════════════════════════════════
-// FOCUS MODE (Enhanced 3-Pane)
+// PHASE 4: DEPLOYMENT EXECUTION WITH LIVE TIMERS
+// ═══════════════════════════════════════════════════════════════
+function startDeploymentExecution() {
+  // Initialize a fresh deployment execution
+  state.deployExecution = {
+    id: 'd-new-' + Date.now(),
+    name: 'Release 2.4.1 — Production',
+    template: 'v3.2',
+    startTime: Date.now(),
+    paused: false,
+    pausedAt: null,
+    totalPausedTime: 0,
+    steps: JSON.parse(JSON.stringify(INITIAL_DEPLOY_STEPS)),
+    currentIdx: 5, // Start at the approval gate for demo
+    elapsedPerStep: {},
+    completed: INITIAL_DEPLOY_STEPS.filter(s => s.status === 'completed').length
+  };
+  // Start timer for the current running step
+  startStepTimer(state.deployExecution.currentIdx);
+  state.focusMode = { type: 'deploy' };
+  renderFocusMode();
+  toast('Deployment execution started — live timers running', 'info', 3500);
+}
+
+function startStepTimer(stepIdx) {
+  stopAllTimers();
+  if (!state.deployExecution) return;
+  const step = state.deployExecution.steps[stepIdx];
+  if (!step || step.status !== 'running') return;
+  const startTime = Date.now();
+  state.activeTimers[stepIdx] = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    state.deployExecution.elapsedPerStep[stepIdx] = elapsed;
+    // Update just the timer display without full re-render (avoids flicker)
+    const timerEl = document.getElementById(`step-timer-${stepIdx}`);
+    if (timerEl) timerEl.textContent = formatElapsed(elapsed);
+  }, 1000);
+}
+
+function stopAllTimers() {
+  Object.values(state.activeTimers).forEach(t => clearInterval(t));
+  state.activeTimers = {};
+}
+
+function formatElapsed(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}m ${s.toString().padStart(2, '0')}s`;
+}
+
+function pauseDeploymentExecution() {
+  if (!state.deployExecution) return;
+  state.deployExecution.paused = true;
+  state.deployExecution.pausedAt = Date.now();
+  stopAllTimers();
+  toast('Execution paused', 'warning');
+  renderFocusMode();
+}
+
+function resumeDeploymentExecution() {
+  if (!state.deployExecution) return;
+  state.deployExecution.paused = false;
+  if (state.deployExecution.pausedAt) {
+    state.deployExecution.totalPausedTime += Date.now() - state.deployExecution.pausedAt;
+    state.deployExecution.pausedAt = null;
+  }
+  // Resume timer for current step if it's running
+  const currentStep = state.deployExecution.steps[state.deployExecution.currentIdx];
+  if (currentStep && currentStep.status === 'running') {
+    startStepTimer(state.deployExecution.currentIdx);
+  }
+  toast('Execution resumed', 'success');
+  renderFocusMode();
+}
+
+function completeCurrentStep() {
+  if (!state.deployExecution) return;
+  const idx = state.deployExecution.currentIdx;
+  const step = state.deployExecution.steps[idx];
+  if (!step) return;
+  
+  // If it's a gate, require approval first
+  if (step.gate) {
+    openApprovalModal(idx);
+    return;
+  }
+  
+  step.status = 'completed';
+  step.dur = formatElapsed(state.deployExecution.elapsedPerStep[idx] || 0);
+  state.deployExecution.completed++;
+  stopAllTimers();
+  toast(`Step ${step.id} completed: ${step.name}`, 'success');
+  
+  // Advance to next step
+  if (idx + 1 < state.deployExecution.steps.length) {
+    state.deployExecution.currentIdx = idx + 1;
+    const nextStep = state.deployExecution.steps[idx + 1];
+    nextStep.status = 'running';
+    state.deployExecution.elapsedPerStep[idx + 1] = 0;
+    startStepTimer(idx + 1);
+  } else {
+    toast('🎉 Deployment completed successfully!', 'success', 5000);
+    state.deployExecution = null;
+    state.focusMode = null;
+    navigate('deployments');
+    return;
+  }
+  renderFocusMode();
+}
+
+function failCurrentStep() {
+  if (!state.deployExecution) return;
+  const step = state.deployExecution.steps[state.deployExecution.currentIdx];
+  if (!step) return;
+  step.status = 'failed';
+  step.dur = formatElapsed(state.deployExecution.elapsedPerStep[state.deployExecution.currentIdx] || 0);
+  stopAllTimers();
+  toast(`Step ${step.id} FAILED: ${step.name}`, 'error', 4000);
+  // Suggest rollback for critical steps
+  if (step.crit) {
+    setTimeout(() => {
+      if (confirm('Critical step failed. Initiate rollback?')) {
+        openRollbackModal();
+      }
+    }, 500);
+  }
+  renderFocusMode();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 4: APPROVAL GATE WORKFLOW
+// ═══════════════════════════════════════════════════════════════
+function openApprovalModal(stepIdx) {
+  const step = state.deployExecution.steps[stepIdx];
+  state.approvalModal = { stepIdx, step };
+  renderApprovalModal();
+}
+
+function closeApprovalModal() {
+  state.approvalModal = null;
+  document.getElementById('modal-root').innerHTML = '';
+  // Re-render focus mode to reflect any changes
+  if (state.focusMode) renderFocusMode();
+}
+
+function approveStep(reason) {
+  const { stepIdx, step } = state.approvalModal;
+  if (!state.deployExecution) { closeApprovalModal(); return; }
+  
+  // Add approval to history
+  step.approvalHistory = step.approvalHistory || [];
+  step.approvalHistory.push({
+    decision: 'approved',
+    approver: state.user.name,
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    reason: reason || 'Pre-flight checks passed, metrics healthy'
+  });
+  
+  closeApprovalModal();
+  toast('✓ Step approved — proceeding', 'success');
+  
+  // Mark gate as completed and advance
+  step.status = 'completed';
+  step.dur = formatElapsed(state.deployExecution.elapsedPerStep[stepIdx] || 0);
+  state.deployExecution.completed++;
+  stopAllTimers();
+  
+  if (stepIdx + 1 < state.deployExecution.steps.length) {
+    state.deployExecution.currentIdx = stepIdx + 1;
+    const nextStep = state.deployExecution.steps[stepIdx + 1];
+    nextStep.status = 'running';
+    state.deployExecution.elapsedPerStep[stepIdx + 1] = 0;
+    startStepTimer(stepIdx + 1);
+  }
+  renderFocusMode();
+}
+
+function rejectStep(reason) {
+  const { stepIdx, step } = state.approvalModal;
+  step.approvalHistory = step.approvalHistory || [];
+  step.approvalHistory.push({
+    decision: 'rejected',
+    approver: state.user.name,
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    reason: reason || 'Metrics show elevated error rate'
+  });
+  closeApprovalModal();
+  toast('✕ Approval rejected — execution halted', 'error', 4000);
+  // Suggest rollback
+  setTimeout(() => {
+    if (confirm('Approval rejected. Initiate rollback?')) openRollbackModal();
+  }, 500);
+}
+
+function requestInfoStep(question) {
+  const { stepIdx, step } = state.approvalModal;
+  step.approvalHistory = step.approvalHistory || [];
+  step.approvalHistory.push({
+    decision: 'info_requested',
+    approver: state.user.name,
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    reason: question || 'Please share smoke test results'
+  });
+  closeApprovalModal();
+  toast('💬 Info requested from executor', 'info');
+  renderFocusMode();
+}
+
+function renderApprovalModal() {
+  const { step } = state.approvalModal;
+  const history = step.approvalHistory || [];
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="closeApprovalModal()">
+      <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-block">🛡 Approval Gate</span>
+              <span class="pill pill-fail">⚠ Critical</span>
+            </div>
+            <h2 class="text-lg font-semibold">Step ${step.id}: ${step.name}</h2>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">${step.desc}</p>
+          </div>
+          <button class="btn btn-ghost p-1" onclick="closeApprovalModal()">✕</button>
+        </div>
+
+        <!-- Current metrics -->
+        <div class="card p-4 mb-4" style="background: var(--bg);">
+          <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Current Metrics</h3>
+          <div class="grid grid-cols-4 gap-3">
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
+              <div class="text-[10px]" style="color: var(--text-muted);">Error Rate</div>
+              <div class="text-lg font-bold" style="color: var(--success);">0.02%</div>
+            </div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
+              <div class="text-[10px]" style="color: var(--text-muted);">p95 Latency</div>
+              <div class="text-lg font-bold" style="color: var(--success);">142ms</div>
+            </div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
+              <div class="text-[10px]" style="color: var(--text-muted);">Smoke Tests</div>
+              <div class="text-lg font-bold" style="color: var(--success);">23/23</div>
+            </div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
+              <div class="text-[10px]" style="color: var(--text-muted);">Uptime</div>
+              <div class="text-lg font-bold" style="color: var(--success);">100%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approval history -->
+        ${history.length > 0 ? `
+          <div class="mb-4">
+            <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Decision History</h3>
+            <div class="approval-chain">
+              ${history.map(h => `
+                <div class="approval-node ${h.decision === 'approved' ? 'approved' : h.decision === 'rejected' ? 'rejected' : 'pending'}">
+                  <div class="card p-3" style="background: var(--bg);">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="font-medium text-sm">${h.approver}</span>
+                      <span class="pill ${h.decision === 'approved' ? 'pill-pass' : h.decision === 'rejected' ? 'pill-fail' : 'pill-info'}">${h.decision.replace('_', ' ')}</span>
+                    </div>
+                    <div class="text-xs" style="color: var(--text-muted);">${h.reason}</div>
+                    <div class="text-[10px] mt-1 mono" style="color: var(--text-dim);">${h.time}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Approvers list -->
+        <div class="mb-4">
+          <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Required Approvers</h3>
+          <div class="flex gap-2 flex-wrap">
+            ${(step.approvers || []).map(a => `<span class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs" style="background: var(--bg-hover);"><div class="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[9px] font-bold">${a.split(' ').map(n=>n[0]).join('')}</div>${a}</span>`).join('')}
+          </div>
+        </div>
+
+        <!-- Decision form -->
+        <div class="space-y-3">
+          <textarea id="approval-reason" rows="2" placeholder="Add a reason or note (optional)...">${history.length > 0 && history[history.length-1].decision === 'info_requested' ? 'Providing requested info: ' : ''}</textarea>
+          <div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);">
+            <button class="btn btn-success flex-1" onclick="approveStep(document.getElementById('approval-reason').value)">✓ Approve & Continue</button>
+            <button class="btn btn-subtle flex-1" onclick="requestInfoStep(document.getElementById('approval-reason').value)">💬 Request Info</button>
+            <button class="btn btn-danger flex-1" onclick="rejectStep(document.getElementById('approval-reason').value)">✕ Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 4: ROLLBACK FLOW
+// ═══════════════════════════════════════════════════════════════
+function openRollbackModal() {
+  state.rollbackModal = { deployId: state.deployExecution?.id };
+  renderRollbackModal();
+}
+
+function closeRollbackModal() {
+  state.rollbackModal = null;
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function confirmRollback() {
+  closeRollbackModal();
+  stopAllTimers();
+  toast('↺ Rollback initiated — executing rollback plan', 'error', 4000);
+  
+  // Simulate rollback execution
+  state.focusMode = { type: 'rollback' };
+  renderRollbackExecution();
+}
+
+function renderRollbackModal() {
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="closeRollbackModal()">
+      <div class="modal-content p-6" onclick="event.stopPropagation()" style="max-width: 600px;">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(239,68,68,0.15); color: var(--danger);">⚠️</div>
+          <div class="flex-1">
+            <h2 class="text-lg font-semibold">Initiate Rollback?</h2>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">This will revert Release 2.4.1 to the previous stable version (v2.4.0). This action cannot be undone.</p>
+          </div>
+          <button class="btn btn-ghost p-1" onclick="closeRollbackModal()">✕</button>
+        </div>
+
+        <!-- Rollback plan preview -->
+        <div class="mb-4">
+          <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Rollback Plan (6 steps · ~18 min)</h3>
+          <div>
+            ${ROLLBACK_PLAN.map(s => `
+              <div class="rollback-step">
+                <div class="rollback-order">${s.order}</div>
+                <div class="flex-1">
+                  <div class="font-medium">${s.action} ${s.critical ? '<span class="pill pill-fail text-[9px] ml-1">Critical</span>' : ''}</div>
+                  <div class="text-[10px] mono mt-0.5" style="color: var(--text-dim);">${s.command}</div>
+                </div>
+                <div class="text-[11px] mono" style="color: var(--text-muted);">${s.duration}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Impact warning -->
+        <div class="p-3 rounded mb-4" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);">
+          <div class="flex items-start gap-2 text-xs">
+            <span style="color: var(--warning);">⚠</span>
+            <div>
+              <div class="font-medium mb-1">Impact</div>
+              <ul class="list-disc list-inside space-y-0.5" style="color: var(--text-muted);">
+                <li>~2 minutes of downtime during DB restore</li>
+                <li>All v2.4.1 data written in the last 45m will be lost</li>
+                <li>On-call team will be automatically notified</li>
+                <li>Incident will be logged in Audit Center</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);">
+          <button class="btn btn-ghost flex-1" onclick="closeRollbackModal()">Cancel</button>
+          <button class="btn btn-danger flex-1" onclick="confirmRollback()">↺ Confirm Rollback</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRollbackExecution() {
+  const app = document.getElementById('app');
+  let currentIdx = 0;
+  
+  function render() {
+    app.innerHTML = `
+      <div class="focus-overlay">
+        <div class="h-14 flex items-center px-5 gap-4" style="border-bottom: 1px solid var(--border); background: rgba(239,68,68,0.05);">
+          <span class="pill pill-fail">↺ Rollback in Progress</span>
+          <div class="flex-1">
+            <div class="font-semibold text-sm">Rollback — Release 2.4.1 → v2.4.0</div>
+            <div class="text-xs" style="color: var(--text-muted);">Initiated by ${state.user.name} · ${new Date().toLocaleTimeString()}</div>
+          </div>
+          <div class="text-right text-xs"><div class="font-semibold mono">${currentIdx}/${ROLLBACK_PLAN.length}</div><div style="color: var(--text-muted);">steps completed</div></div>
+        </div>
+        <div class="flex-1 overflow-y-auto scroll p-6">
+          <div class="max-w-3xl mx-auto space-y-3">
+            ${ROLLBACK_PLAN.map((s, i) => {
+              const isCurrent = i === currentIdx;
+              const isDone = i < currentIdx;
+              return `
+                <div class="card p-4 ${isCurrent ? 'deploy-step-card running' : isDone ? 'deploy-step-card completed' : 'deploy-step-card pending'}">
+                  <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isCurrent ? 'bg-rose-500 text-white' : ''}" style="${!isDone && !isCurrent ? 'background: var(--border); color: var(--text-dim);' : ''}">
+                      ${isDone ? '✓' : s.order}
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="font-medium text-sm">${s.action}</span>
+                        ${s.critical ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}
+                      </div>
+                      <div class="text-xs mono mt-1 p-2 rounded" style="background: var(--bg); color: var(--text-muted);">${s.command}</div>
+                      <div class="flex items-center gap-3 mt-2 text-xs">
+                        <span style="color: var(--text-muted);">Expected: ${s.duration}</span>
+                        ${isDone ? '<span style="color: var(--success);">✓ Completed</span>' : isCurrent ? '<span class="timer-display">Executing...</span>' : '<span style="color: var(--text-dim);">Pending</span>'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  render();
+  
+  // Auto-advance through rollback steps
+  const advanceInterval = setInterval(() => {
+    currentIdx++;
+    if (currentIdx >= ROLLBACK_PLAN.length) {
+      clearInterval(advanceInterval);
+      setTimeout(() => {
+        toast('✓ Rollback completed successfully — v2.4.0 restored', 'success', 5000);
+        state.focusMode = null;
+        state.deployExecution = null;
+        navigate('deployments');
+      }, 1500);
+      return;
+    }
+    render();
+  }, 2000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 4: TEMPLATE DIFF VIEWER
+// ═══════════════════════════════════════════════════════════════
+function openTemplateDiffViewer(templateId) {
+  const diff = TEMPLATE_DIFFS[templateId];
+  if (!diff) { toast('No diff available for this template', 'info'); return; }
+  state.diffViewer = { templateId, ...diff };
+  renderDiffViewer();
+}
+
+function closeDiffViewer() {
+  state.diffViewer = null;
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function renderDiffViewer() {
+  const d = state.diffViewer;
+  const template = TEMPLATES.find(t => t.id === d.templateId);
+  const addedCount = d.changes.filter(c => c.type === 'added').length;
+  const removedCount = d.changes.filter(c => c.type === 'removed').length;
+  const modifiedCount = d.changes.filter(c => c.type === 'modified').length;
+  
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="closeDiffViewer()">
+      <div class="modal-content" onclick="event.stopPropagation()" style="width: 900px;">
+        <div class="p-6" style="border-bottom: 1px solid var(--border);">
+          <div class="flex items-start justify-between">
+            <div>
+              <h2 class="text-lg font-semibold">${template.name}</h2>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="pill pill-pend mono">${d.v1}</span>
+                <span style="color: var(--text-dim);">→</span>
+                <span class="pill pill-run mono">${d.v2} (current)</span>
+              </div>
+            </div>
+            <button class="btn btn-ghost p-1" onclick="closeDiffViewer()">✕</button>
+          </div>
+          <div class="flex gap-4 mt-4 text-xs">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background: rgba(16,185,129,0.3); border-left: 3px solid var(--success);"></span>${addedCount} added</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background: rgba(239,68,68,0.3); border-left: 3px solid var(--danger);"></span>${removedCount} removed</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background: rgba(245,158,11,0.3); border-left: 3px solid var(--warning);"></span>${modifiedCount} modified</span>
+          </div>
+        </div>
+        <div class="p-4 max-h-[60vh] overflow-y-auto scroll" style="background: var(--bg);">
+          <div class="card overflow-hidden" style="background: var(--bg-elevated);">
+            ${d.changes.map(c => {
+              const symbol = c.type === 'added' ? '+' : c.type === 'removed' ? '−' : c.type === 'modified' ? '~' : ' ';
+              const symbolColor = c.type === 'added' ? 'var(--success)' : c.type === 'removed' ? 'var(--danger)' : c.type === 'modified' ? 'var(--warning)' : 'var(--text-dim)';
+              return `<div class="diff-line ${c.type}"><span class="line-num">${c.line || ''}</span><span style="color: ${symbolColor}; width: 16px; flex-shrink: 0; text-align: center;">${symbol}</span><span class="line-content">${c.content || '&nbsp;'}</span></div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="p-4" style="border-top: 1px solid var(--border); background: var(--bg);">
+          <div class="grid grid-cols-3 gap-3 text-xs mb-3">
+            <div><span style="color: var(--text-muted);">Approved by:</span> <strong>${d.approvedBy}</strong></div>
+            <div><span style="color: var(--text-muted);">Date:</span> <strong>${d.approvedAt}</strong></div>
+            <div><span style="color: var(--text-muted);">Reason:</span> <span>${d.reason}</span></div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-subtle flex-1 text-xs">📥 Export Diff</button>
+            <button class="btn btn-subtle flex-1 text-xs">🔗 Share Link</button>
+            <button class="btn btn-primary flex-1 text-xs" onclick="closeDiffViewer()">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 4: SUGGESTION SUBMISSION & DETAIL
+// ═══════════════════════════════════════════════════════════════
+function openSuggestionSubmission() {
+  state.suggestionSubmission = {
+    title: '', type: 'test', priority: 'medium',
+    context: '', reason: '', attachments: []
+  };
+  renderSuggestionSubmission();
+}
+
+function closeSuggestionSubmission() {
+  state.suggestionSubmission = null;
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function submitSuggestion() {
+  const s = state.suggestionSubmission;
+  if (!s.title.trim() || !s.reason.trim()) { toast('Title and reason are required', 'error'); return; }
+  SUGGESTIONS.unshift({
+    id: 's' + (SUGGESTIONS.length + 1),
+    title: s.title, type: s.type, priority: s.priority,
+    status: 'submitted', submitter: state.user.name,
+    time: 'just now', context: s.context || 'General',
+    reason: s.reason, attachments: s.attachments.length, comments: 0
+  });
+  closeSuggestionSubmission();
+  toast('✓ Suggestion submitted for review', 'success');
+  if (state.view === 'suggestions') renderSuggestions();
+}
+
+function renderSuggestionSubmission() {
+  const s = state.suggestionSubmission;
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="closeSuggestionSubmission()">
+      <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-lg font-semibold">Submit Suggestion</h2>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Propose an improvement to templates, tests, or processes</p>
+          </div>
+          <button class="btn btn-ghost p-1" onclick="closeSuggestionSubmission()">✕</button>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs block mb-1" style="color: var(--text-muted);">Title *</label>
+            <input value="${s.title}" oninput="state.suggestionSubmission.title = this.value" placeholder="Brief, descriptive title">
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-xs block mb-1" style="color: var(--text-muted);">Type</label>
+              <select onchange="state.suggestionSubmission.type = this.value">
+                <option value="test" ${s.type === 'test' ? 'selected' : ''}>Test Case</option>
+                <option value="deployment" ${s.type === 'deployment' ? 'selected' : ''}>Deployment Step</option>
+                <option value="process" ${s.type === 'process' ? 'selected' : ''}>Process</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs block mb-1" style="color: var(--text-muted);">Priority</label>
+              <select onchange="state.suggestionSubmission.priority = this.value">
+                <option value="low" ${s.priority === 'low' ? 'selected' : ''}>Low</option>
+                <option value="medium" ${s.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                <option value="high" ${s.priority === 'high' ? 'selected' : ''}>High</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs block mb-1" style="color: var(--text-muted);">Context</label>
+              <input value="${s.context}" oninput="state.suggestionSubmission.context = this.value" placeholder="e.g. Sprint 24">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs block mb-1" style="color: var(--text-muted);">Justification *</label>
+            <textarea rows="4" oninput="state.suggestionSubmission.reason = this.value" placeholder="Why should this change be made? Include evidence, impact, or past incidents.">${s.reason}</textarea>
+          </div>
+          <div>
+            <label class="text-xs block mb-1" style="color: var(--text-muted);">Attachments</label>
+            <div class="drop-zone" style="padding: 16px;" onclick="toast('File picker would open here', 'info')">
+              <div class="text-xs">📎 Drop files or click to upload evidence, screenshots, logs</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-5 pt-4" style="border-top: 1px solid var(--border);">
+          <button class="btn btn-ghost flex-1" onclick="closeSuggestionSubmission()">Cancel</button>
+          <button class="btn btn-primary flex-1" onclick="submitSuggestion()">Submit for Review</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openSuggestionDetail(id) {
+  state.suggestionDetail = SUGGESTIONS.find(s => s.id === id);
+  renderSuggestionDetail();
+}
+
+function closeSuggestionDetail() {
+  state.suggestionDetail = null;
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function approveSuggestion(id, applyType) {
+  const s = SUGGESTIONS.find(x => x.id === id);
+  if (!s) return;
+  s.status = 'approved';
+  s.approvedBy = state.user.name;
+  s.approvedAt = 'just now';
+  s.appliedTo = applyType === 'master' ? 'v3.3' : 'current run';
+  closeSuggestionDetail();
+  toast(`✓ Suggestion ${applyType === 'master' ? 'merged to master template' : 'applied to current run'}`, 'success');
+  renderSuggestions();
+}
+
+function rejectSuggestion(id) {
+  const s = SUGGESTIONS.find(x => x.id === id);
+  if (!s) return;
+  s.status = 'rejected';
+  closeSuggestionDetail();
+  toast('✕ Suggestion rejected', 'info');
+  renderSuggestions();
+}
+
+function renderSuggestionDetail() {
+  const s = state.suggestionDetail;
+  if (!s) return;
+  const statusFlow = ['submitted', 'under_review', 'approved'];
+  const currentIdx = s.status === 'submitted' ? 0 : s.status === 'under_review' ? 1 : s.status === 'approved' ? 2 : -1;
+  
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="closeSuggestionDetail()">
+      <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              <span class="pill ${s.priority === 'high' ? 'pill-fail' : s.priority === 'medium' ? 'pill-block' : 'pill-pend'}">● ${s.priority}</span>
+              <span class="pill pill-info">${s.type}</span>
+              <span class="pill ${s.status === 'approved' ? 'pill-pass' : s.status === 'rejected' ? 'pill-fail' : 'pill-run'}">● ${s.status.replace('_', ' ')}</span>
+            </div>
+            <h2 class="text-lg font-semibold">${s.title}</h2>
+            <div class="text-xs mt-1 flex items-center gap-2 flex-wrap" style="color: var(--text-muted);">
+              <span class="font-medium" style="color: var(--text);">${s.submitter}</span>
+              <span>·</span>
+              <span>${s.time}</span>
+              <span>·</span>
+              <span class="mono">${s.context}</span>
+            </div>
+          </div>
+          <button class="btn btn-ghost p-1" onclick="closeSuggestionDetail()">✕</button>
+        </div>
+
+        <!-- Status flow visualization -->
+        <div class="suggestion-status-flow mb-4">
+          ${statusFlow.map((st, i) => `
+            <div class="status-dot ${i < currentIdx ? 'completed' : i === currentIdx ? 'active' : ''}">${i < currentIdx ? '✓' : i + 1}</div>
+            <span class="text-[10px] ${i === currentIdx ? '' : 'opacity-50'}" style="${i < currentIdx ? 'color: var(--success);' : i === currentIdx ? 'color: var(--accent);' : 'color: var(--text-dim);'}">${st.replace('_', ' ')}</span>
+            ${i < statusFlow.length - 1 ? `<div class="status-line ${i < currentIdx ? 'completed' : ''}"></div>` : ''}
+          `).join('')}
+        </div>
+
+        <!-- Reason -->
+        <div class="card p-4 mb-4" style="background: var(--bg);">
+          <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Justification</h3>
+          <p class="text-sm leading-relaxed">${s.reason}</p>
+        </div>
+
+        <!-- Meta -->
+        <div class="grid grid-cols-3 gap-3 mb-4 text-xs">
+          <div class="p-3 rounded" style="background: var(--bg-hover);">
+            <div class="text-[10px] uppercase mb-1" style="color: var(--text-muted);">Attachments</div>
+            <div class="font-semibold">📎 ${s.attachments || 0} files</div>
+          </div>
+          <div class="p-3 rounded" style="background: var(--bg-hover);">
+            <div class="text-[10px] uppercase mb-1" style="color: var(--text-muted);">Comments</div>
+            <div class="font-semibold">💬 ${s.comments || 0}</div>
+          </div>
+          <div class="p-3 rounded" style="background: var(--bg-hover);">
+            <div class="text-[10px] uppercase mb-1" style="color: var(--text-muted);">${s.status === 'approved' ? 'Merged into' : 'Target'}</div>
+            <div class="font-semibold">${s.appliedTo || 'Template v3.3'}</div>
+          </div>
+        </div>
+
+        ${s.status === 'approved' ? `
+          <div class="p-3 rounded text-xs" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);">
+            <div class="flex items-center gap-2 mb-1" style="color: var(--success);"><strong>✓ Approved by ${s.approvedBy}</strong></div>
+            <div style="color: var(--text-muted);">${s.approvedAt} · Applied to ${s.appliedTo}</div>
+          </div>
+        ` : s.status !== 'rejected' ? `
+          <div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);">
+            <button class="btn btn-success flex-1 text-xs" onclick="approveSuggestion('${s.id}', 'master')">✓ Approve & Merge to Master</button>
+            <button class="btn btn-subtle flex-1 text-xs" onclick="approveSuggestion('${s.id}', 'run')">▶ Apply to Current Run</button>
+            <button class="btn btn-ghost flex-1 text-xs">💬 Discuss</button>
+            <button class="btn btn-ghost text-xs" style="color: var(--danger);" onclick="rejectSuggestion('${s.id}')">✕ Reject</button>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FOCUS MODE (Test + Deploy)
 // ═══════════════════════════════════════════════════════════════
 function openTestFocusMode(startIdx = 0) {
   state.focusMode = { type: 'test', items: JSON.parse(JSON.stringify(state.testCases)), currentIdx: startIdx };
   renderFocusMode();
   toast('Focus Mode — P/F/B to mark, ↓/↑ navigate, ESC exit', 'info', 4000);
 }
-function openDeployFocusMode() {
-  state.focusMode = { type: 'deploy', items: JSON.parse(JSON.stringify(DEPLOY_STEPS)), currentIdx: 5 };
-  renderFocusMode();
-}
 function closeFocusMode() {
-  // Sync status changes back
+  stopAllTimers();
   if (state.focusMode && state.focusMode.type === 'test') {
     state.focusMode.items.forEach(fmItem => {
       const original = state.testCases.find(t => t.id === fmItem.id);
@@ -796,7 +1337,7 @@ function markCurrentTest(status) {
   setTimeout(() => { if (state.focusMode.currentIdx < state.focusMode.items.length - 1) { state.focusMode.currentIdx++; renderFocusMode(); } }, 400);
 }
 function moveFocusItem(dir) {
-  if (!state.focusMode) return;
+  if (!state.focusMode || state.focusMode.type !== 'test') return;
   const n = state.focusMode.currentIdx + dir;
   if (n >= 0 && n < state.focusMode.items.length) { state.focusMode.currentIdx = n; renderFocusMode(); }
 }
@@ -804,125 +1345,213 @@ function renderFocusMode() {
   const fm = state.focusMode;
   if (!fm) return;
   const app = document.getElementById('app');
-  if (fm.type === 'test') {
-    const c = fm.items[fm.currentIdx];
-    const stats = { passed: fm.items.filter(i => i.status === 'passed').length, failed: fm.items.filter(i => i.status === 'failed').length, blocked: fm.items.filter(i => i.status === 'blocked').length, total: fm.items.length };
-    const evidence = state.evidencePerTest[c.id] || [];
-    const comments = state.commentsPerTest[c.id] || [];
+  
+  if (fm.type === 'rollback') {
+    renderRollbackExecution();
+    return;
+  }
+  
+  if (fm.type === 'deploy') {
+    const de = state.deployExecution;
+    if (!de) { state.focusMode = null; navigate('deployments'); return; }
+    const totalSteps = de.steps.length;
+    const progress = (de.completed / totalSteps) * 100;
+    const overallElapsed = Math.floor((Date.now() - de.startTime - de.totalPausedTime) / 1000);
+    
     app.innerHTML = `
       <div class="focus-overlay">
-        <div class="h-14 flex items-center px-5 gap-4" style="border-bottom: 1px solid var(--border);">
-          <button class="btn btn-ghost" onclick="closeFocusMode()">← Exit</button>
-          <div class="flex-1 flex items-center gap-2"><span class="pill pill-run">● Running</span><span class="font-semibold text-sm">Sprint 24 — Regression</span></div>
-          <div class="flex items-center gap-4 text-xs mono">
-            <span style="color: var(--success);">✓ ${stats.passed}</span>
-            <span style="color: var(--danger);">✕ ${stats.failed}</span>
-            <span style="color: var(--warning);">⊘ ${stats.blocked}</span>
-            <span style="color: var(--text-dim);">${fm.currentIdx + 1}/${stats.total}</span>
+        <div class="h-14 flex items-center px-5 gap-4 flex-wrap" style="border-bottom: 1px solid var(--border);">
+          <button class="btn btn-ghost" onclick="if(confirm('Exit deployment? Progress will be paused.')) closeFocusMode()">← Exit</button>
+          <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+            <span class="pill ${de.paused ? 'pill-block' : 'pill-run'}">● ${de.paused ? 'Paused' : 'Running'}</span>
+            <span class="font-semibold text-sm">${de.name}</span>
+            <span class="text-xs mono" style="color: var(--text-dim);">template ${de.template}</span>
+            <span class="pill pill-info">🔒 Locked snapshot</span>
           </div>
-          <div class="flex items-center gap-2 text-xs" style="color: var(--text-muted);">
-            <kbd class="kbd">P</kbd> pass <kbd class="kbd">F</kbd> fail <kbd class="kbd">B</kbd> block <kbd class="kbd">↓</kbd> next
+          <div class="flex items-center gap-3">
+            <div class="text-right text-xs">
+              <div class="font-semibold mono">${de.completed}/${totalSteps} steps</div>
+              <div style="color: var(--text-muted);">Total: ${formatElapsed(overallElapsed)}</div>
+            </div>
+            <div class="w-32">
+              <div class="progress-bar"><div style="background: var(--accent); width: ${progress}%;"></div></div>
+              <div class="text-[10px] mono mt-0.5" style="color: var(--text-muted);">${Math.round(progress)}%</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            ${de.paused ? `<button class="btn btn-success text-xs" onclick="resumeDeploymentExecution()">▶ Resume</button>` : `<button class="btn btn-subtle text-xs" onclick="pauseDeploymentExecution()">⏸ Pause</button>`}
+            <button class="btn btn-danger text-xs" onclick="openRollbackModal()">↺ Rollback</button>
           </div>
         </div>
         <div class="flex-1 flex overflow-hidden">
-          <!-- LEFT: Test list -->
-          <div class="w-72 flex flex-col" style="border-right: 1px solid var(--border);">
-            <div class="flex-1 overflow-y-auto scroll">
-              ${fm.items.map((tc, i) => `<div class="px-3 py-2 cursor-pointer" style="border-bottom: 1px solid var(--border); ${i === fm.currentIdx ? 'background: var(--bg-hover); border-left: 3px solid var(--accent);' : ''}" onclick="state.focusMode.currentIdx = ${i}; renderFocusMode()"><div class="flex items-center gap-2 mb-0.5"><span style="color: ${tc.status === 'passed' ? 'var(--success)' : tc.status === 'failed' ? 'var(--danger)' : tc.status === 'blocked' ? 'var(--warning)' : 'var(--text-dim)'};">${tc.status === 'passed' ? '✓' : tc.status === 'failed' ? '✕' : tc.status === 'blocked' ? '⊘' : '○'}</span><span class="mono text-xs" style="color: var(--text-dim);">${tc.id}</span></div><div class="text-sm ${i === fm.currentIdx ? '' : 'opacity-70'}">${tc.name}</div></div>`).join('')}
-            </div>
-          </div>
-          <!-- CENTER: Current test -->
+          <!-- Steps list -->
           <div class="flex-1 overflow-y-auto scroll p-6">
-            <div class="max-w-2xl mx-auto">
-              <div class="flex items-center gap-2 mb-1"><span class="mono text-xs" style="color: var(--text-dim);">${c.id}</span><span class="pill ${c.status === 'passed' ? 'pill-pass' : c.status === 'failed' ? 'pill-fail' : c.status === 'blocked' ? 'pill-block' : 'pill-pend'}">${c.status}</span></div>
-              <h1 class="text-2xl font-semibold mb-2">${c.name}</h1>
-              <p class="text-sm mb-6" style="color: var(--text-muted);">${c.desc}</p>
-              <div class="card p-4 mb-4">
-                <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Test Steps</h3>
-                <ol class="space-y-1 text-sm">
-                  <li class="flex gap-3"><span class="mono" style="color: var(--text-dim);">1.</span><span>Navigate to login page</span></li>
-                  <li class="flex gap-3"><span class="mono" style="color: var(--text-dim);">2.</span><span>Enter credentials</span></li>
-                  <li class="flex gap-3"><span class="mono" style="color: var(--text-dim);">3.</span><span>Click login</span></li>
-                  <li class="flex gap-3"><span class="mono" style="color: var(--text-dim);">4.</span><span>Verify redirect to dashboard</span></li>
-                </ol>
-              </div>
-              <div class="grid grid-cols-3 gap-2 mb-4">
-                <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--success);" onclick="markCurrentTest('passed')">✓ Pass <kbd class="kbd ml-2" style="background: rgba(255,255,255,0.2); color: white; border: none;">P</kbd></button>
-                <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--danger);" onclick="markCurrentTest('failed')">✕ Fail <kbd class="kbd ml-2" style="background: rgba(255,255,255,0.2); color: white; border: none;">F</kbd></button>
-                <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--warning);" onclick="markCurrentTest('blocked')">⊘ Block <kbd class="kbd ml-2" style="background: rgba(255,255,255,0.2); color: white; border: none;">B</kbd></button>
-              </div>
-              <div class="card p-4">
-                <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Notes</h3>
-                <textarea rows="3" placeholder="Add observation..." id="focus-notes"></textarea>
-                <button class="btn btn-subtle text-xs mt-2" onclick="addComment('${c.id}'); document.getElementById('focus-notes').value = document.getElementById('comment-input-${c.id}').value = document.getElementById('focus-notes').value;">Save Note</button>
-                <textarea id="comment-input-${c.id}" style="display:none"></textarea>
-              </div>
+            <div class="max-w-3xl mx-auto space-y-2">
+              ${de.steps.map((s, i) => {
+                const isCurrent = i === de.currentIdx && s.status === 'running';
+                const isDone = s.status === 'completed';
+                const isPending = s.status === 'pending' || s.status === 'running' && i !== de.currentIdx;
+                const elapsed = de.elapsedPerStep[i];
+                return `
+                  <div class="deploy-step-card card p-4 ${isCurrent ? 'running' : isDone ? 'completed' : 'pending'}" style="cursor: ${isCurrent ? 'pointer' : 'default'};" ${isCurrent && s.gate ? `onclick="openApprovalModal(${i})"` : ''}>
+                    <div class="flex items-start gap-3">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isCurrent ? 'bg-indigo-500 text-white' : ''}" style="${isPending ? 'background: var(--border); color: var(--text-dim);' : ''}">
+                        ${isDone ? '✓' : isCurrent && !s.gate ? '<div class="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>' : isCurrent && s.gate ? '🛡' : s.id}
+                      </div>
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="font-semibold text-sm">Step ${s.id}: ${s.name}</span>
+                          ${s.crit ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}
+                          ${s.gate ? '<span class="pill pill-block text-[10px]">🛡 Approval Gate</span>' : ''}
+                        </div>
+                        <div class="text-xs mb-2" style="color: var(--text-muted);">${s.desc}</div>
+                        ${s.command ? `<div class="text-[11px] mono p-2 rounded mb-2" style="background: var(--bg); color: var(--text-muted);">$ ${s.command}</div>` : ''}
+                        <div class="flex items-center gap-3 text-xs flex-wrap">
+                          ${s.expectedDur !== null ? `<span style="color: var(--text-muted);">Expected: ${formatElapsed(s.expectedDur)}</span>` : ''}
+                          ${isDone ? `<span style="color: var(--success);">✓ ${s.dur}</span>` : ''}
+                          ${isCurrent && !s.gate ? `<span class="timer-display" id="step-timer-${i}">${elapsed ? formatElapsed(elapsed) : '0m 00s'}</span>` : ''}
+                          ${isCurrent && s.gate ? `<button class="btn btn-primary text-xs" onclick="openApprovalModal(${i})">Review & Approve →</button>` : ''}
+                          ${isPending ? `<span style="color: var(--text-dim);">Pending</span>` : ''}
+                        </div>
+                      </div>
+                      ${isCurrent && !s.gate ? `
+                        <div class="flex flex-col gap-1">
+                          <button class="btn btn-success text-xs" onclick="completeCurrentStep()">✓ Complete</button>
+                          <button class="btn btn-danger text-xs" onclick="failCurrentStep()">✕ Fail</button>
+                        </div>
+                      ` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
           </div>
-          <!-- RIGHT: Evidence panel -->
-          <div class="w-80 flex flex-col" style="border-left: 1px solid var(--border);">
-            <div class="p-4 flex-1 overflow-y-auto scroll">
-              <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Evidence (${evidence.length})</h3>
-              <div class="drop-zone mb-4" id="focus-drop-zone" onclick="document.getElementById('focus-file-input').click()" ondragover="event.preventDefault(); this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="event.preventDefault(); this.classList.remove('dragging'); handleEvidenceUpload('${c.id}', event.dataTransfer.files)">
-                <div class="text-2xl mb-1">📎</div>
-                <div class="text-xs font-medium">Drop files here or click to upload</div>
-                <div class="text-[10px] mt-1" style="color: var(--text-dim);">Screenshots, logs, docs</div>
-                <input type="file" id="focus-file-input" multiple style="display:none" onchange="handleEvidenceUpload('${c.id}', this.files)">
-              </div>
-              ${evidence.length === 0 ? '<div class="text-center text-xs py-4" style="color: var(--text-dim);">No evidence uploaded yet</div>' : evidence.map((e, i) => `
-                <div class="evidence-item">
-                  <span style="color: var(--text-muted);">${icons.file}</span>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-medium truncate">${e.name}</div>
-                    <div class="hash-display">sha256: ${e.hash.substring(0, 16)}…</div>
-                    <div class="text-[10px] mt-0.5" style="color: var(--text-dim);">${formatSize(e.size)} · ${e.verified ? '<span style="color: var(--success);">✓ verified</span>' : '<span style="color: var(--warning);">⏳ pending</span>'}</div>
-                  </div>
-                  <button onclick="removeEvidence('${c.id}', ${i})" style="color: var(--danger); background: transparent; border: none; cursor: pointer;">✕</button>
+          <!-- Right panel: Metrics & Activity -->
+          <div class="w-80 flex flex-col overflow-y-auto scroll" style="border-left: 1px solid var(--border);">
+            <div class="p-4" style="border-bottom: 1px solid var(--border);">
+              <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Live Metrics</h3>
+              <div class="space-y-2">
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
+                  <span>Error Rate</span><span class="mono font-semibold" style="color: var(--success);">0.02%</span>
                 </div>
-              `).join('')}
-              <h3 class="text-xs uppercase font-semibold mb-3 mt-4" style="color: var(--text-muted);">Execution Info</h3>
-              <div class="space-y-2 text-xs">
-                <div class="flex justify-between"><span style="color: var(--text-muted);">Started</span><span class="mono">09:14:22</span></div>
-                <div class="flex justify-between"><span style="color: var(--text-muted);">Elapsed</span><span class="mono">47m</span></div>
-                <div class="flex justify-between"><span style="color: var(--text-muted);">Progress</span><span class="mono">${Math.round((stats.passed + stats.failed + stats.blocked) / stats.total * 100)}%</span></div>
-                <div class="flex justify-between"><span style="color: var(--text-muted);">Template</span><span class="mono">v5.0 (locked)</span></div>
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
+                  <span>p95 Latency</span><span class="mono font-semibold" style="color: var(--success);">142ms</span>
+                </div>
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
+                  <span>CPU Usage</span><span class="mono font-semibold">34%</span>
+                </div>
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
+                  <span>Memory</span><span class="mono font-semibold">2.1 GB</span>
+                </div>
               </div>
-              <h3 class="text-xs uppercase font-semibold mb-3 mt-4" style="color: var(--text-muted);">Comments (${comments.length})</h3>
-              ${comments.length === 0 ? '<div class="text-xs" style="color: var(--text-dim);">No comments yet</div>' : comments.map(cm => `<div class="comment-item"><div class="text-[10px] mb-1" style="color: var(--text-dim);">${cm.author} · ${cm.time}</div><div>${cm.text}</div></div>`).join('')}
+            </div>
+            <div class="p-4" style="border-bottom: 1px solid var(--border);">
+              <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Evidence (4)</h3>
+              <div class="space-y-2">
+                ${['health-check.log', 'smoke-tests.json', 'metrics.png', 'rollback.pdf'].map(f => `
+                  <div class="evidence-item">
+                    <span style="color: var(--text-muted);">${icons.file}</span>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-xs font-medium truncate">${f}</div>
+                      <div class="text-[10px] mono" style="color: var(--text-dim);">sha256: a3f9…</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <div class="p-4 flex-1">
+              <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Activity Log</h3>
+              <div class="space-y-2 text-xs">
+                ${de.steps.filter(s => s.status === 'completed').reverse().slice(0, 5).map(s => `
+                  <div class="flex items-start gap-2 py-1">
+                    <span class="mono" style="color: var(--text-dim);">${s.dur}</span>
+                    <div class="flex-1">
+                      <div style="color: var(--success);">✓ ${s.name}</div>
+                      <div style="color: var(--text-dim);">${state.user.name}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
             </div>
           </div>
         </div>
       </div>
     `;
-  } else {
-    const current = fm.items[fm.currentIdx];
-    const completed = fm.items.filter(i => i.status === 'completed').length;
-    app.innerHTML = `
-      <div class="focus-overlay">
-        <div class="h-14 flex items-center px-5 gap-4" style="border-bottom: 1px solid var(--border);">
-          <button class="btn btn-ghost" onclick="closeFocusMode()">← Exit</button>
-          <div class="flex-1 flex items-center gap-2"><span class="pill pill-run">● Running</span><span class="font-semibold text-sm">Release 2.4.1 — Production</span></div>
-          <div class="text-right text-xs"><div class="font-semibold mono">${completed}/${fm.items.length}</div></div>
-          <button class="btn btn-danger" onclick="if(confirm('Rollback?')) toast('Rollback initiated', 'error')">↺ Rollback</button>
+    return;
+  }
+  
+  // Test focus mode
+  const c = fm.items[fm.currentIdx];
+  const stats = { passed: fm.items.filter(i => i.status === 'passed').length, failed: fm.items.filter(i => i.status === 'failed').length, blocked: fm.items.filter(i => i.status === 'blocked').length, total: fm.items.length };
+  const evidence = state.evidencePerTest[c.id] || [];
+  app.innerHTML = `
+    <div class="focus-overlay">
+      <div class="h-14 flex items-center px-5 gap-4 flex-wrap" style="border-bottom: 1px solid var(--border);">
+        <button class="btn btn-ghost" onclick="closeFocusMode()">← Exit</button>
+        <div class="flex-1 min-w-0 flex items-center gap-2"><span class="pill pill-run">● Running</span><span class="font-semibold text-sm">Sprint 24 — Regression</span></div>
+        <div class="flex items-center gap-4 text-xs mono">
+          <span style="color: var(--success);">✓ ${stats.passed}</span>
+          <span style="color: var(--danger);">✕ ${stats.failed}</span>
+          <span style="color: var(--warning);">⊘ ${stats.blocked}</span>
+          <span style="color: var(--text-dim);">${fm.currentIdx + 1}/${stats.total}</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs" style="color: var(--text-muted);"><kbd class="kbd">P</kbd><kbd class="kbd">F</kbd><kbd class="kbd">B</kbd><kbd class="kbd">↓</kbd></div>
+      </div>
+      <div class="flex-1 flex overflow-hidden">
+        <div class="w-72 flex flex-col" style="border-right: 1px solid var(--border);">
+          <div class="flex-1 overflow-y-auto scroll">
+            ${fm.items.map((tc, i) => `<div class="px-3 py-2 cursor-pointer" style="border-bottom: 1px solid var(--border); ${i === fm.currentIdx ? 'background: var(--bg-hover); border-left: 3px solid var(--accent);' : ''}" onclick="state.focusMode.currentIdx = ${i}; renderFocusMode()"><div class="flex items-center gap-2 mb-0.5"><span style="color: ${tc.status === 'passed' ? 'var(--success)' : tc.status === 'failed' ? 'var(--danger)' : tc.status === 'blocked' ? 'var(--warning)' : 'var(--text-dim)'};">${tc.status === 'passed' ? '✓' : tc.status === 'failed' ? '✕' : tc.status === 'blocked' ? '⊘' : '○'}</span><span class="mono text-xs" style="color: var(--text-dim);">${tc.id}</span></div><div class="text-sm ${i === fm.currentIdx ? '' : 'opacity-70'}">${tc.name}</div></div>`).join('')}
+          </div>
         </div>
         <div class="flex-1 overflow-y-auto scroll p-6">
-          <div class="max-w-3xl mx-auto space-y-2">
-            ${fm.items.map((s, i) => `<div class="card p-4" style="${s.status === 'running' ? 'border-color: var(--accent);' : ''}" onclick="state.focusMode.currentIdx = ${i}; renderFocusMode()"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${s.status === 'completed' ? 'bg-emerald-500 text-white' : s.status === 'running' ? 'bg-indigo-500 text-white' : ''}" style="${s.status === 'pending' ? 'background: var(--border); color: var(--text-dim);' : ''}">${s.status === 'completed' ? '✓' : s.status === 'running' ? '⏳' : s.id}</div><div class="flex-1"><div class="flex items-center gap-2 text-sm font-medium">${s.name} ${s.crit ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}</div><div class="text-xs mt-0.5 mono" style="color: var(--text-muted);">${s.dur} · ${s.status}</div></div></div></div>`).join('')}
+          <div class="max-w-2xl mx-auto">
+            <div class="flex items-center gap-2 mb-1"><span class="mono text-xs" style="color: var(--text-dim);">${c.id}</span><span class="pill ${c.status === 'passed' ? 'pill-pass' : c.status === 'failed' ? 'pill-fail' : c.status === 'blocked' ? 'pill-block' : 'pill-pend'}">${c.status}</span></div>
+            <h1 class="text-2xl font-semibold mb-2">${c.name}</h1>
+            <p class="text-sm mb-6" style="color: var(--text-muted);">${c.desc}</p>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+              <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--success);" onclick="markCurrentTest('passed')">✓ Pass</button>
+              <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--danger);" onclick="markCurrentTest('failed')">✕ Fail</button>
+              <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--warning);" onclick="markCurrentTest('blocked')">⊘ Block</button>
+            </div>
+            <div class="card p-4">
+              <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Notes</h3>
+              <textarea rows="3" placeholder="Add observation..." id="focus-notes"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="w-80 flex flex-col overflow-y-auto scroll" style="border-left: 1px solid var(--border);">
+          <div class="p-4">
+            <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Evidence (${evidence.length})</h3>
+            <div class="drop-zone mb-4" style="padding: 16px;" onclick="document.getElementById('focus-file-input').click()" ondragover="event.preventDefault(); this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="event.preventDefault(); this.classList.remove('dragging'); handleEvidenceUpload('${c.id}', event.dataTransfer.files)">
+              <div class="text-xs">📎 Drop files or click</div>
+              <input type="file" id="focus-file-input" multiple style="display:none" onchange="handleEvidenceUpload('${c.id}', this.files)">
+            </div>
+            ${evidence.map((e, i) => `<div class="evidence-item"><span style="color: var(--text-muted);">${icons.file}</span><div class="flex-1 min-w-0"><div class="text-xs font-medium truncate">${e.name}</div><div class="hash-display">sha256: ${e.hash.substring(0, 16)}…</div></div><button onclick="removeEvidence('${c.id}', ${i})" style="color: var(--danger); background: transparent; border: none; cursor: pointer;">✕</button></div>`).join('')}
+            <h3 class="text-xs uppercase font-semibold mb-3 mt-4" style="color: var(--text-muted);">Execution Info</h3>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between"><span style="color: var(--text-muted);">Started</span><span class="mono">09:14:22</span></div>
+              <div class="flex justify-between"><span style="color: var(--text-muted);">Progress</span><span class="mono">${Math.round((stats.passed + stats.failed + stats.blocked) / stats.total * 100)}%</span></div>
+              <div class="flex justify-between"><span style="color: var(--text-muted);">Template</span><span class="mono">v5.0 (locked)</span></div>
+            </div>
           </div>
         </div>
       </div>
-    `;
-  }
+    </div>
+  `;
 }
 
-// Global shortcuts
 document.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); if (state.cmdPaletteOpen) closeCommandPalette(); else openCommandPalette(); }
   if (e.key === 'Escape') {
     if (state.cmdPaletteOpen) closeCommandPalette();
     else if (state.editingTestCase) closeTestCaseEditor();
+    else if (state.approvalModal) closeApprovalModal();
+    else if (state.rollbackModal) closeRollbackModal();
+    else if (state.diffViewer) closeDiffViewer();
+    else if (state.suggestionSubmission) closeSuggestionSubmission();
+    else if (state.suggestionDetail) closeSuggestionDetail();
     else if (state.showTreeAddMenu) { state.showTreeAddMenu = null; renderTesting(); }
-    else if (state.focusMode) closeFocusMode();
+    else if (state.focusMode && state.focusMode.type !== 'rollback') closeFocusMode();
   }
   if (state.focusMode && state.focusMode.type === 'test') {
     const tag = document.activeElement.tagName;
@@ -952,7 +1581,7 @@ function attachEvents() {
     const action = t.dataset.action, val = t.dataset.value;
     if (action === 'nav') navigate(val);
     if (action === 'login') handleLogin(val);
-    if (action === 'logout') { state.user = null; navigate('login'); toast('Signed out', 'info'); }
+    if (action === 'logout') { state.user = null; stopAllTimers(); navigate('login'); toast('Signed out', 'info'); }
     if (action === 'tab') { state.dashboardTab = val; navigate('dashboard'); }
     if (action === 'template-modal') { state.selectedTemplate = TEMPLATES.find(x => x.id === val); renderTemplates(); }
     if (action === 'close-modal') { state.selectedTemplate = null; renderTemplates(); }
@@ -960,9 +1589,11 @@ function attachEvents() {
     if (action === 'theme-toggle') toggleTheme();
     if (action === 'open-cmd') openCommandPalette();
     if (action === 'open-test-focus') openTestFocusMode();
-    if (action === 'open-deploy-focus') openDeployFocusMode();
+    if (action === 'open-deploy-focus') startDeploymentExecution();
+    if (action === 'open-diff-viewer') openTemplateDiffViewer(val);
+    if (action === 'submit-suggestion') openSuggestionSubmission();
+    if (action === 'open-suggestion-detail') openSuggestionDetail(val);
     if (action === 'export-csv') exportCSV();
-    if (action === 'export-pdf') exportPDF();
     if (action === 'date-range') { state.dateRange = val; navigate(state.view); }
     if (action === 'toggle-select-all') toggleSelectAll();
     if (action === 'toggle-test-select') toggleTestSelection(val, e);
@@ -971,16 +1602,14 @@ function attachEvents() {
     if (action === 'bulk-block') bulkMarkStatus('blocked');
     if (action === 'bulk-clear') { state.selectedTests.clear(); renderTesting(); }
     if (action === 'expand-test') { state.expandedTest = state.expandedTest === val ? null : val; renderTesting(); }
-    if (action === 'edit-test') { const tc = state.testCases.find(t => t.id === val); openTestCaseEditor(tc); }
     if (action === 'new-test') openTestCaseEditor();
     if (action === 'add-comment') addComment(val);
   };
   app.onsubmit = e => { if (e.target.id === 'loginForm') { e.preventDefault(); handleLogin('manager'); } };
 }
 function navigate(view) {
-  if (state.focusMode) closeFocusMode();
+  if (state.focusMode && state.focusMode.type !== 'rollback') closeFocusMode();
   state.view = view;
-  // Reset testing-specific UI when leaving
   if (view !== 'testing') { state.selectedTests.clear(); state.expandedTest = null; state.showTreeAddMenu = null; }
   const views = { login: renderLogin, dashboard: renderDashboard, mywork: renderMyWork, projects: renderProjects, testing: renderTesting, deployments: renderDeployments, templates: renderTemplates, suggestions: renderSuggestions, audit: renderAudit, reports: renderReports, settings: renderSettings };
   (views[view] || renderDashboard)();
@@ -988,10 +1617,9 @@ function navigate(view) {
 }
 function handleLogin(role) {
   state.user = USERS[role] || USERS.manager;
-  // Initialize test cases & hierarchy on first login
   if (!state.testCases.length) state.testCases = JSON.parse(JSON.stringify(INITIAL_TEST_CASES));
   if (!state.hierarchy) state.hierarchy = JSON.parse(JSON.stringify(INITIAL_HIERARCHY));
-  const home = { manager: 'dashboard', tester: 'testing', engineer: 'mywork', auditor: 'audit' }[role];
+  const home = { manager: 'dashboard', tester: 'testing', engineer: 'deployments', auditor: 'audit' }[role];
   toast(`Welcome, ${state.user.name.split(' ')[0]}!`, 'success');
   navigate(home || 'dashboard');
 }
@@ -1001,9 +1629,6 @@ function renderDatePicker() {
   return `<div class="date-picker">${ranges.map(r => `<button data-action="date-range" data-value="${r.id}" class="${state.dateRange === r.id ? 'active' : ''}">${r.label}</button>`).join('')}</div>`;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SHELL
-// ═══════════════════════════════════════════════════════════════
 function shell(content) {
   const u = state.user;
   const nav = [
@@ -1013,11 +1638,13 @@ function shell(content) {
     { id: 'testing', label: 'Testing', icon: 'vial' },
     { id: 'deployments', label: 'Deployments', icon: 'rocket' },
     { id: 'templates', label: 'Templates', icon: 'file' },
-    { id: 'suggestions', label: 'Suggestions', icon: 'lightbulb', badge: 5 },
+    { id: 'suggestions', label: 'Suggestions', icon: 'lightbulb', badge: SUGGESTIONS.filter(s=>s.status!=='approved'&&s.status!=='rejected').length },
     { id: 'audit', label: 'Audit Center', icon: 'shield' },
     { id: 'reports', label: 'Reports', icon: 'chart' },
     { id: 'settings', label: 'Settings', icon: 'settings' }
   ];
+  // Role-specific nav filtering (for auditor, show only audit + reports)
+  const filteredNav = state.user.role === 'auditor' ? nav.filter(n => ['audit','reports','dashboard','settings'].includes(n.id)) : nav;
   return `
     <div class="flex h-screen">
       <aside class="w-60 flex flex-col" style="border-right: 1px solid var(--border);">
@@ -1026,7 +1653,7 @@ function shell(content) {
           <div class="font-semibold text-sm">SENTRA</div>
         </div>
         <nav class="flex-1 overflow-y-auto scroll py-2 space-y-0.5">
-          ${nav.map(n => `<div data-action="nav" data-value="${n.id}" class="nav-item ${state.view === n.id ? 'active' : ''}"><span class="nav-icon">${icons[n.icon]}</span><span class="flex-1">${n.label}</span>${n.badge ? `<span class="pill pill-run">${n.badge}</span>` : ''}</div>`).join('')}
+          ${filteredNav.map(n => `<div data-action="nav" data-value="${n.id}" class="nav-item ${state.view === n.id ? 'active' : ''}"><span class="nav-icon">${icons[n.icon]}</span><span class="flex-1">${n.label}</span>${n.badge ? `<span class="pill pill-run">${n.badge}</span>` : ''}</div>`).join('')}
         </nav>
         <div class="p-3 flex items-center gap-2" style="border-top: 1px solid var(--border);">
           <div class="w-7 h-7 rounded-full ${u.color} flex items-center justify-center text-[10px] font-bold text-white">${u.initials}</div>
@@ -1073,9 +1700,9 @@ function renderLogin() {
             <button type="submit" class="btn btn-primary w-full py-2.5">Sign in →</button>
           </form>
           <div class="mt-6 pt-6" style="border-top: 1px solid var(--border);">
-            <p class="text-xs mb-3" style="color: var(--text-dim);">Demo access</p>
+            <p class="text-xs mb-3" style="color: var(--text-dim);">Demo access — try each role</p>
             <div class="grid grid-cols-2 gap-2">
-              ${Object.entries(USERS).map(([k,u]) => `<button data-action="login" data-value="${k}" class="flex items-center gap-2 p-2 rounded card text-left"><div class="w-6 h-6 rounded-full ${u.color} flex items-center justify-center text-[10px] font-bold text-white">${u.initials}</div><div class="text-xs"><div class="font-medium">${u.role}</div><div style="color: var(--text-muted);">${u.name}</div></div></button>`).join('')}
+              ${Object.entries(USERS).map(([k,u]) => `<button data-action="login" data-value="${k}" class="flex items-center gap-2 p-2 rounded card text-left hover:scale-105 transition"><div class="w-6 h-6 rounded-full ${u.color} flex items-center justify-center text-[10px] font-bold text-white">${u.initials}</div><div class="text-xs"><div class="font-medium">${u.role}</div><div style="color: var(--text-muted);">${u.name}</div></div></button>`).join('')}
             </div>
           </div>
         </div>
@@ -1086,10 +1713,23 @@ function renderLogin() {
 
 function renderDashboard() {
   const tab = state.dashboardTab;
+  const u = state.user;
+  // Role-specific greeting
+  const greetings = { manager: 'Good morning', tester: 'Ready to test', engineer: 'Let\'s ship', auditor: 'Audit overview' };
+  const subtitles = {
+    manager: '3 active executions · 5 pending approvals · 2 suggestions awaiting review',
+    tester: '63 tests in queue · 3 cycles assigned',
+    engineer: '1 deployment in progress · 1 approval needed',
+    auditor: 'All systems compliant · 12,847 events today'
+  };
+  
   render(shell(`
     <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
-      <div><h1 class="text-xl font-semibold">Good morning, ${state.user.name.split(' ')[0]}</h1><p class="text-sm mt-1" style="color: var(--text-muted);">3 active executions · 5 pending reviews</p></div>
-      <div class="flex gap-2 flex-wrap">${renderDatePicker()}<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button><button class="btn btn-primary text-xs">${icons.plus} New execution</button></div>
+      <div>
+        <h1 class="text-xl font-semibold">${greetings[u.role]}, ${u.name.split(' ')[0]}</h1>
+        <p class="text-sm mt-1" style="color: var(--text-muted);">${subtitles[u.role]}</p>
+      </div>
+      <div class="flex gap-2 flex-wrap">${renderDatePicker()}<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button>${u.role === 'manager' ? `<button class="btn btn-primary text-xs">${icons.plus} New execution</button>` : ''}</div>
     </div>
     <div class="mb-6 flex gap-4" style="border-bottom: 1px solid var(--border);">
       ${['deployments','testing','activity'].map(t => `<button data-action="tab" data-value="${t}" class="pb-2 text-sm font-medium border-b-2 transition capitalize ${tab === t ? 'border-indigo-500' : 'border-transparent hover:opacity-80'}" style="${tab === t ? 'color: var(--accent);' : 'color: var(--text-muted);'}">${t}</button>`).join('')}
@@ -1117,9 +1757,9 @@ function renderDashboard() {
         <div class="card p-4">${renderHeatmap(CHART_DATA.heatmap)}</div>
       ` : `
         <div class="card p-4">
-          <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><h3 class="text-sm font-semibold">Live Activity</h3><div class="live-dot"></div><span class="text-xs" style="color: var(--success);">Streaming</span></div><span class="text-xs" style="color: var(--text-muted);" id="event-counter">Today · 12,847 events</span></div>
+          <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><h3 class="text-sm font-semibold">Live Activity</h3><div class="live-dot"></div><span class="text-xs" style="color: var(--success);">Streaming</span></div></div>
           <div id="live-feed" class="space-y-1">
-            ${state.activityFeed.slice(0, 10).map(a => `<div class="flex items-start gap-3 text-sm p-2 rounded" style="background: ${a.isNew ? 'var(--bg-hover)' : 'transparent'};"><div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background: ${a.color || 'var(--accent)'};"></div><div class="flex-1 min-w-0"><div><span class="font-medium">${a.actor}</span> <span style="color: var(--text-muted);">${a.action}</span> <span class="font-medium">${a.entity}</span></div><div class="text-xs mt-0.5" style="color: var(--text-dim);">${a.time} · ${a.result}</div></div></div>`).join('')}
+            ${state.activityFeed.slice(0, 10).map(a => `<div class="flex items-start gap-3 text-sm p-2 rounded" style="background: ${a.isNew ? 'var(--bg-hover)' : 'transparent'};"><div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background: ${a.color || 'var(--accent)'};"></div><div class="flex-1 min-w-0"><div><span class="font-medium">${a.actor}</span> <span style="color: var(--text-muted);">${a.action}</span> <span class="font-medium">${a.entity}</span></div></div></div>`).join('')}
           </div>
         </div>
       `}
@@ -1153,189 +1793,91 @@ function renderProjects() {
   `));
 }
 
-// ═══════════════════════════════════════════════════════════════
-// TESTING (Phase 3 enhanced)
-// ═══════════════════════════════════════════════════════════════
 function renderTesting() {
   const selectedCount = state.selectedTests.size;
   const allSelected = state.testCases.length > 0 && selectedCount === state.testCases.length;
   const partialSelected = selectedCount > 0 && selectedCount < state.testCases.length;
-  
-  const bulkBar = selectedCount > 0 ? `
-    <div class="bulk-action-bar">
-      <span class="text-sm"><strong>${selectedCount}</strong> test${selectedCount > 1 ? 's' : ''} selected</span>
-      <div class="flex-1"></div>
-      <button class="btn btn-subtle text-xs" data-action="bulk-clear">Clear selection</button>
-      <button class="btn text-xs text-white" style="background: var(--success);" data-action="bulk-pass">✓ Mark Passed</button>
-      <button class="btn text-xs text-white" style="background: var(--danger);" data-action="bulk-fail">✕ Mark Failed</button>
-      <button class="btn text-xs text-white" style="background: var(--warning);" data-action="bulk-block">⊘ Mark Blocked</button>
-    </div>
-  ` : '';
-  
+  const bulkBar = selectedCount > 0 ? `<div class="bulk-action-bar"><span class="text-sm"><strong>${selectedCount}</strong> selected</span><div class="flex-1"></div><button class="btn btn-subtle text-xs" data-action="bulk-clear">Clear</button><button class="btn text-xs text-white" style="background: var(--success);" data-action="bulk-pass">✓ Pass</button><button class="btn text-xs text-white" style="background: var(--danger);" data-action="bulk-fail">✕ Fail</button><button class="btn text-xs text-white" style="background: var(--warning);" data-action="bulk-block">⊘ Block</button></div>` : '';
   const testListHtml = state.testCases.map(tc => {
     const isSelected = state.selectedTests.has(tc.id);
     const isExpanded = state.expandedTest === tc.id;
     const evidence = state.evidencePerTest[tc.id] || [];
     const comments = state.commentsPerTest[tc.id] || [];
     const statusPill = tc.status === 'passed' ? 'pill-pass' : tc.status === 'failed' ? 'pill-fail' : tc.status === 'blocked' ? 'pill-block' : 'pill-pend';
-    
-    return `
-      <div class="test-row ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}" style="border-bottom: 1px solid var(--border);">
-        <div class="px-4 py-2.5 flex items-center gap-3 cursor-pointer" data-action="expand-test" data-value="${tc.id}">
-          <div class="checkbox-custom ${isSelected ? 'checked' : ''}" data-action="toggle-test-select" data-value="${tc.id}" onclick="event.stopPropagation(); toggleTestSelection('${tc.id}', event)"></div>
-          <span class="mono text-xs w-16" style="color: var(--text-dim);">${tc.id}</span>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm truncate">${tc.name}</div>
-            ${tc.note ? `<div class="text-[11px] truncate" style="color: var(--text-muted);">${tc.note}</div>` : ''}
-            ${evidence.length > 0 || comments.length > 0 ? `<div class="flex gap-2 mt-1 text-[10px]" style="color: var(--text-dim);">${evidence.length > 0 ? `<span>📎 ${evidence.length}</span>` : ''}${comments.length > 0 ? `<span>💬 ${comments.length}</span>` : ''}</div>` : ''}
-          </div>
-          <span class="mono text-xs" style="color: var(--text-dim);">${tc.dur}</span>
-          <span class="pill ${statusPill}">${tc.status}</span>
-          <button class="btn btn-ghost p-1" onclick="event.stopPropagation(); openTestCaseEditor(state.testCases.find(t => t.id === '${tc.id}'))" title="Edit">${icons.edit}</button>
-          <span style="color: var(--text-dim); transform: rotate(${isExpanded ? '180deg' : '0deg'}); transition: transform 0.2s;">${icons.chevDown}</span>
-        </div>
-        ${isExpanded ? `
-          <div class="px-4 pb-4 pt-2 space-y-3" style="background: var(--bg);">
-            <div class="text-xs" style="color: var(--text-muted);"><strong>Description:</strong> ${tc.desc || 'No description'}</div>
-            
-            <!-- Quick actions -->
-            <div class="flex gap-2 flex-wrap">
-              <button class="btn text-xs text-white" style="background: var(--success);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'passed'; toast('Marked passed', 'success'); renderTesting();">✓ Pass</button>
-              <button class="btn text-xs text-white" style="background: var(--danger);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'failed'; toast('Marked failed', 'error'); renderTesting();">✕ Fail</button>
-              <button class="btn text-xs text-white" style="background: var(--warning);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'blocked'; toast('Marked blocked', 'warning'); renderTesting();">⊘ Block</button>
-              <button class="btn btn-subtle text-xs" onclick="openTestFocusMode(${state.testCases.findIndex(t => t.id === '${tc.id}')})">▶ Open in Focus Mode</button>
-            </div>
-            
-            <!-- Evidence upload -->
-            <div>
-              <h4 class="text-xs font-semibold mb-2" style="color: var(--text-muted);">📎 Evidence (${evidence.length})</h4>
-              <div class="drop-zone" onclick="document.getElementById('file-input-${tc.id}').click()" ondragover="event.preventDefault(); this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="event.preventDefault(); this.classList.remove('dragging'); handleEvidenceUpload('${tc.id}', event.dataTransfer.files)">
-                <div class="text-xs">Drop files or click to upload</div>
-                <input type="file" id="file-input-${tc.id}" multiple style="display:none" onchange="handleEvidenceUpload('${tc.id}', this.files)">
-              </div>
-              ${evidence.map((e, i) => `
-                <div class="evidence-item">
-                  <span style="color: var(--text-muted);">${icons.file}</span>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-medium truncate">${e.name}</div>
-                    <div class="hash-display">sha256: ${e.hash.substring(0, 16)}…</div>
-                    <div class="text-[10px]" style="color: var(--text-dim);">${formatSize(e.size)} · <span style="color: var(--success);">✓ verified</span></div>
-                  </div>
-                  <button onclick="removeEvidence('${tc.id}', ${i})" style="color: var(--danger); background: transparent; border: none; cursor: pointer;">✕</button>
-                </div>
-              `).join('')}
-            </div>
-            
-            <!-- Comments -->
-            <div>
-              <h4 class="text-xs font-semibold mb-2" style="color: var(--text-muted);">💬 Comments (${comments.length})</h4>
-              ${comments.map(cm => `<div class="comment-item"><div class="text-[10px] mb-1" style="color: var(--text-dim);">${cm.author} · ${cm.time}</div><div>${cm.text}</div></div>`).join('')}
-              <div class="flex gap-2 mt-2">
-                <input id="comment-input-${tc.id}" placeholder="Add a comment..." class="flex-1">
-                <button class="btn btn-primary text-xs" data-action="add-comment" data-value="${tc.id}">Add</button>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    `;
+    return `<div class="test-row ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}" style="border-bottom: 1px solid var(--border);"><div class="px-4 py-2.5 flex items-center gap-3 cursor-pointer" data-action="expand-test" data-value="${tc.id}"><div class="checkbox-custom ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleTestSelection('${tc.id}', event)"></div><span class="mono text-xs w-16" style="color: var(--text-dim);">${tc.id}</span><div class="flex-1 min-w-0"><div class="text-sm truncate">${tc.name}</div>${evidence.length > 0 || comments.length > 0 ? `<div class="flex gap-2 mt-1 text-[10px]" style="color: var(--text-dim);">${evidence.length > 0 ? `<span>📎 ${evidence.length}</span>` : ''}${comments.length > 0 ? `<span>💬 ${comments.length}</span>` : ''}</div>` : ''}</div><span class="pill ${statusPill}">${tc.status}</span><span style="color: var(--text-dim); transform: rotate(${isExpanded ? '180deg' : '0deg'}); transition: transform 0.2s;">${icons.chevDown}</span></div>${isExpanded ? `<div class="px-4 pb-4 pt-2 space-y-3" style="background: var(--bg);"><div class="text-xs" style="color: var(--text-muted);"><strong>Description:</strong> ${tc.desc || 'No description'}</div><div class="flex gap-2 flex-wrap"><button class="btn text-xs text-white" style="background: var(--success);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'passed'; toast('Marked passed', 'success'); renderTesting();">✓ Pass</button><button class="btn text-xs text-white" style="background: var(--danger);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'failed'; toast('Marked failed', 'error'); renderTesting();">✕ Fail</button><button class="btn btn-subtle text-xs" onclick="openTestFocusMode(${state.testCases.findIndex(t => t.id === '${tc.id}')})">▶ Focus Mode</button></div><div><h4 class="text-xs font-semibold mb-2" style="color: var(--text-muted);">📎 Evidence (${evidence.length})</h4><div class="drop-zone" style="padding: 16px;" onclick="document.getElementById('file-input-${tc.id}').click()" ondragover="event.preventDefault(); this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="event.preventDefault(); this.classList.remove('dragging'); handleEvidenceUpload('${tc.id}', event.dataTransfer.files)"><div class="text-xs">Drop files or click</div><input type="file" id="file-input-${tc.id}" multiple style="display:none" onchange="handleEvidenceUpload('${tc.id}', this.files)"></div>${evidence.map((e, i) => `<div class="evidence-item"><span style="color: var(--text-muted);">${icons.file}</span><div class="flex-1 min-w-0"><div class="text-xs font-medium truncate">${e.name}</div><div class="hash-display">sha256: ${e.hash.substring(0, 16)}…</div></div><button onclick="removeEvidence('${tc.id}', ${i})" style="color: var(--danger); background: transparent; border: none; cursor: pointer;">✕</button></div>`).join('')}</div><div><h4 class="text-xs font-semibold mb-2" style="color: var(--text-muted);">💬 Comments (${comments.length})</h4>${comments.map(cm => `<div class="comment-item"><div class="text-[10px] mb-1" style="color: var(--text-dim);">${cm.author} · ${cm.time}</div><div>${cm.text}</div></div>`).join('')}<div class="flex gap-2 mt-2"><input id="comment-input-${tc.id}" placeholder="Add a comment..." class="flex-1"><button class="btn btn-primary text-xs" data-action="add-comment" data-value="${tc.id}">Add</button></div></div></div>` : ''}</div>`;
   }).join('');
-  
-  render(shell(`
-    <div class="flex flex-col lg:flex-row h-full gap-4">
-      <!-- HIERARCHY TREE -->
-      <aside class="w-full lg:w-64 card p-3 flex flex-col">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Hierarchy</h3>
-        </div>
-        <div class="flex-1 overflow-y-auto scroll">
-          ${state.hierarchy ? renderHierarchyNode(state.hierarchy) : '<div class="text-xs" style="color: var(--text-dim);">Loading...</div>'}
-        </div>
-        <div class="pt-3 text-xs flex justify-between" style="border-top: 1px solid var(--border); color: var(--text-muted);">
-          <span>${state.testCases.length} tests</span>
-          <span class="text-[10px]" style="color: var(--text-dim);">Hover for actions</span>
-        </div>
-      </aside>
-      
-      <!-- MAIN CONTENT -->
-      <div class="flex-1 flex flex-col min-w-0">
-        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <div class="text-xs flex items-center gap-1 flex-wrap" style="color: var(--text-muted);">
-            E-Commerce <span style="color: var(--text-dim);">/</span> Auth <span style="color: var(--text-dim);">/</span>
-            <span class="font-medium" style="color: var(--text);">Login Flow Suite</span>
-            <span class="pill pill-run">${state.testCases.length} cases</span>
-          </div>
-          <div class="flex gap-2">
-            <button class="btn btn-subtle text-xs" data-action="open-test-focus">▶ Focus Mode</button>
-            <button class="btn btn-primary text-xs" data-action="new-test">${icons.plus} New Test Case</button>
-          </div>
-        </div>
-        
-        <!-- Bulk select header -->
-        <div class="card overflow-hidden flex-1">
-          <div class="px-4 py-2 flex justify-between items-center" style="border-bottom: 1px solid var(--border); background: var(--bg-hover);">
-            <div class="flex items-center gap-3">
-              <div class="checkbox-custom ${allSelected ? 'checked' : partialSelected ? 'partial' : ''}" data-action="toggle-select-all" title="${allSelected ? 'Deselect all' : 'Select all'}"></div>
-              <h3 class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Test Cases</h3>
-              ${selectedCount > 0 ? `<span class="pill pill-info">${selectedCount} selected</span>` : ''}
-            </div>
-            <div class="flex gap-1 text-[11px]">
-              <button class="px-2 py-1 rounded text-white" style="background: var(--bg-hover);">All</button>
-              <button class="px-2 py-1 rounded hover:opacity-80" style="color: var(--text-muted);">Failed</button>
-              <button class="px-2 py-1 rounded hover:opacity-80" style="color: var(--text-muted);">Blocked</button>
-            </div>
-          </div>
-          ${testListHtml}
-        </div>
-      </div>
-    </div>
-    ${bulkBar}
-  `));
+  render(shell(`<div class="flex flex-col lg:flex-row h-full gap-4"><aside class="w-full lg:w-64 card p-3 flex flex-col"><div class="flex-1 overflow-y-auto scroll">${state.hierarchy ? renderHierarchyNode(state.hierarchy) : ''}</div><div class="pt-3 text-xs" style="border-top: 1px solid var(--border); color: var(--text-muted);">${state.testCases.length} tests</div></aside><div class="flex-1 flex flex-col min-w-0"><div class="flex justify-between items-center mb-4 flex-wrap gap-2"><div class="text-xs flex items-center gap-1" style="color: var(--text-muted);">E-Commerce <span style="color: var(--text-dim);">/</span> Auth <span style="color: var(--text-dim);">/</span> <span class="font-medium" style="color: var(--text);">Login Flow Suite</span> <span class="pill pill-run">${state.testCases.length} cases</span></div><div class="flex gap-2"><button class="btn btn-subtle text-xs" data-action="open-test-focus">▶ Focus</button><button class="btn btn-primary text-xs" data-action="new-test">${icons.plus} New</button></div></div><div class="card overflow-hidden flex-1"><div class="px-4 py-2 flex justify-between items-center" style="border-bottom: 1px solid var(--border); background: var(--bg-hover);"><div class="flex items-center gap-3"><div class="checkbox-custom ${allSelected ? 'checked' : partialSelected ? 'partial' : ''}" data-action="toggle-select-all"></div><h3 class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Test Cases</h3>${selectedCount > 0 ? `<span class="pill pill-info">${selectedCount} selected</span>` : ''}</div></div>${testListHtml}</div></div></div>${bulkBar}`));
 }
 
 function renderDeployments() {
   render(shell(`
-    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Deployments</h1></div><button class="btn btn-primary text-xs" data-action="open-deploy-focus">${icons.plus} New deployment</button></div>
+    <div class="flex justify-between items-end mb-6">
+      <div><h1 class="text-xl font-semibold">Deployments</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Live execution with approval gates & rollback</p></div>
+      <button class="btn btn-primary text-xs" data-action="open-deploy-focus">${icons.plus} Start New Deployment</button>
+    </div>
     <div class="card overflow-hidden mb-6">
-      ${DEPLOYS.map(d => `<div class="px-4 py-3 flex items-center gap-4 cursor-pointer" style="border-bottom: 1px solid var(--border);" onclick="openDeployFocusMode()"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${d.name}</span><span class="pill ${d.status === 'running' ? 'pill-run' : d.status === 'completed' ? 'pill-pass' : 'pill-pend'}">● ${d.status}</span></div><div class="text-xs" style="color: var(--text-muted);">${d.project} · ${d.engineer}</div></div><div class="text-right text-xs mono"><div class="font-semibold">${d.done}/${d.steps}</div></div></div>`).join('')}
+      ${DEPLOYS.map(d => `<div class="px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-[var(--bg-hover)]" style="border-bottom: 1px solid var(--border);" onclick="startDeploymentExecution()"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${d.name}</span><span class="pill ${d.status === 'running' ? 'pill-run' : d.status === 'completed' ? 'pill-pass' : 'pill-pend'}">● ${d.status}</span></div><div class="text-xs" style="color: var(--text-muted);">${d.project} · ${d.engineer}</div></div><div class="text-right text-xs mono"><div class="font-semibold">${d.done}/${d.steps}</div></div></div>`).join('')}
     </div>
     ${renderTimeline()}
   `));
 }
 
 function renderTemplates() {
-  const modal = state.selectedTemplate ? `
-    <div class="modal-overlay" style="padding-top: 80px; align-items: center;" data-action="close-modal">
-      <div class="modal-content p-6" onclick="event.stopPropagation()" style="max-height: 85vh;">
-        <div class="flex justify-between items-start mb-4"><div><h2 class="text-lg font-semibold">${state.selectedTemplate.name}</h2><div class="text-xs mt-1" style="color: var(--text-muted);">${state.selectedTemplate.ver} · ${state.selectedTemplate.uses} uses</div></div><button data-action="close-modal" class="btn btn-ghost p-1">✕</button></div>
-        <div class="grid grid-cols-2 gap-4">
-          <div><h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Version History</h3><div class="space-y-2"><div class="p-2 rounded text-xs" style="background: rgba(99,102,241,0.1); border: 1px solid var(--accent);"><div class="font-bold">${state.selectedTemplate.ver} (current)</div></div><div class="p-2 rounded text-xs" style="background: var(--bg-hover);"><div class="font-bold">v3.1</div></div></div></div>
-          <div><h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Changes</h3><div class="space-y-2 text-xs"><div class="p-2 rounded" style="background: rgba(16,185,129,0.05); border-left: 2px solid var(--success);"><div class="font-bold" style="color: var(--success);">+ Added</div><div>Pre-flight validation</div></div></div></div>
-        </div>
-      </div>
-    </div>
-  ` : '';
+  const modal = state.selectedTemplate ? `<div class="modal-overlay" style="padding-top: 80px; align-items: center;" data-action="close-modal"><div class="modal-content p-6" onclick="event.stopPropagation()" style="max-height: 85vh;"><div class="flex justify-between items-start mb-4"><div><h2 class="text-lg font-semibold">${state.selectedTemplate.name}</h2><div class="text-xs mt-1" style="color: var(--text-muted);">${state.selectedTemplate.ver} · ${state.selectedTemplate.uses} uses</div></div><button data-action="close-modal" class="btn btn-ghost p-1">✕</button></div><div class="grid grid-cols-2 gap-4"><div><h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Version History</h3><div class="space-y-2"><div class="p-2 rounded text-xs" style="background: rgba(99,102,241,0.1); border: 1px solid var(--accent);"><div class="font-bold">${state.selectedTemplate.ver} (current)</div><div style="color: var(--text-muted);">Added pre-flight validation</div></div><div class="p-2 rounded text-xs" style="background: var(--bg-hover);"><div class="font-bold">v3.1</div><div style="color: var(--text-muted);">Updated rollback procedure</div></div><div class="p-2 rounded text-xs" style="background: var(--bg-hover);"><div class="font-bold">v3.0</div><div style="color: var(--text-muted);">Major restructure</div></div></div></div><div><h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Changes</h3><div class="space-y-2 text-xs"><div class="p-2 rounded" style="background: rgba(16,185,129,0.05); border-left: 2px solid var(--success);"><div class="font-bold" style="color: var(--success);">+ Added</div><div>Pre-flight validation</div></div></div></div></div><div class="flex gap-2 mt-4 pt-4" style="border-top: 1px solid var(--border);"><button class="btn btn-subtle flex-1 text-xs" data-action="open-diff-viewer" data-value="${state.selectedTemplate.id}">🔀 View Full Diff</button><button class="btn btn-primary flex-1 text-xs">➕ New Version</button></div></div></div>` : '';
   render(shell(`
-    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Templates</h1></div><button class="btn btn-primary text-xs">${icons.plus} New template</button></div>
+    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Templates</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Version-controlled master definitions</p></div><button class="btn btn-primary text-xs">${icons.plus} New template</button></div>
     <div class="card overflow-hidden">
-      ${TEMPLATES.map(t => `<div class="px-4 py-3 flex items-center gap-3 cursor-pointer" style="border-bottom: 1px solid var(--border);" data-action="template-modal" data-value="${t.id}"><span class="text-lg">${t.type === 'test' ? '🧪' : '🚀'}</span><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><span class="font-medium text-sm">${t.name}</span><span class="pill pill-run mono">${t.ver}</span></div><div class="text-xs" style="color: var(--text-muted);">${t.author} · ${t.updated}</div></div></div>`).join('')}
+      ${TEMPLATES.map(t => `<div class="px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--bg-hover)]" style="border-bottom: 1px solid var(--border);" data-action="template-modal" data-value="${t.id}"><span class="text-lg">${t.type === 'test' ? '🧪' : '🚀'}</span><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><span class="font-medium text-sm">${t.name}</span><span class="pill pill-run mono">${t.ver}</span></div><div class="text-xs" style="color: var(--text-muted);">${t.author} · ${t.updated}</div></div><button class="btn btn-ghost text-xs" onclick="event.stopPropagation(); openTemplateDiffViewer('${t.id}')">🔀 Diff</button></div>`).join('')}
     </div>
     ${modal}
   `));
 }
 
 function renderSuggestions() {
+  const canSubmit = state.user.role !== 'auditor';
   render(shell(`
-    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Suggestions</h1></div></div>
+    <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
+      <div><h1 class="text-xl font-semibold">Suggestions</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Continuous improvement from the team</p></div>
+      ${canSubmit ? `<button class="btn btn-primary text-xs" data-action="submit-suggestion">${icons.plus} Submit Suggestion</button>` : ''}
+    </div>
     <div class="space-y-3">
-      ${SUGGESTIONS.map(s => `<div class="card p-4"><div class="flex items-center gap-2 mb-1"><span class="font-medium">${s.title}</span><span class="pill ${s.priority === 'high' ? 'pill-fail' : 'pill-pend'}">● ${s.priority}</span><span class="pill ${s.status === 'approved' ? 'pill-pass' : 'pill-pend'}">● ${s.status}</span></div><div class="text-sm mb-3" style="color: var(--text-muted);">${s.reason}</div>${s.status !== 'approved' ? '<div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);"><button class="btn btn-primary text-xs" data-action="toast" data-value="Approved">✅ Approve</button><button class="btn btn-ghost text-xs" style="color: var(--danger);">✕ Reject</button></div>' : '<div class="text-xs pt-3" style="border-top: 1px solid var(--border); color: var(--success);">✅ Approved</div>'}</div>`).join('')}
+      ${SUGGESTIONS.map(s => `
+        <div class="card p-4 cursor-pointer hover:border-[var(--border-hover)]" data-action="open-suggestion-detail" data-value="${s.id}">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="font-medium">${s.title}</span>
+                <span class="pill ${s.priority === 'high' ? 'pill-fail' : s.priority === 'medium' ? 'pill-block' : 'pill-pend'}">● ${s.priority}</span>
+                <span class="pill pill-info">${s.type}</span>
+                <span class="pill ${s.status === 'approved' ? 'pill-pass' : s.status === 'rejected' ? 'pill-fail' : s.status === 'under_review' ? 'pill-run' : 'pill-pend'}">● ${s.status.replace('_', ' ')}</span>
+              </div>
+              <div class="text-xs mb-2 flex items-center gap-2 flex-wrap" style="color: var(--text-muted);">
+                <span>${s.submitter}</span>
+                <span>·</span>
+                <span>${s.time}</span>
+                <span>·</span>
+                <span class="mono">${s.context}</span>
+              </div>
+              <div class="text-sm line-clamp-2" style="color: var(--text-muted);">${s.reason}</div>
+            </div>
+            <div class="flex flex-col gap-1 text-[10px]" style="color: var(--text-dim);">
+              ${s.attachments > 0 ? `<span>📎 ${s.attachments}</span>` : ''}
+              ${s.comments > 0 ? `<span>💬 ${s.comments}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('')}
     </div>
   `));
 }
 
 function renderAudit() {
+  const isAuditor = state.user.role === 'auditor';
   render(shell(`
-    <div class="flex justify-between items-end mb-6 flex-wrap gap-3"><div><h1 class="text-xl font-semibold">Audit Center</h1></div><div class="flex gap-2"><button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button><button class="btn btn-subtle text-xs" data-action="export-pdf">📄 PDF</button></div></div>
+    <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
+      <div><h1 class="text-xl font-semibold">Audit Center ${isAuditor ? '<span class="pill pill-info ml-2">Read-only</span>' : ''}</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Immutable execution history & compliance</p></div>
+      <div class="flex gap-2">${!isAuditor ? `<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button>` : ''}<button class="btn btn-subtle text-xs">📄 PDF</button></div>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
       ${[{l:'Trail Integrity',v:'Verified'},{l:'Evidence Hashes',v:'1,284 valid'},{l:'Execution Locking',v:'Enforced'},{l:'Versioning',v:'Active'}].map(k => `<div class="card p-4 flex items-center gap-3"><div class="w-8 h-8 rounded flex items-center justify-center" style="background: rgba(16,185,129,0.1);">🛡️</div><div><div class="text-[10px] uppercase" style="color: var(--text-muted);">${k.l}</div><div class="text-sm font-bold" style="color: var(--success);">${k.v}</div></div></div>`).join('')}
     </div>
@@ -1348,7 +1890,7 @@ function renderAudit() {
 
 function renderReports() {
   render(shell(`
-    <div class="flex justify-between items-end mb-6 flex-wrap gap-3"><div><h1 class="text-xl font-semibold">Reports</h1></div><div class="flex gap-2 flex-wrap">${renderDatePicker()}<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button><button class="btn btn-subtle text-xs" data-action="export-pdf">📄 PDF</button></div></div>
+    <div class="flex justify-between items-end mb-6 flex-wrap gap-3"><div><h1 class="text-xl font-semibold">Reports</h1></div><div class="flex gap-2 flex-wrap">${renderDatePicker()}<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button></div></div>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
       ${[{l:'Total Executions',v:'247',d:'+18%'},{l:'Avg Cycle Time',v:'4.2h',d:'-12%'},{l:'Pass Rate',v:'86.3%',d:'+3.2%'},{l:'Deploy Success',v:'94.1%',d:'+1.8%'}].map(k => `<div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">${k.l}</div><div class="text-2xl font-bold">${k.v}</div><div class="text-xs mt-1" style="color: var(--success);">↑ ${k.d}</div></div>`).join('')}
     </div>
@@ -1368,7 +1910,7 @@ function renderReports() {
 function renderSettings() {
   render(shell(`
     <div class="mb-6"><h1 class="text-xl font-semibold">Settings</h1></div>
-    <div class="card p-5 mb-4"><h3 class="text-sm font-semibold mb-4">Profile</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Full name</label><input value="${state.user.name}"></div><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Email</label><input value="${state.user.email}"></div></div><button class="btn btn-primary text-xs mt-4" data-action="toast" data-value="Saved">Save</button></div>
+    <div class="card p-5 mb-4"><h3 class="text-sm font-semibold mb-4">Profile</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Full name</label><input value="${state.user.name}"></div><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Email</label><input value="${state.user.email}"></div><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Role</label><input value="${state.user.role}" readonly style="opacity: 0.6;"></div></div></div>
     <div class="card p-5 mb-4"><h3 class="text-sm font-semibold mb-4">Appearance</h3><div class="flex items-center justify-between p-3 rounded" style="background: var(--bg-hover);"><div><div class="text-sm font-medium">Theme</div><div class="text-xs" style="color: var(--text-muted);">Currently ${state.theme}</div></div><div class="theme-toggle" data-action="theme-toggle"></div></div></div>
   `));
 }
