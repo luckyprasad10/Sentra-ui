@@ -30,13 +30,16 @@
   .scroll::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 4px; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   @keyframes dragPulse { 0%,100% { border-color: var(--accent); } 50% { border-color: var(--accent-2); } }
   @keyframes progressPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-  @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes borderPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); } 50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); } }
+  @keyframes fabPulse { 0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); } 70% { box-shadow: 0 0 0 12px rgba(99,102,241,0); } 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); } }
+  @keyframes floatUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .fade-in { animation: fadeIn 0.2s ease-out; }
   .animate-pulse { animation: pulse 2s infinite; }
   .card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.75rem; transition: border-color 0.15s; }
@@ -120,7 +123,6 @@
   .tree-add-menu button:hover { background: var(--bg-hover); }
   .evidence-item { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
   .hash-display { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); word-break: break-all; }
-  /* PHASE 4: Deployment focus mode */
   .deploy-step-card { transition: all 0.3s ease; border: 1px solid var(--border); }
   .deploy-step-card.running { border-color: var(--accent); box-shadow: 0 0 20px -6px rgba(99,102,241,0.4); animation: borderPulse 2s infinite; }
   .deploy-step-card.completed { border-color: rgba(16,185,129,0.3); }
@@ -133,7 +135,6 @@
   .approval-node.approved::before { background: var(--success); border-color: var(--success); }
   .approval-node.rejected::before { background: var(--danger); border-color: var(--danger); }
   .approval-node.pending::before { background: var(--bg-elevated); border-color: var(--warning); animation: pulse 2s infinite; }
-  /* Template diff */
   .diff-line { display: flex; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; }
   .diff-line.added { background: rgba(16,185,129,0.08); border-left: 3px solid var(--success); }
   .diff-line.removed { background: rgba(239,68,68,0.08); border-left: 3px solid var(--danger); }
@@ -141,16 +142,56 @@
   .diff-line.context { border-left: 3px solid transparent; color: var(--text-muted); }
   .diff-line .line-num { width: 36px; color: var(--text-dim); flex-shrink: 0; user-select: none; }
   .diff-line .line-content { flex: 1; }
-  /* Suggestion workflow */
   .suggestion-status-flow { display: flex; align-items: center; gap: 4px; padding: 8px; background: var(--bg); border-radius: 6px; font-size: 11px; }
   .status-dot { width: 20px; height: 20px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid var(--border); background: var(--bg-elevated); }
   .status-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
   .status-dot.completed { background: var(--success); border-color: var(--success); color: white; }
   .status-line { flex: 1; height: 2px; background: var(--border); }
   .status-line.completed { background: var(--success); }
-  /* Rollback preview */
   .rollback-step { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-left: 2px solid var(--danger); background: rgba(239,68,68,0.03); border-radius: 0 6px 6px 0; margin-bottom: 4px; font-size: 12px; }
   .rollback-step .rollback-order { width: 20px; height: 20px; border-radius: 999px; background: var(--danger); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; flex-shrink: 0; }
+  /* PHASE 5: Notifications */
+  .notif-dropdown { position: absolute; top: 100%; right: 0; width: 400px; max-height: 500px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 20px 40px -8px rgba(0,0,0,0.4); z-index: 100; animation: slideDown 0.2s ease-out; overflow: hidden; margin-top: 8px; }
+  .notif-item { padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; position: relative; }
+  .notif-item:hover { background: var(--bg-hover); }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item.unread { background: rgba(99,102,241,0.04); }
+  .notif-item.unread::before { content: ''; position: absolute; left: 6px; top: 18px; width: 6px; height: 6px; border-radius: 999px; background: var(--accent); }
+  .notif-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+  /* PHASE 5: Filters */
+  .filter-panel { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; animation: slideDown 0.2s ease-out; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 999px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .filter-chip:hover { border-color: var(--accent); }
+  .filter-chip.active { background: rgba(99,102,241,0.1); border-color: var(--accent); color: var(--accent); }
+  .filter-chip .remove { margin-left: 2px; opacity: 0.6; cursor: pointer; }
+  .filter-chip .remove:hover { opacity: 1; }
+  /* PHASE 5: FAB */
+  .fab-container { position: fixed; bottom: 24px; right: 24px; z-index: 50; }
+  .fab-main { width: 56px; height: 56px; border-radius: 999px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px -4px rgba(99,102,241,0.5); transition: all 0.2s; animation: fabPulse 2s infinite; }
+  .fab-main:hover { transform: scale(1.05); }
+  .fab-main.open { transform: rotate(45deg); animation: none; }
+  .fab-menu { position: absolute; bottom: 70px; right: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .fab-item { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.3); transition: all 0.15s; animation: floatUp 0.2s ease-out; white-space: nowrap; }
+  .fab-item:hover { transform: translateX(-4px); border-color: var(--accent); }
+  .fab-item .fab-icon { width: 28px; height: 28px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: var(--bg-hover); font-size: 13px; }
+  /* PHASE 5: Mobile bottom nav */
+  .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-elevated); border-top: 1px solid var(--border); z-index: 40; padding: 8px 0; }
+  .mobile-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; font-size: 10px; color: var(--text-muted); cursor: pointer; }
+  .mobile-nav-item.active { color: var(--accent); }
+  @media (max-width: 768px) {
+    .mobile-bottom-nav { display: flex; }
+    .desktop-sidebar { display: none !important; }
+    body { padding-bottom: 64px; }
+    .fab-container { bottom: 80px; }
+  }
+  /* PHASE 5: Empty states */
+  .empty-state { padding: 60px 20px; text-align: center; animation: fadeIn 0.3s ease-out; }
+  .empty-illustration { width: 120px; height: 120px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1)); border-radius: 999px; font-size: 48px; }
+  /* PHASE 5: Widget cards for role-specific dashboards */
+  .widget-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: all 0.2s; }
+  .widget-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 20px -8px rgba(0,0,0,0.2); }
+  .widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .widget-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
   button:focus-visible, .nav-item:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
@@ -180,15 +221,25 @@ const state = {
   testCases: [],
   evidencePerTest: {},
   commentsPerTest: {},
-  // Phase 4 additions
-  deployExecution: null, // {steps: [], currentIdx: 0, paused: false, timers: {}}
+  deployExecution: null,
   deployTimer: null,
-  approvalModal: null, // {stepId, step}
-  rollbackModal: null, // {deployId}
-  diffViewer: null, // {templateId, v1, v2}
-  suggestionSubmission: null, // open form
-  suggestionDetail: null, // viewing single suggestion
-  activeTimers: {} // per-step elapsed timers
+  approvalModal: null,
+  rollbackModal: null,
+  diffViewer: null,
+  suggestionSubmission: null,
+  suggestionDetail: null,
+  activeTimers: {},
+  // Phase 5 additions
+  notifications: [],
+  notifDropdownOpen: false,
+  filtersOpen: false,
+  activeFilters: {}, // {status: [...], assignee: [...], priority: [...]}
+  savedPresets: [
+    { id: 'p1', name: 'Failed tests this week', filters: { status: ['failed'], dateRange: '7d' } },
+    { id: 'p2', name: 'My high-priority items', filters: { priority: ['high'], assignee: ['me'] } },
+    { id: 'p3', name: 'Pending approvals', filters: { status: ['pending_approval'] } }
+  ],
+  fabOpen: false
 };
 document.body.setAttribute('data-theme', state.theme);
 
@@ -220,11 +271,11 @@ const TEMPLATES = [
   { id: 't2', name: 'Regression Suite — Ecom',    type: 'test',   ver: 'v5.0', updated: 'Jun 6', author: 'Sarah Chen', status: 'published', uses: 89 }
 ];
 const SUGGESTIONS = [
-  { id: 's1', title: 'Add DB backup verification step', type: 'deployment', priority: 'high', status: 'submitted', submitter: 'David Park', time: '2h ago', context: 'Release 2.4.1 — Step 3', reason: 'Last month a corrupt backup caused a 45-min rollback delay. Verifying backup integrity before proceeding would prevent this class of failure entirely.', attachments: 1, comments: 3 },
-  { id: 's2', title: 'Test: empty cart checkout attempt', type: 'test', priority: 'medium', status: 'submitted', submitter: 'Sarah Chen', time: '4h ago', context: 'Sprint 24 — Cart module', reason: 'Edge case not covered in current suite. Users have reported 500 errors when attempting checkout with an empty cart via direct URL manipulation.', attachments: 0, comments: 1 },
-  { id: 's3', title: 'Cache clearing in deploy checklist', type: 'deployment', priority: 'high', status: 'approved', submitter: 'Lisa Wang', time: '1d ago', context: 'Hotfix — Payment Gateway', reason: 'Stale cache caused user-visible errors post-deploy. Automated cache invalidation would prevent this class of issues.', attachments: 2, comments: 5, approvedBy: 'Jordan Diaz', approvedAt: '1d ago', appliedTo: 'v3.3' },
-  { id: 's4', title: 'Pre-flight service dependency check', type: 'deployment', priority: 'medium', status: 'under_review', submitter: 'Mike Johnson', time: '6h ago', context: 'All deployments', reason: 'Deployments occasionally fail because upstream services are still warming up. Adding a dependency readiness check would reduce false failures.', attachments: 0, comments: 2 },
-  { id: 's5', title: 'Validate special chars in username field', type: 'test', priority: 'medium', status: 'clarification', submitter: 'Alex Kumar', time: '3d ago', context: 'User Management tests', reason: 'XSS vector discovered in pentest. Need clarity on exact character set to test.', attachments: 1, comments: 4 }
+  { id: 's1', title: 'Add DB backup verification step', type: 'deployment', priority: 'high', status: 'submitted', submitter: 'David Park', time: '2h ago', context: 'Release 2.4.1 — Step 3', reason: 'Last month a corrupt backup caused a 45-min rollback delay.', attachments: 1, comments: 3 },
+  { id: 's2', title: 'Test: empty cart checkout attempt', type: 'test', priority: 'medium', status: 'submitted', submitter: 'Sarah Chen', time: '4h ago', context: 'Sprint 24 — Cart module', reason: 'Edge case not covered in current suite.', attachments: 0, comments: 1 },
+  { id: 's3', title: 'Cache clearing in deploy checklist', type: 'deployment', priority: 'high', status: 'approved', submitter: 'Lisa Wang', time: '1d ago', context: 'Hotfix — Payment Gateway', reason: 'Stale cache caused user-visible errors post-deploy.', attachments: 2, comments: 5, approvedBy: 'Jordan Diaz', approvedAt: '1d ago', appliedTo: 'v3.3' },
+  { id: 's4', title: 'Pre-flight service dependency check', type: 'deployment', priority: 'medium', status: 'under_review', submitter: 'Mike Johnson', time: '6h ago', context: 'All deployments', reason: 'Deployments occasionally fail because upstream services are still warming up.', attachments: 0, comments: 2 },
+  { id: 's5', title: 'Validate special chars in username field', type: 'test', priority: 'medium', status: 'clarification', submitter: 'Alex Kumar', time: '3d ago', context: 'User Management tests', reason: 'XSS vector discovered in pentest.', attachments: 1, comments: 4 }
 ];
 const AUDIT = [
   { id: '#12847', actor: 'David Park', action: 'step.completed', entity: 'Release 2.4.1', time: '09:47', result: 'Step 17' },
@@ -233,14 +284,14 @@ const AUDIT = [
   { id: '#12844', actor: 'Jordan Diaz', action: 'suggestion.approved', entity: '#42', time: '09:32', result: 'Merge to master' }
 ];
 const INITIAL_TEST_CASES = [
-  { id: 'TC-2801', name: 'Login with valid creds', status: 'passed', dur: '2.3s', desc: 'Verify user can login with correct credentials' },
-  { id: 'TC-2802', name: 'Login with wrong pwd',   status: 'passed', dur: '1.8s', desc: 'Verify error message shown for invalid password' },
-  { id: 'TC-2803', name: 'Rate limit (5 attempts)',status: 'passed', dur: '4.1s', desc: 'Verify account locked after 5 failed attempts' },
-  { id: 'TC-2804', name: 'Password reset email',   status: 'failed', dur: '5.7s', note: 'Not received in 60s', desc: 'Verify reset email sent within SLA' },
-  { id: 'TC-2805', name: 'MFA on suspicious IP',   status: 'blocked', dur: '—', note: 'MFA service degraded', desc: 'Verify MFA triggered on new IP' },
-  { id: 'TC-2806', name: 'Cart persistence',       status: 'not-run', dur: '—', desc: 'Verify cart persists across login' },
-  { id: 'TC-2807', name: 'SSO redirect',           status: 'not-run', dur: '—', desc: 'Verify SSO flow works correctly' },
-  { id: 'TC-2808', name: 'Session invalidation',   status: 'not-run', dur: '—', desc: 'Verify logout invalidates all sessions' }
+  { id: 'TC-2801', name: 'Login with valid creds', status: 'passed', dur: '2.3s', desc: 'Verify user can login', assignee: 'Sarah Chen', module: 'Auth' },
+  { id: 'TC-2802', name: 'Login with wrong pwd',   status: 'passed', dur: '1.8s', desc: 'Verify error message', assignee: 'Sarah Chen', module: 'Auth' },
+  { id: 'TC-2803', name: 'Rate limit (5 attempts)',status: 'passed', dur: '4.1s', desc: 'Verify account locked', assignee: 'Mike Johnson', module: 'Auth' },
+  { id: 'TC-2804', name: 'Password reset email',   status: 'failed', dur: '5.7s', note: 'Not received in 60s', desc: 'Verify reset email sent', assignee: 'Sarah Chen', module: 'Auth' },
+  { id: 'TC-2805', name: 'MFA on suspicious IP',   status: 'blocked', dur: '—', note: 'MFA service degraded', desc: 'Verify MFA triggered', assignee: 'Alex Kumar', module: 'Security' },
+  { id: 'TC-2806', name: 'Cart persistence',       status: 'not-run', dur: '—', desc: 'Verify cart persists', assignee: 'Mike Johnson', module: 'Cart' },
+  { id: 'TC-2807', name: 'SSO redirect',           status: 'not-run', dur: '—', desc: 'Verify SSO flow', assignee: 'Sarah Chen', module: 'Auth' },
+  { id: 'TC-2808', name: 'Session invalidation',   status: 'not-run', dur: '—', desc: 'Verify logout invalidates', assignee: 'Alex Kumar', module: 'Security' }
 ];
 const INITIAL_HIERARCHY = {
   id: 'root', name: 'E-Commerce Platform', type: 'project', children: [
@@ -267,36 +318,21 @@ const INITIAL_DEPLOY_STEPS = [
   { id: 7, name: 'Switch DNS traffic',    status: 'pending',   dur: '—', expectedDur: 180, crit: true, desc: 'Update DNS records to point to new version', command: 'aws route53 change-resource-record-sets ...' },
   { id: 8, name: 'Monitor error rate',    status: 'pending',   dur: '—', expectedDur: 900, crit: true, desc: 'Watch error rate for 15 minutes', command: 'watch -n10 "curl metrics/error_rate"' }
 ];
-
-// Template diff data
 const TEMPLATE_DIFFS = {
-  't1': {
-    v1: 'v3.1',
-    v2: 'v3.2',
-    approvedBy: 'Lisa Wang',
-    approvedAt: 'Jun 5, 2026 14:32',
-    reason: 'Improves deployment reliability and reduces manual steps',
+  't1': { v1: 'v3.1', v2: 'v3.2', approvedBy: 'Lisa Wang', approvedAt: 'Jun 5, 2026 14:32', reason: 'Improves deployment reliability',
     changes: [
-      { type: 'added', line: 3, content: '## Pre-flight environment validation', desc: 'New section' },
-      { type: 'added', line: 4, content: '- Verify all upstream services are reachable (timeout: 30s)' },
-      { type: 'added', line: 5, content: '- Check disk space on target nodes (> 10GB free)' },
-      { type: 'added', line: 6, content: '- Validate DB connection pool is healthy' },
-      { type: 'context', line: 7, content: '' },
-      { type: 'modified', line: 12, content: '## Database backup procedure', prev: '## Database backup (full)' },
+      { type: 'added', line: 3, content: '## Pre-flight environment validation' },
+      { type: 'added', line: 4, content: '- Verify all upstream services are reachable' },
+      { type: 'context', line: 5, content: '' },
+      { type: 'modified', line: 12, content: '## Database backup procedure' },
       { type: 'removed', line: 13, content: '- Run full pg_dump with compression' },
       { type: 'added', line: 13, content: '- Run incremental pg_dump (last 24h only)' },
-      { type: 'added', line: 14, content: '- Verify backup checksum before proceeding' },
-      { type: 'context', line: 15, content: '' },
+      { type: 'context', line: 14, content: '' },
       { type: 'removed', line: 22, content: '- Manually clear application cache' },
-      { type: 'added', line: 22, content: '- Trigger automated cache invalidation via webhook' },
-      { type: 'context', line: 23, content: '' },
-      { type: 'added', line: 28, content: '## Auto-rollback trigger' },
-      { type: 'added', line: 29, content: '- If health check fails twice in 60s, auto-initiate rollback plan' }
+      { type: 'added', line: 22, content: '- Trigger automated cache invalidation via webhook' }
     ]
   }
 };
-
-// Rollback plan
 const ROLLBACK_PLAN = [
   { order: 1, action: 'Switch DNS back to previous version', duration: '3m', command: 'aws route53 rollback' },
   { order: 2, action: 'Scale down new deployment pods', duration: '2m', command: 'kubectl scale deploy/app-v2.4.1 --replicas=0' },
@@ -304,6 +340,18 @@ const ROLLBACK_PLAN = [
   { order: 4, action: 'Roll back migrations', duration: '2m', command: 'alembic downgrade -1', critical: true },
   { order: 5, action: 'Verify previous version healthy', duration: '2m', command: 'curl api-v2.4.0/health' },
   { order: 6, action: 'Send rollback notification', duration: '1m', command: 'notify --channel=incidents' }
+];
+
+// Phase 5: Notifications
+const INITIAL_NOTIFICATIONS = [
+  { id: 'n1', type: 'approval_needed', title: 'Approval needed: Release 2.4.1', desc: 'David Park requested approval for Step 6: Approval gate', time: '2m ago', icon: '🛡', color: 'var(--warning)', read: false, link: 'deployments' },
+  { id: 'n2', type: 'suggestion', title: 'New suggestion submitted', desc: 'David Park submitted: "Add DB backup verification step"', time: '2h ago', icon: '💡', color: 'var(--info)', read: false, link: 'suggestions' },
+  { id: 'n3', type: 'test_failed', title: 'Critical test failed', desc: 'TC-2805: MFA on suspicious IP — blocked by Sarah Chen', time: '3h ago', icon: '✕', color: 'var(--danger)', read: false, link: 'testing' },
+  { id: 'n4', type: 'deploy_completed', title: 'Deployment completed', desc: 'Hotfix — Payment Gateway completed in 32m by Lisa Wang', time: '5h ago', icon: '✓', color: 'var(--success)', read: true, link: 'deployments' },
+  { id: 'n5', type: 'mention', title: 'You were mentioned', desc: 'Mike Johnson mentioned you in a comment on Sprint 24', time: '6h ago', icon: '@', color: 'var(--accent)', read: true, link: 'testing' },
+  { id: 'n6', type: 'system', title: 'Template v3.2 published', desc: 'Production Deployment template updated by Jordan Diaz', time: '1d ago', icon: '📄', color: 'var(--accent-2)', read: true, link: 'templates' },
+  { id: 'n7', type: 'suggestion_approved', title: 'Your suggestion was approved', desc: 'Cache clearing in deploy checklist merged into v3.3', time: '1d ago', icon: '✓', color: 'var(--success)', read: true, link: 'suggestions' },
+  { id: 'n8', type: 'audit', title: 'Compliance report ready', desc: 'Weekly audit report is ready for download', time: '2d ago', icon: '🛡', color: 'var(--info)', read: true, link: 'audit' }
 ];
 
 const CHART_DATA = {
@@ -323,13 +371,7 @@ const CHART_DATA = {
     {name:'Add Item',coverage:97,tests:54},{name:'Remove',coverage:95,tests:38},{name:'Update Qty',coverage:89,tests:22},
     {name:'Apply Coupon',coverage:76,tests:19},{name:'Save Later',coverage:68,tests:12},{name:'Estimate Ship',coverage:54,tests:8},
     {name:'Stripe',coverage:98,tests:68},{name:'PayPal',coverage:94,tests:45},{name:'Apple Pay',coverage:87,tests:32},
-    {name:'Google Pay',coverage:85,tests:28},{name:'Refund',coverage:79,tests:24},{name:'Invoice',coverage:71,tests:18},
-    {name:'Basic',coverage:96,tests:48},{name:'Advanced',coverage:82,tests:36},{name:'Full Text',coverage:74,tests:22},
-    {name:'Voice',coverage:45,tests:11},{name:'View',coverage:99,tests:52},{name:'Edit',coverage:93,tests:41},
-    {name:'Delete',coverage:88,tests:29},{name:'Export',coverage:76,tests:18},{name:'Avatar',coverage:95,tests:14},
-    {name:'Password',coverage:91,tests:22},{name:'Email Verify',coverage:87,tests:19},{name:'2FA',coverage:78,tests:16},
-    {name:'Create',coverage:96,tests:58},{name:'Read',coverage:99,tests:42},{name:'Update',coverage:94,tests:38},
-    {name:'Delete',coverage:89,tests:28},{name:'History',coverage:81,tests:24},{name:'Archive',coverage:72,tests:15}
+    {name:'Google Pay',coverage:85,tests:28},{name:'Refund',coverage:79,tests:24},{name:'Invoice',coverage:71,tests:18}
   ]
 };
 const LIVE_ACTOR_POOL = ['Sarah Chen','David Park','Lisa Wang','Mike Johnson','Alex Kumar','Emily Davis'];
@@ -351,6 +393,7 @@ const COMMANDS = [
   { id: 'new-test', label: 'New Test Case', icon: '➕', action: () => openTestCaseEditor(), keywords: 'create' },
   { id: 'new-deploy', label: 'Start Deployment', icon: '🚀', action: () => startDeploymentExecution(), keywords: '' },
   { id: 'submit-suggestion', label: 'Submit Suggestion', icon: '💡', action: () => openSuggestionSubmission(), keywords: 'idea feedback' },
+  { id: 'mark-all-read', label: 'Mark All Notifications Read', icon: '✓', action: () => markAllNotificationsRead(), keywords: 'clear notifications' },
   { id: 'toggle-theme', label: 'Toggle Theme', icon: '🌓', action: () => toggleTheme(), keywords: 'dark light' },
   { id: 'logout', label: 'Sign Out', icon: '🚪', action: () => { state.user = null; navigate('login'); }, keywords: 'exit' }
 ];
@@ -375,7 +418,7 @@ const icons = {
   download: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>',
   edit: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
   trash: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
-  chevron: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
+  filter: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
   chevDown: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'
 };
 
@@ -450,6 +493,655 @@ function formatSize(bytes) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PHASE 5: NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════
+function toggleNotifications() {
+  state.notifDropdownOpen = !state.notifDropdownOpen;
+  renderHeader();
+}
+
+function markNotificationRead(id) {
+  const n = state.notifications.find(x => x.id === id);
+  if (n) {
+    n.read = true;
+    if (n.link) navigate(n.link);
+  }
+  state.notifDropdownOpen = false;
+  renderHeader();
+}
+
+function markAllNotificationsRead() {
+  state.notifications.forEach(n => n.read = true);
+  toast('All notifications marked as read', 'success');
+  renderHeader();
+}
+
+function renderNotificationsDropdown() {
+  if (!state.notifDropdownOpen) return '';
+  const unreadCount = state.notifications.filter(n => !n.read).length;
+  return `
+    <div class="notif-dropdown" onclick="event.stopPropagation()">
+      <div class="p-4 flex items-center justify-between" style="border-bottom: 1px solid var(--border);">
+        <div>
+          <h3 class="font-semibold text-sm">Notifications</h3>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted);">${unreadCount} unread</p>
+        </div>
+        ${unreadCount > 0 ? `<button class="btn btn-ghost text-xs" onclick="markAllNotificationsRead()">Mark all read</button>` : ''}
+      </div>
+      <div class="max-h-[400px] overflow-y-auto scroll">
+        ${state.notifications.length === 0 ? `
+          <div class="empty-state py-12">
+            <div class="text-4xl mb-2">🔔</div>
+            <div class="text-sm" style="color: var(--text-muted);">No notifications yet</div>
+          </div>
+        ` : state.notifications.map(n => `
+          <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotificationRead('${n.id}')">
+            <div class="flex gap-3">
+              <div class="notif-icon" style="background: ${n.color}22; color: ${n.color};">${n.icon}</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium mb-0.5 ${n.read ? '' : ''}" style="${n.read ? '' : 'color: var(--text);'}">${n.title}</div>
+                <div class="text-xs line-clamp-2" style="color: var(--text-muted);">${n.desc}</div>
+                <div class="text-[10px] mt-1 mono" style="color: var(--text-dim);">${n.time}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="p-3 text-center" style="border-top: 1px solid var(--border);">
+        <button class="text-xs" style="color: var(--accent);" onclick="navigate('notifications'); state.notifDropdownOpen = false; renderHeader();">View all notifications</button>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 5: FILTERS
+// ═══════════════════════════════════════════════════════════════
+function toggleFilters() {
+  state.filtersOpen = !state.filtersOpen;
+  if (state.view === 'testing') renderTesting();
+  else if (state.view === 'deployments') renderDeployments();
+  else if (state.view === 'suggestions') renderSuggestions();
+}
+
+function setFilter(category, value) {
+  if (!state.activeFilters[category]) state.activeFilters[category] = [];
+  const idx = state.activeFilters[category].indexOf(value);
+  if (idx >= 0) state.activeFilters[category].splice(idx, 1);
+  else state.activeFilters[category].push(value);
+  if (state.view === 'testing') renderTesting();
+  else if (state.view === 'deployments') renderDeployments();
+  else if (state.view === 'suggestions') renderSuggestions();
+}
+
+function clearFilters() {
+  state.activeFilters = {};
+  if (state.view === 'testing') renderTesting();
+  else if (state.view === 'deployments') renderDeployments();
+  else if (state.view === 'suggestions') renderSuggestions();
+}
+
+function applyPreset(presetId) {
+  const preset = state.savedPresets.find(p => p.id === presetId);
+  if (!preset) return;
+  state.activeFilters = { ...preset.filters };
+  toast(`Applied filter preset: ${preset.name}`, 'success');
+  if (state.view === 'testing') renderTesting();
+  else if (state.view === 'deployments') renderDeployments();
+  else if (state.view === 'suggestions') renderSuggestions();
+}
+
+function getActiveFilterCount() {
+  return Object.values(state.activeFilters).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+}
+
+function renderFilterPanel(filterType) {
+  if (!state.filtersOpen) return '';
+  
+  const filtersByType = {
+    testing: [
+      { category: 'status', label: 'Status', options: ['passed', 'failed', 'blocked', 'not-run'] },
+      { category: 'assignee', label: 'Assignee', options: ['Sarah Chen', 'Mike Johnson', 'Alex Kumar', 'Me'] },
+      { category: 'module', label: 'Module', options: ['Auth', 'Cart', 'Security', 'Payments'] },
+      { category: 'priority', label: 'Priority', options: ['high', 'medium', 'low'] }
+    ],
+    deployments: [
+      { category: 'status', label: 'Status', options: ['running', 'completed', 'pending', 'failed'] },
+      { category: 'engineer', label: 'Engineer', options: ['David Park', 'Lisa Wang', 'James Smith'] },
+      { category: 'project', label: 'Project', options: ['E-Commerce', 'Payment GW', 'User Mgmt'] },
+      { category: 'criticality', label: 'Criticality', options: ['critical', 'standard'] }
+    ],
+    suggestions: [
+      { category: 'status', label: 'Status', options: ['submitted', 'under_review', 'approved', 'rejected', 'clarification'] },
+      { category: 'priority', label: 'Priority', options: ['high', 'medium', 'low'] },
+      { category: 'type', label: 'Type', options: ['test', 'deployment', 'process'] },
+      { category: 'submitter', label: 'Submitter', options: ['David Park', 'Sarah Chen', 'Lisa Wang', 'Mike Johnson'] }
+    ]
+  };
+  
+  const filters = filtersByType[filterType] || [];
+  
+  return `
+    <div class="filter-panel">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          ${icons.filter}
+          <h3 class="text-sm font-semibold">Advanced Filters</h3>
+          ${getActiveFilterCount() > 0 ? `<span class="pill pill-info">${getActiveFilterCount()} active</span>` : ''}
+        </div>
+        <div class="flex gap-2">
+          ${getActiveFilterCount() > 0 ? `<button class="btn btn-ghost text-xs" onclick="clearFilters()">Clear all</button>` : ''}
+          <button class="btn btn-ghost text-xs" onclick="toggleFilters()">✕</button>
+        </div>
+      </div>
+      
+      ${state.savedPresets.length > 0 ? `
+        <div class="mb-4">
+          <div class="text-[10px] uppercase font-semibold mb-2" style="color: var(--text-muted);">Saved Presets</div>
+          <div class="flex gap-2 flex-wrap">
+            ${state.savedPresets.map(p => `<button class="filter-chip" onclick="applyPreset('${p.id}')">⚡ ${p.name}</button>`).join('')}
+          </div>
+        </div>
+      ` : ''}
+      
+      <div class="space-y-4">
+        ${filters.map(f => `
+          <div>
+            <div class="text-[10px] uppercase font-semibold mb-2" style="color: var(--text-muted);">${f.label}</div>
+            <div class="flex gap-2 flex-wrap">
+              ${f.options.map(opt => {
+                const isActive = state.activeFilters[f.category]?.includes(opt);
+                return `<button class="filter-chip ${isActive ? 'active' : ''}" onclick="setFilter('${f.category}', '${opt}')">${opt}${isActive ? '<span class="remove" onclick="event.stopPropagation(); setFilter(\\'${f.category}\\', \\'${opt}\\')">✕</span>' : ''}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function applyFilters(items, filterMap) {
+  return items.filter(item => {
+    for (const [category, key] of Object.entries(filterMap)) {
+      const activeFilters = state.activeFilters[category];
+      if (activeFilters && activeFilters.length > 0) {
+        const itemValue = typeof key === 'function' ? key(item) : item[key];
+        if (!activeFilters.includes(itemValue)) return false;
+      }
+    }
+    return true;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 5: FAB (Floating Action Button)
+// ═══════════════════════════════════════════════════════════════
+function toggleFab() {
+  state.fabOpen = !state.fabOpen;
+  renderFab();
+}
+
+function renderFab() {
+  if (state.view === 'login') return '';
+  
+  // Context-aware actions based on current view
+  const actionsByView = {
+    dashboard: [
+      { icon: '➕', label: 'New Execution', action: () => { toggleFab(); toast('Create execution wizard would open', 'info'); } },
+      { icon: '💡', label: 'Submit Suggestion', action: () => { toggleFab(); openSuggestionSubmission(); } }
+    ],
+    testing: [
+      { icon: '➕', label: 'New Test Case', action: () => { toggleFab(); openTestCaseEditor(); } },
+      { icon: '▶', label: 'Start Focus Mode', action: () => { toggleFab(); openTestFocusMode(); } },
+      { icon: '📥', label: 'Import Tests', action: () => { toggleFab(); toast('Import wizard would open', 'info'); } }
+    ],
+    deployments: [
+      { icon: '🚀', label: 'Start Deployment', action: () => { toggleFab(); startDeploymentExecution(); } },
+      { icon: '📋', label: 'Schedule Deployment', action: () => { toggleFab(); toast('Scheduler would open', 'info'); } }
+    ],
+    templates: [
+      { icon: '➕', label: 'New Template', action: () => { toggleFab(); toast('Template editor would open', 'info'); } },
+      { icon: '📥', label: 'Import Template', action: () => { toggleFab(); toast('Import dialog would open', 'info'); } }
+    ],
+    suggestions: [
+      { icon: '💡', label: 'Submit Suggestion', action: () => { toggleFab(); openSuggestionSubmission(); } }
+    ],
+    audit: [
+      { icon: '📥', label: 'Export Audit Log', action: () => { toggleFab(); exportCSV(); } },
+      { icon: '📄', label: 'Generate Report', action: () => { toggleFab(); toast('Report generator would open', 'info'); } }
+    ],
+    reports: [
+      { icon: '➕', label: 'New Report', action: () => { toggleFab(); toast('Report builder would open', 'info'); } },
+      { icon: '📥', label: 'Export All', action: () => { toggleFab(); exportCSV(); } }
+    ]
+  };
+  
+  const actions = actionsByView[state.view] || actionsByView.dashboard;
+  
+  return `
+    <div class="fab-container">
+      ${state.fabOpen ? `
+        <div class="fab-menu">
+          ${actions.map(a => `
+            <div class="fab-item" onclick="${a.action.toString().replace(/"/g, '&quot;')}">
+              <span class="text-xs font-medium">${a.label}</span>
+              <div class="fab-icon">${a.icon}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      <div class="fab-main ${state.fabOpen ? 'open' : ''}" onclick="toggleFab()">
+        ${state.fabOpen ? '✕' : '＋'}
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 5: EMPTY STATES
+// ═══════════════════════════════════════════════════════════════
+function renderEmptyState(type) {
+  const emptyStates = {
+    tests: {
+      icon: '🧪',
+      title: 'No test cases yet',
+      desc: 'Create your first test case to start tracking quality',
+      cta: 'Create Test Case',
+      action: () => openTestCaseEditor()
+    },
+    deployments: {
+      icon: '🚀',
+      title: 'No deployments yet',
+      desc: 'Start your first deployment to begin tracking releases',
+      cta: 'Start Deployment',
+      action: () => startDeploymentExecution()
+    },
+    suggestions: {
+      icon: '💡',
+      title: 'No suggestions yet',
+      desc: 'Submit a suggestion to improve your processes',
+      cta: 'Submit Suggestion',
+      action: () => openSuggestionSubmission()
+    },
+    filters: {
+      icon: '🔍',
+      title: 'No results match your filters',
+      desc: 'Try adjusting your filters or clear them to see all items',
+      cta: 'Clear Filters',
+      action: () => clearFilters()
+    }
+  };
+  const s = emptyStates[type];
+  return `
+    <div class="empty-state">
+      <div class="empty-illustration">${s.icon}</div>
+      <h3 class="text-lg font-semibold mb-2">${s.title}</h3>
+      <p class="text-sm mb-4" style="color: var(--text-muted);">${s.desc}</p>
+      <button class="btn btn-primary" onclick="${s.action.toString().replace(/"/g, '&quot;')}">${s.cta}</button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 5: ROLE-SPECIFIC DASHBOARD WIDGETS
+// ═══════════════════════════════════════════════════════════════
+function renderRoleSpecificWidgets() {
+  const role = state.user?.role;
+  if (!role) return '';
+  
+  if (role === 'manager') {
+    return `
+      <!-- Manager-specific: Approval queue, team performance, risk -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(245,158,11,0.15); color: var(--warning);">🛡</div>
+              <h3 class="font-semibold text-sm">Approval Queue</h3>
+            </div>
+            <span class="pill pill-block">3 pending</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-2 rounded" style="background: var(--bg-hover);">
+              <div class="w-7 h-7 rounded-full bg-violet-600 flex items-center justify-center text-[10px] font-bold text-white">DP</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-medium truncate">Release 2.4.1 — Step 6</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">David Park · 2m ago</div>
+              </div>
+              <button class="btn btn-primary text-[10px]" onclick="startDeploymentExecution()">Review</button>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded" style="background: var(--bg-hover);">
+              <div class="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] font-bold text-white">SC</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-medium truncate">Template v3.3 draft</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">Sarah Chen · 4h ago</div>
+              </div>
+              <button class="btn btn-subtle text-[10px]" onclick="navigate('templates')">Review</button>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded" style="background: var(--bg-hover);">
+              <div class="w-7 h-7 rounded-full bg-cyan-600 flex items-center justify-center text-[10px] font-bold text-white">AK</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-medium truncate">Security review request</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">Alex Kumar · 1d ago</div>
+              </div>
+              <button class="btn btn-subtle text-[10px]">Review</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(99,102,241,0.15); color: var(--accent);">👥</div>
+              <h3 class="font-semibold text-sm">Team Performance</h3>
+            </div>
+            <span class="text-[10px]" style="color: var(--text-muted);">This week</span>
+          </div>
+          <div class="space-y-2.5">
+            ${[
+              { name: 'Sarah Chen', initials: 'SC', color: 'bg-emerald-600', tests: 142, rate: 94 },
+              { name: 'David Park', initials: 'DP', color: 'bg-violet-600', tests: 89, rate: 98 },
+              { name: 'Mike Johnson', initials: 'MJ', color: 'bg-amber-600', tests: 76, rate: 87 },
+              { name: 'Alex Kumar', initials: 'AK', color: 'bg-cyan-600', tests: 63, rate: 91 }
+            ].map(m => `
+              <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-full ${m.color} flex items-center justify-center text-[10px] font-bold text-white">${m.initials}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <span class="text-xs font-medium">${m.name}</span>
+                    <span class="text-[10px] mono" style="color: var(--text-muted);">${m.tests} tests · ${m.rate}%</span>
+                  </div>
+                  <div class="progress-bar"><div style="background: var(--success); width: ${m.rate}%;"></div></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(239,68,68,0.15); color: var(--danger);">⚠</div>
+              <h3 class="font-semibold text-sm">Risk Overview</h3>
+            </div>
+            <span class="pill pill-fail">2 high</span>
+          </div>
+          <div class="space-y-2">
+            <div class="p-2.5 rounded" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2);">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="pill pill-fail text-[9px]">High</span>
+                <span class="text-xs font-medium">Deployment failure rate up 12%</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">3 failed deploys this week vs 0 last week</div>
+            </div>
+            <div class="p-2.5 rounded" style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2);">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="pill pill-block text-[9px]">Medium</span>
+                <span class="text-xs font-medium">Test coverage below target</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">Search module at 78% (target: 85%)</div>
+            </div>
+            <div class="p-2.5 rounded" style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="pill pill-pass text-[9px]">Low</span>
+                <span class="text-xs font-medium">Compliance score healthy</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">98% audit trail integrity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  if (role === 'tester') {
+    return `
+      <!-- Tester-specific: My queue, cycle progress, streak -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="widget-card lg:col-span-2">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(16,185,129,0.15); color: var(--success);">🧪</div>
+              <h3 class="font-semibold text-sm">My Test Queue</h3>
+            </div>
+            <span class="pill pill-info">12 assigned</span>
+          </div>
+          <div class="space-y-2">
+            ${[
+              { id: 'TC-2811', name: 'Cart persistence across devices', status: 'not-run', priority: 'high', cycle: 'Sprint 24' },
+              { id: 'TC-2812', name: 'SSO token refresh on expiry', status: 'not-run', priority: 'medium', cycle: 'Sprint 24' },
+              { id: 'TC-2813', name: 'OAuth flow with multiple providers', status: 'blocked', priority: 'high', cycle: 'Sprint 24' },
+              { id: 'TC-2814', name: 'Password policy enforcement', status: 'not-run', priority: 'low', cycle: 'Security Audit' }
+            ].map(t => `
+              <div class="flex items-center gap-3 p-2.5 rounded cursor-pointer hover:bg-[var(--bg-hover)]" onclick="openTestFocusMode()">
+                <span class="w-1.5 h-1.5 rounded-full" style="background: ${t.priority === 'high' ? 'var(--danger)' : t.priority === 'medium' ? 'var(--warning)' : 'var(--text-dim)'}"></span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <span class="mono text-[10px]" style="color: var(--text-dim);">${t.id}</span>
+                    <span class="text-xs font-medium truncate">${t.name}</span>
+                  </div>
+                  <div class="text-[10px]" style="color: var(--text-muted);">${t.cycle}</div>
+                </div>
+                <span class="pill ${t.status === 'blocked' ? 'pill-block' : 'pill-pend'}">${t.status}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(245,158,11,0.15); color: var(--warning);">🔥</div>
+              <h3 class="font-semibold text-sm">My Stats</h3>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div class="text-center py-3">
+              <div class="text-4xl font-bold" style="color: var(--success);">14</div>
+              <div class="text-xs mt-1" style="color: var(--text-muted);">Day Streak 🎯</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-center">
+              <div class="p-2 rounded" style="background: var(--bg-hover);">
+                <div class="text-lg font-bold">312</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">Tests this week</div>
+              </div>
+              <div class="p-2 rounded" style="background: var(--bg-hover);">
+                <div class="text-lg font-bold" style="color: var(--success);">94%</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">Pass rate</div>
+              </div>
+              <div class="p-2 rounded" style="background: var(--bg-hover);">
+                <div class="text-lg font-bold" style="color: var(--danger);">3</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">Failed today</div>
+              </div>
+              <div class="p-2 rounded" style="background: var(--bg-hover);">
+                <div class="text-lg font-bold" style="color: var(--warning);">2</div>
+                <div class="text-[10px]" style="color: var(--text-muted);">Blocked</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  if (role === 'engineer') {
+    return `
+      <!-- Engineer-specific: Active deployments, rollback history, health -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="widget-card lg:col-span-2">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(99,102,241,0.15); color: var(--accent);">🚀</div>
+              <h3 class="font-semibold text-sm">My Active Deployments</h3>
+            </div>
+            <button class="btn btn-primary text-xs" onclick="startDeploymentExecution()">Start New</button>
+          </div>
+          <div class="space-y-2">
+            <div class="p-3 rounded cursor-pointer" style="background: var(--bg-hover);" onclick="startDeploymentExecution()">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium text-sm">Release 2.4.1 — Prod</span>
+                  <span class="pill pill-run">● Running</span>
+                  <span class="pill pill-fail text-[9px]">Approval pending</span>
+                </div>
+                <span class="text-xs mono" style="color: var(--text-muted);">Step 6/8</span>
+              </div>
+              <div class="progress-bar mb-1"><div style="background: var(--accent); width: 75%;"></div></div>
+              <div class="text-[10px]" style="color: var(--text-muted);">Started 45m ago · Waiting for manager approval</div>
+            </div>
+            <div class="p-3 rounded" style="background: var(--bg-hover);">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium text-sm">Staging — User v3.0</span>
+                  <span class="pill pill-pend">● Scheduled</span>
+                </div>
+                <span class="text-xs mono" style="color: var(--text-muted);">Today 14:00</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">18 steps · ~60m estimated</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(239,68,68,0.15); color: var(--danger);">↺</div>
+              <h3 class="font-semibold text-sm">Rollback History</h3>
+            </div>
+            <span class="text-[10px]" style="color: var(--text-muted);">Last 30d</span>
+          </div>
+          <div class="space-y-2">
+            <div class="p-2.5 rounded" style="background: var(--bg-hover);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium">Analytics Dashboard</span>
+                <span class="text-[10px] mono" style="color: var(--text-dim);">3h ago</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">Triggered by: failed health check</div>
+            </div>
+            <div class="p-2.5 rounded" style="background: var(--bg-hover);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium">Payment GW hotfix</span>
+                <span class="text-[10px] mono" style="color: var(--text-dim);">5d ago</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">Triggered by: error rate spike</div>
+            </div>
+            <div class="text-center text-[10px] py-2" style="color: var(--text-muted);">2 rollbacks · 100% success</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  if (role === 'auditor') {
+    return `
+      <!-- Auditor-specific: Compliance, anomalies, verification -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(16,185,129,0.15); color: var(--success);">✓</div>
+              <h3 class="font-semibold text-sm">Compliance Score</h3>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <div class="text-5xl font-bold" style="color: var(--success);">98%</div>
+            <div class="text-xs mt-2" style="color: var(--text-muted);">SOC 2 Type II Compliant</div>
+            <div class="text-[10px] mt-1" style="color: var(--success);">↑ 2% vs last month</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-3 text-[10px]">
+            <div class="p-2 rounded text-center" style="background: var(--bg-hover);">
+              <div class="font-bold">100%</div>
+              <div style="color: var(--text-muted);">Trail integrity</div>
+            </div>
+            <div class="p-2 rounded text-center" style="background: var(--bg-hover);">
+              <div class="font-bold">99.8%</div>
+              <div style="color: var(--text-muted);">Hash verification</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(245,158,11,0.15); color: var(--warning);">⚠</div>
+              <h3 class="font-semibold text-sm">Anomalies Detected</h3>
+            </div>
+            <span class="pill pill-block">2</span>
+          </div>
+          <div class="space-y-2">
+            <div class="p-2.5 rounded" style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2);">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="pill pill-block text-[9px]">Warning</span>
+                <span class="text-xs font-medium">Unusual access pattern</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">5 logins from new IP in 1h</div>
+            </div>
+            <div class="p-2.5 rounded" style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2);">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="pill pill-block text-[9px]">Info</span>
+                <span class="text-xs font-medium">Template change without review</span>
+              </div>
+              <div class="text-[10px]" style="color: var(--text-muted);">Security Checklist v1.8</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="flex items-center gap-2">
+              <div class="widget-icon" style="background: rgba(59,130,246,0.15); color: var(--info);">📊</div>
+              <h3 class="font-semibold text-sm">Audit Volume</h3>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-hover);">
+              <span class="text-xs">Today</span>
+              <span class="text-sm font-bold mono">12,847</span>
+            </div>
+            <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-hover);">
+              <span class="text-xs">This week</span>
+              <span class="text-sm font-bold mono">84,291</span>
+            </div>
+            <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-hover);">
+              <span class="text-xs">This month</span>
+              <span class="text-sm font-bold mono">342,108</span>
+            </div>
+            <button class="btn btn-subtle text-xs w-full mt-2" onclick="exportCSV()">📥 Export Audit Log</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  return '';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 5: MOBILE BOTTOM NAV
+// ═══════════════════════════════════════════════════════════════
+function renderMobileBottomNav() {
+  if (!state.user || state.view === 'login') return '';
+  const items = [
+    { id: 'dashboard', icon: '📊', label: 'Home' },
+    { id: 'testing', icon: '🧪', label: 'Tests' },
+    { id: 'deployments', icon: '🚀', label: 'Deploy' },
+    { id: 'suggestions', icon: '💡', label: 'Ideas' },
+    { id: 'audit', icon: '🛡', label: 'Audit' }
+  ];
+  return `
+    <div class="mobile-bottom-nav">
+      ${items.map(i => `
+        <div class="mobile-nav-item ${state.view === i.id ? 'active' : ''}" onclick="navigate('${i.id}')">
+          <span style="font-size: 18px;">${i.icon}</span>
+          <span>${i.label}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PHASE 3 (retained): Bulk, Evidence, Comments, Editor, Hierarchy
 // ═══════════════════════════════════════════════════════════════
 function toggleTestSelection(testId, event) { if (event) event.stopPropagation(); if (state.selectedTests.has(testId)) state.selectedTests.delete(testId); else state.selectedTests.add(testId); renderTesting(); }
@@ -504,7 +1196,7 @@ function renderTestCaseEditor() {
         <div class="space-y-3">
           <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Test ID</label><input value="${tc.id}" ${isEdit ? 'readonly style="opacity:0.6"' : ''} oninput="state.editingTestCase.id = this.value" placeholder="TC-2809"></div>
           <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Name *</label><input value="${tc.name}" oninput="state.editingTestCase.name = this.value" placeholder="Login with valid credentials"></div>
-          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Description</label><textarea rows="3" oninput="state.editingTestCase.desc = this.value" placeholder="What does this test verify?">${tc.desc || ''}</textarea></div>
+          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Description</label><textarea rows="3" oninput="state.editingTestCase.desc = this.value">${tc.desc || ''}</textarea></div>
           <div class="grid grid-cols-2 gap-3">
             <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Status</label><select onchange="state.editingTestCase.status = this.value">${['not-run','passed','failed','blocked'].map(s => `<option value="${s}" ${tc.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
             <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Duration</label><input value="${tc.dur || '—'}" oninput="state.editingTestCase.dur = this.value"></div>
@@ -541,6 +1233,7 @@ function renderHierarchyNode(node, depth = 0) {
   const allowedAdd = canAddTypes[node.type] || [];
   return `<div><div class="tree-node ${state.selectedHierarchyNode === node.id ? 'selected' : ''}" style="padding-left: ${8 + depth * 14}px;" onclick="state.selectedHierarchyNode = '${node.id}'; renderTesting();">${hasChildren ? '<span style="color: var(--text-dim); font-size: 10px;">▾</span>' : '<span style="width: 10px; display: inline-block;"></span>'}<span style="font-size: 12px;">${typeIcons[node.type]}</span><span class="flex-1 truncate text-xs">${node.name}</span>${node.count !== undefined ? `<span class="text-[10px] mono" style="color: var(--text-dim);">${node.count}</span>` : ''}<div class="tree-node-actions">${allowedAdd.length > 0 ? `<button class="btn btn-ghost" onclick="event.stopPropagation(); toggleTreeAddMenu('${node.id}', event)" style="padding: 2px 4px;">${icons.plus}</button>` : ''}${node.type !== 'project' ? `<button class="btn btn-ghost" onclick="event.stopPropagation(); renameHierarchyNode('${node.id}')" style="padding: 2px 4px;">${icons.edit}</button><button class="btn btn-ghost" onclick="event.stopPropagation(); deleteHierarchyNode('${node.id}')" style="padding: 2px 4px; color: var(--danger);">${icons.trash}</button>` : ''}</div>${state.showTreeAddMenu === node.id ? `<div class="tree-add-menu">${allowedAdd.map(t => `<button onclick="event.stopPropagation(); addHierarchyNode('${node.id}', '${t}')">+ Add ${t}</button>`).join('')}</div>` : ''}</div>${hasChildren ? node.children.map(c => renderHierarchyNode(c, depth + 1)).join('') : ''}</div>`;
 }
+
 function renderHeatmap(modules) {
   return `<div><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold">Test Coverage Heatmap</h3><div class="flex items-center gap-2 text-[10px]" style="color: var(--text-dim);"><span>0%</span><div class="flex gap-0.5"><div class="w-3 h-3 rounded-sm" style="background: #dc2626;"></div><div class="w-3 h-3 rounded-sm" style="background: #ea580c;"></div><div class="w-3 h-3 rounded-sm" style="background: #f59e0b;"></div><div class="w-3 h-3 rounded-sm" style="background: #84cc16;"></div><div class="w-3 h-3 rounded-sm" style="background: #10b981;"></div></div><span>100%</span></div></div><div class="heatmap-grid" style="grid-template-columns: repeat(9, 1fr);">${modules.map(m => { let c = '#dc2626'; if (m.coverage >= 50) c = '#ea580c'; if (m.coverage >= 70) c = '#f59e0b'; if (m.coverage >= 80) c = '#84cc16'; if (m.coverage >= 90) c = '#10b981'; return `<div class="heat-cell" style="background: ${c};">${m.coverage}<div class="tooltip"><strong>${m.name}</strong><br>${m.coverage}% · ${m.tests} tests</div></div>`; }).join('')}</div></div>`;
 }
@@ -607,30 +1300,20 @@ function handleCmdKeydown(e) {
 function executeCommand(id) { const c = COMMANDS.find(x => x.id === id); if (c) { closeCommandPalette(); c.action(); } }
 
 // ═══════════════════════════════════════════════════════════════
-// PHASE 4: DEPLOYMENT EXECUTION WITH LIVE TIMERS
+// PHASE 4 (retained): Deployment, Approval, Rollback, Diff, Suggestion
 // ═══════════════════════════════════════════════════════════════
 function startDeploymentExecution() {
-  // Initialize a fresh deployment execution
   state.deployExecution = {
-    id: 'd-new-' + Date.now(),
-    name: 'Release 2.4.1 — Production',
-    template: 'v3.2',
-    startTime: Date.now(),
-    paused: false,
-    pausedAt: null,
-    totalPausedTime: 0,
-    steps: JSON.parse(JSON.stringify(INITIAL_DEPLOY_STEPS)),
-    currentIdx: 5, // Start at the approval gate for demo
-    elapsedPerStep: {},
-    completed: INITIAL_DEPLOY_STEPS.filter(s => s.status === 'completed').length
+    id: 'd-new-' + Date.now(), name: 'Release 2.4.1 — Production', template: 'v3.2',
+    startTime: Date.now(), paused: false, pausedAt: null, totalPausedTime: 0,
+    steps: JSON.parse(JSON.stringify(INITIAL_DEPLOY_STEPS)), currentIdx: 5,
+    elapsedPerStep: {}, completed: INITIAL_DEPLOY_STEPS.filter(s => s.status === 'completed').length
   };
-  // Start timer for the current running step
   startStepTimer(state.deployExecution.currentIdx);
   state.focusMode = { type: 'deploy' };
   renderFocusMode();
-  toast('Deployment execution started — live timers running', 'info', 3500);
+  toast('Deployment started — live timers running', 'info', 3500);
 }
-
 function startStepTimer(stepIdx) {
   stopAllTimers();
   if (!state.deployExecution) return;
@@ -640,181 +1323,85 @@ function startStepTimer(stepIdx) {
   state.activeTimers[stepIdx] = setInterval(() => {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
     state.deployExecution.elapsedPerStep[stepIdx] = elapsed;
-    // Update just the timer display without full re-render (avoids flicker)
     const timerEl = document.getElementById(`step-timer-${stepIdx}`);
     if (timerEl) timerEl.textContent = formatElapsed(elapsed);
   }, 1000);
 }
-
-function stopAllTimers() {
-  Object.values(state.activeTimers).forEach(t => clearInterval(t));
-  state.activeTimers = {};
-}
-
-function formatElapsed(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}m ${s.toString().padStart(2, '0')}s`;
-}
-
+function stopAllTimers() { Object.values(state.activeTimers).forEach(t => clearInterval(t)); state.activeTimers = {}; }
+function formatElapsed(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${m}m ${s.toString().padStart(2, '0')}s`; }
 function pauseDeploymentExecution() {
   if (!state.deployExecution) return;
-  state.deployExecution.paused = true;
-  state.deployExecution.pausedAt = Date.now();
-  stopAllTimers();
-  toast('Execution paused', 'warning');
-  renderFocusMode();
+  state.deployExecution.paused = true; state.deployExecution.pausedAt = Date.now();
+  stopAllTimers(); toast('Execution paused', 'warning'); renderFocusMode();
 }
-
 function resumeDeploymentExecution() {
   if (!state.deployExecution) return;
   state.deployExecution.paused = false;
-  if (state.deployExecution.pausedAt) {
-    state.deployExecution.totalPausedTime += Date.now() - state.deployExecution.pausedAt;
-    state.deployExecution.pausedAt = null;
-  }
-  // Resume timer for current step if it's running
+  if (state.deployExecution.pausedAt) { state.deployExecution.totalPausedTime += Date.now() - state.deployExecution.pausedAt; state.deployExecution.pausedAt = null; }
   const currentStep = state.deployExecution.steps[state.deployExecution.currentIdx];
-  if (currentStep && currentStep.status === 'running') {
-    startStepTimer(state.deployExecution.currentIdx);
-  }
-  toast('Execution resumed', 'success');
-  renderFocusMode();
+  if (currentStep && currentStep.status === 'running') startStepTimer(state.deployExecution.currentIdx);
+  toast('Execution resumed', 'success'); renderFocusMode();
 }
-
 function completeCurrentStep() {
   if (!state.deployExecution) return;
   const idx = state.deployExecution.currentIdx;
   const step = state.deployExecution.steps[idx];
   if (!step) return;
-  
-  // If it's a gate, require approval first
-  if (step.gate) {
-    openApprovalModal(idx);
-    return;
-  }
-  
-  step.status = 'completed';
-  step.dur = formatElapsed(state.deployExecution.elapsedPerStep[idx] || 0);
+  if (step.gate) { openApprovalModal(idx); return; }
+  step.status = 'completed'; step.dur = formatElapsed(state.deployExecution.elapsedPerStep[idx] || 0);
   state.deployExecution.completed++;
-  stopAllTimers();
-  toast(`Step ${step.id} completed: ${step.name}`, 'success');
-  
-  // Advance to next step
+  stopAllTimers(); toast(`Step ${step.id} completed: ${step.name}`, 'success');
   if (idx + 1 < state.deployExecution.steps.length) {
     state.deployExecution.currentIdx = idx + 1;
     const nextStep = state.deployExecution.steps[idx + 1];
-    nextStep.status = 'running';
-    state.deployExecution.elapsedPerStep[idx + 1] = 0;
+    nextStep.status = 'running'; state.deployExecution.elapsedPerStep[idx + 1] = 0;
     startStepTimer(idx + 1);
   } else {
     toast('🎉 Deployment completed successfully!', 'success', 5000);
-    state.deployExecution = null;
-    state.focusMode = null;
-    navigate('deployments');
-    return;
+    state.deployExecution = null; state.focusMode = null; navigate('deployments'); return;
   }
   renderFocusMode();
 }
-
 function failCurrentStep() {
   if (!state.deployExecution) return;
   const step = state.deployExecution.steps[state.deployExecution.currentIdx];
   if (!step) return;
-  step.status = 'failed';
-  step.dur = formatElapsed(state.deployExecution.elapsedPerStep[state.deployExecution.currentIdx] || 0);
-  stopAllTimers();
-  toast(`Step ${step.id} FAILED: ${step.name}`, 'error', 4000);
-  // Suggest rollback for critical steps
-  if (step.crit) {
-    setTimeout(() => {
-      if (confirm('Critical step failed. Initiate rollback?')) {
-        openRollbackModal();
-      }
-    }, 500);
-  }
+  step.status = 'failed'; step.dur = formatElapsed(state.deployExecution.elapsedPerStep[state.deployExecution.currentIdx] || 0);
+  stopAllTimers(); toast(`Step ${step.id} FAILED`, 'error', 4000);
+  if (step.crit) setTimeout(() => { if (confirm('Critical step failed. Rollback?')) openRollbackModal(); }, 500);
   renderFocusMode();
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 4: APPROVAL GATE WORKFLOW
-// ═══════════════════════════════════════════════════════════════
-function openApprovalModal(stepIdx) {
-  const step = state.deployExecution.steps[stepIdx];
-  state.approvalModal = { stepIdx, step };
-  renderApprovalModal();
-}
-
-function closeApprovalModal() {
-  state.approvalModal = null;
-  document.getElementById('modal-root').innerHTML = '';
-  // Re-render focus mode to reflect any changes
-  if (state.focusMode) renderFocusMode();
-}
-
+function openApprovalModal(stepIdx) { state.approvalModal = { stepIdx, step: state.deployExecution.steps[stepIdx] }; renderApprovalModal(); }
+function closeApprovalModal() { state.approvalModal = null; document.getElementById('modal-root').innerHTML = ''; if (state.focusMode) renderFocusMode(); }
 function approveStep(reason) {
   const { stepIdx, step } = state.approvalModal;
   if (!state.deployExecution) { closeApprovalModal(); return; }
-  
-  // Add approval to history
   step.approvalHistory = step.approvalHistory || [];
-  step.approvalHistory.push({
-    decision: 'approved',
-    approver: state.user.name,
-    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    reason: reason || 'Pre-flight checks passed, metrics healthy'
-  });
-  
-  closeApprovalModal();
-  toast('✓ Step approved — proceeding', 'success');
-  
-  // Mark gate as completed and advance
-  step.status = 'completed';
-  step.dur = formatElapsed(state.deployExecution.elapsedPerStep[stepIdx] || 0);
-  state.deployExecution.completed++;
-  stopAllTimers();
-  
+  step.approvalHistory.push({ decision: 'approved', approver: state.user.name, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }), reason: reason || 'Pre-flight checks passed' });
+  closeApprovalModal(); toast('✓ Step approved', 'success');
+  step.status = 'completed'; step.dur = formatElapsed(state.deployExecution.elapsedPerStep[stepIdx] || 0);
+  state.deployExecution.completed++; stopAllTimers();
   if (stepIdx + 1 < state.deployExecution.steps.length) {
     state.deployExecution.currentIdx = stepIdx + 1;
     const nextStep = state.deployExecution.steps[stepIdx + 1];
-    nextStep.status = 'running';
-    state.deployExecution.elapsedPerStep[stepIdx + 1] = 0;
+    nextStep.status = 'running'; state.deployExecution.elapsedPerStep[stepIdx + 1] = 0;
     startStepTimer(stepIdx + 1);
   }
   renderFocusMode();
 }
-
 function rejectStep(reason) {
   const { stepIdx, step } = state.approvalModal;
   step.approvalHistory = step.approvalHistory || [];
-  step.approvalHistory.push({
-    decision: 'rejected',
-    approver: state.user.name,
-    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    reason: reason || 'Metrics show elevated error rate'
-  });
-  closeApprovalModal();
-  toast('✕ Approval rejected — execution halted', 'error', 4000);
-  // Suggest rollback
-  setTimeout(() => {
-    if (confirm('Approval rejected. Initiate rollback?')) openRollbackModal();
-  }, 500);
+  step.approvalHistory.push({ decision: 'rejected', approver: state.user.name, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }), reason: reason || 'Metrics concerning' });
+  closeApprovalModal(); toast('✕ Approval rejected', 'error', 4000);
+  setTimeout(() => { if (confirm('Approval rejected. Rollback?')) openRollbackModal(); }, 500);
 }
-
 function requestInfoStep(question) {
   const { stepIdx, step } = state.approvalModal;
   step.approvalHistory = step.approvalHistory || [];
-  step.approvalHistory.push({
-    decision: 'info_requested',
-    approver: state.user.name,
-    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    reason: question || 'Please share smoke test results'
-  });
-  closeApprovalModal();
-  toast('💬 Info requested from executor', 'info');
-  renderFocusMode();
+  step.approvalHistory.push({ decision: 'info_requested', approver: state.user.name, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }), reason: question || 'Need more info' });
+  closeApprovalModal(); toast('💬 Info requested', 'info'); renderFocusMode();
 }
-
 function renderApprovalModal() {
   const { step } = state.approvalModal;
   const history = step.approvalHistory || [];
@@ -822,74 +1409,23 @@ function renderApprovalModal() {
     <div class="modal-overlay" onclick="closeApprovalModal()">
       <div class="modal-content p-6" onclick="event.stopPropagation()">
         <div class="flex items-start justify-between mb-4">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="pill pill-block">🛡 Approval Gate</span>
-              <span class="pill pill-fail">⚠ Critical</span>
-            </div>
-            <h2 class="text-lg font-semibold">Step ${step.id}: ${step.name}</h2>
-            <p class="text-sm mt-1" style="color: var(--text-muted);">${step.desc}</p>
-          </div>
+          <div><div class="flex items-center gap-2 mb-1"><span class="pill pill-block">🛡 Approval Gate</span><span class="pill pill-fail">⚠ Critical</span></div><h2 class="text-lg font-semibold">Step ${step.id}: ${step.name}</h2><p class="text-sm mt-1" style="color: var(--text-muted);">${step.desc}</p></div>
           <button class="btn btn-ghost p-1" onclick="closeApprovalModal()">✕</button>
         </div>
-
-        <!-- Current metrics -->
         <div class="card p-4 mb-4" style="background: var(--bg);">
           <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Current Metrics</h3>
           <div class="grid grid-cols-4 gap-3">
-            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
-              <div class="text-[10px]" style="color: var(--text-muted);">Error Rate</div>
-              <div class="text-lg font-bold" style="color: var(--success);">0.02%</div>
-            </div>
-            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
-              <div class="text-[10px]" style="color: var(--text-muted);">p95 Latency</div>
-              <div class="text-lg font-bold" style="color: var(--success);">142ms</div>
-            </div>
-            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
-              <div class="text-[10px]" style="color: var(--text-muted);">Smoke Tests</div>
-              <div class="text-lg font-bold" style="color: var(--success);">23/23</div>
-            </div>
-            <div class="p-3 rounded text-center" style="background: var(--bg-hover);">
-              <div class="text-[10px]" style="color: var(--text-muted);">Uptime</div>
-              <div class="text-lg font-bold" style="color: var(--success);">100%</div>
-            </div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);"><div class="text-[10px]" style="color: var(--text-muted);">Error Rate</div><div class="text-lg font-bold" style="color: var(--success);">0.02%</div></div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);"><div class="text-[10px]" style="color: var(--text-muted);">p95 Latency</div><div class="text-lg font-bold" style="color: var(--success);">142ms</div></div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);"><div class="text-[10px]" style="color: var(--text-muted);">Smoke Tests</div><div class="text-lg font-bold" style="color: var(--success);">23/23</div></div>
+            <div class="p-3 rounded text-center" style="background: var(--bg-hover);"><div class="text-[10px]" style="color: var(--text-muted);">Uptime</div><div class="text-lg font-bold" style="color: var(--success);">100%</div></div>
           </div>
         </div>
-
-        <!-- Approval history -->
-        ${history.length > 0 ? `
-          <div class="mb-4">
-            <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Decision History</h3>
-            <div class="approval-chain">
-              ${history.map(h => `
-                <div class="approval-node ${h.decision === 'approved' ? 'approved' : h.decision === 'rejected' ? 'rejected' : 'pending'}">
-                  <div class="card p-3" style="background: var(--bg);">
-                    <div class="flex items-center justify-between mb-1">
-                      <span class="font-medium text-sm">${h.approver}</span>
-                      <span class="pill ${h.decision === 'approved' ? 'pill-pass' : h.decision === 'rejected' ? 'pill-fail' : 'pill-info'}">${h.decision.replace('_', ' ')}</span>
-                    </div>
-                    <div class="text-xs" style="color: var(--text-muted);">${h.reason}</div>
-                    <div class="text-[10px] mt-1 mono" style="color: var(--text-dim);">${h.time}</div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Approvers list -->
-        <div class="mb-4">
-          <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Required Approvers</h3>
-          <div class="flex gap-2 flex-wrap">
-            ${(step.approvers || []).map(a => `<span class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs" style="background: var(--bg-hover);"><div class="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[9px] font-bold">${a.split(' ').map(n=>n[0]).join('')}</div>${a}</span>`).join('')}
-          </div>
-        </div>
-
-        <!-- Decision form -->
+        ${history.length > 0 ? `<div class="mb-4"><h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Decision History</h3><div class="approval-chain">${history.map(h => `<div class="approval-node ${h.decision === 'approved' ? 'approved' : h.decision === 'rejected' ? 'rejected' : 'pending'}"><div class="card p-3" style="background: var(--bg);"><div class="flex items-center justify-between mb-1"><span class="font-medium text-sm">${h.approver}</span><span class="pill ${h.decision === 'approved' ? 'pill-pass' : h.decision === 'rejected' ? 'pill-fail' : 'pill-info'}">${h.decision.replace('_', ' ')}</span></div><div class="text-xs" style="color: var(--text-muted);">${h.reason}</div></div></div>`).join('')}</div></div>` : ''}
         <div class="space-y-3">
-          <textarea id="approval-reason" rows="2" placeholder="Add a reason or note (optional)...">${history.length > 0 && history[history.length-1].decision === 'info_requested' ? 'Providing requested info: ' : ''}</textarea>
+          <textarea id="approval-reason" rows="2" placeholder="Add a reason (optional)..."></textarea>
           <div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);">
-            <button class="btn btn-success flex-1" onclick="approveStep(document.getElementById('approval-reason').value)">✓ Approve & Continue</button>
+            <button class="btn btn-success flex-1" onclick="approveStep(document.getElementById('approval-reason').value)">✓ Approve</button>
             <button class="btn btn-subtle flex-1" onclick="requestInfoStep(document.getElementById('approval-reason').value)">💬 Request Info</button>
             <button class="btn btn-danger flex-1" onclick="rejectStep(document.getElementById('approval-reason').value)">✕ Reject</button>
           </div>
@@ -898,76 +1434,25 @@ function renderApprovalModal() {
     </div>
   `;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 4: ROLLBACK FLOW
-// ═══════════════════════════════════════════════════════════════
-function openRollbackModal() {
-  state.rollbackModal = { deployId: state.deployExecution?.id };
-  renderRollbackModal();
-}
-
-function closeRollbackModal() {
-  state.rollbackModal = null;
-  document.getElementById('modal-root').innerHTML = '';
-}
-
+function openRollbackModal() { state.rollbackModal = { deployId: state.deployExecution?.id }; renderRollbackModal(); }
+function closeRollbackModal() { state.rollbackModal = null; document.getElementById('modal-root').innerHTML = ''; }
 function confirmRollback() {
-  closeRollbackModal();
-  stopAllTimers();
-  toast('↺ Rollback initiated — executing rollback plan', 'error', 4000);
-  
-  // Simulate rollback execution
-  state.focusMode = { type: 'rollback' };
-  renderRollbackExecution();
+  closeRollbackModal(); stopAllTimers(); toast('↺ Rollback initiated', 'error', 4000);
+  state.focusMode = { type: 'rollback' }; renderRollbackExecution();
 }
-
 function renderRollbackModal() {
   document.getElementById('modal-root').innerHTML = `
     <div class="modal-overlay" onclick="closeRollbackModal()">
       <div class="modal-content p-6" onclick="event.stopPropagation()" style="max-width: 600px;">
         <div class="flex items-start gap-3 mb-4">
           <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(239,68,68,0.15); color: var(--danger);">⚠️</div>
-          <div class="flex-1">
-            <h2 class="text-lg font-semibold">Initiate Rollback?</h2>
-            <p class="text-sm mt-1" style="color: var(--text-muted);">This will revert Release 2.4.1 to the previous stable version (v2.4.0). This action cannot be undone.</p>
-          </div>
+          <div class="flex-1"><h2 class="text-lg font-semibold">Initiate Rollback?</h2><p class="text-sm mt-1" style="color: var(--text-muted);">Revert Release 2.4.1 → v2.4.0. Cannot be undone.</p></div>
           <button class="btn btn-ghost p-1" onclick="closeRollbackModal()">✕</button>
         </div>
-
-        <!-- Rollback plan preview -->
         <div class="mb-4">
           <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Rollback Plan (6 steps · ~18 min)</h3>
-          <div>
-            ${ROLLBACK_PLAN.map(s => `
-              <div class="rollback-step">
-                <div class="rollback-order">${s.order}</div>
-                <div class="flex-1">
-                  <div class="font-medium">${s.action} ${s.critical ? '<span class="pill pill-fail text-[9px] ml-1">Critical</span>' : ''}</div>
-                  <div class="text-[10px] mono mt-0.5" style="color: var(--text-dim);">${s.command}</div>
-                </div>
-                <div class="text-[11px] mono" style="color: var(--text-muted);">${s.duration}</div>
-              </div>
-            `).join('')}
-          </div>
+          ${ROLLBACK_PLAN.map(s => `<div class="rollback-step"><div class="rollback-order">${s.order}</div><div class="flex-1"><div class="font-medium">${s.action} ${s.critical ? '<span class="pill pill-fail text-[9px] ml-1">Critical</span>' : ''}</div><div class="text-[10px] mono mt-0.5" style="color: var(--text-dim);">${s.command}</div></div><div class="text-[11px] mono" style="color: var(--text-muted);">${s.duration}</div></div>`).join('')}
         </div>
-
-        <!-- Impact warning -->
-        <div class="p-3 rounded mb-4" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);">
-          <div class="flex items-start gap-2 text-xs">
-            <span style="color: var(--warning);">⚠</span>
-            <div>
-              <div class="font-medium mb-1">Impact</div>
-              <ul class="list-disc list-inside space-y-0.5" style="color: var(--text-muted);">
-                <li>~2 minutes of downtime during DB restore</li>
-                <li>All v2.4.1 data written in the last 45m will be lost</li>
-                <li>On-call team will be automatically notified</li>
-                <li>Incident will be logged in Audit Center</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
         <div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);">
           <button class="btn btn-ghost flex-1" onclick="closeRollbackModal()">Cancel</button>
           <button class="btn btn-danger flex-1" onclick="confirmRollback()">↺ Confirm Rollback</button>
@@ -976,114 +1461,56 @@ function renderRollbackModal() {
     </div>
   `;
 }
-
 function renderRollbackExecution() {
   const app = document.getElementById('app');
   let currentIdx = 0;
-  
   function render() {
     app.innerHTML = `
       <div class="focus-overlay">
         <div class="h-14 flex items-center px-5 gap-4" style="border-bottom: 1px solid var(--border); background: rgba(239,68,68,0.05);">
           <span class="pill pill-fail">↺ Rollback in Progress</span>
-          <div class="flex-1">
-            <div class="font-semibold text-sm">Rollback — Release 2.4.1 → v2.4.0</div>
-            <div class="text-xs" style="color: var(--text-muted);">Initiated by ${state.user.name} · ${new Date().toLocaleTimeString()}</div>
-          </div>
-          <div class="text-right text-xs"><div class="font-semibold mono">${currentIdx}/${ROLLBACK_PLAN.length}</div><div style="color: var(--text-muted);">steps completed</div></div>
+          <div class="flex-1"><div class="font-semibold text-sm">Rollback — Release 2.4.1 → v2.4.0</div><div class="text-xs" style="color: var(--text-muted);">Initiated by ${state.user.name}</div></div>
+          <div class="text-right text-xs"><div class="font-semibold mono">${currentIdx}/${ROLLBACK_PLAN.length}</div></div>
         </div>
         <div class="flex-1 overflow-y-auto scroll p-6">
           <div class="max-w-3xl mx-auto space-y-3">
             ${ROLLBACK_PLAN.map((s, i) => {
               const isCurrent = i === currentIdx;
               const isDone = i < currentIdx;
-              return `
-                <div class="card p-4 ${isCurrent ? 'deploy-step-card running' : isDone ? 'deploy-step-card completed' : 'deploy-step-card pending'}">
-                  <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isCurrent ? 'bg-rose-500 text-white' : ''}" style="${!isDone && !isCurrent ? 'background: var(--border); color: var(--text-dim);' : ''}">
-                      ${isDone ? '✓' : s.order}
-                    </div>
-                    <div class="flex-1">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="font-medium text-sm">${s.action}</span>
-                        ${s.critical ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}
-                      </div>
-                      <div class="text-xs mono mt-1 p-2 rounded" style="background: var(--bg); color: var(--text-muted);">${s.command}</div>
-                      <div class="flex items-center gap-3 mt-2 text-xs">
-                        <span style="color: var(--text-muted);">Expected: ${s.duration}</span>
-                        ${isDone ? '<span style="color: var(--success);">✓ Completed</span>' : isCurrent ? '<span class="timer-display">Executing...</span>' : '<span style="color: var(--text-dim);">Pending</span>'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `;
+              return `<div class="card p-4 ${isCurrent ? 'deploy-step-card running' : isDone ? 'deploy-step-card completed' : 'deploy-step-card pending'}"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isCurrent ? 'bg-rose-500 text-white' : ''}" style="${!isDone && !isCurrent ? 'background: var(--border); color: var(--text-dim);' : ''}">${isDone ? '✓' : s.order}</div><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${s.action}</span>${s.critical ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}</div><div class="text-xs mono mt-1 p-2 rounded" style="background: var(--bg); color: var(--text-muted);">${s.command}</div><div class="text-xs mt-2">${isDone ? '<span style="color: var(--success);">✓ Completed</span>' : isCurrent ? '<span class="timer-display">Executing...</span>' : '<span style="color: var(--text-dim);">Pending</span>'}</div></div></div></div>`;
             }).join('')}
           </div>
         </div>
       </div>
     `;
   }
-  
   render();
-  
-  // Auto-advance through rollback steps
   const advanceInterval = setInterval(() => {
     currentIdx++;
     if (currentIdx >= ROLLBACK_PLAN.length) {
       clearInterval(advanceInterval);
-      setTimeout(() => {
-        toast('✓ Rollback completed successfully — v2.4.0 restored', 'success', 5000);
-        state.focusMode = null;
-        state.deployExecution = null;
-        navigate('deployments');
-      }, 1500);
+      setTimeout(() => { toast('✓ Rollback completed', 'success', 5000); state.focusMode = null; state.deployExecution = null; navigate('deployments'); }, 1500);
       return;
     }
     render();
   }, 2000);
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 4: TEMPLATE DIFF VIEWER
-// ═══════════════════════════════════════════════════════════════
 function openTemplateDiffViewer(templateId) {
   const diff = TEMPLATE_DIFFS[templateId];
-  if (!diff) { toast('No diff available for this template', 'info'); return; }
-  state.diffViewer = { templateId, ...diff };
-  renderDiffViewer();
+  if (!diff) { toast('No diff available', 'info'); return; }
+  state.diffViewer = { templateId, ...diff }; renderDiffViewer();
 }
-
-function closeDiffViewer() {
-  state.diffViewer = null;
-  document.getElementById('modal-root').innerHTML = '';
-}
-
+function closeDiffViewer() { state.diffViewer = null; document.getElementById('modal-root').innerHTML = ''; }
 function renderDiffViewer() {
   const d = state.diffViewer;
   const template = TEMPLATES.find(t => t.id === d.templateId);
-  const addedCount = d.changes.filter(c => c.type === 'added').length;
-  const removedCount = d.changes.filter(c => c.type === 'removed').length;
-  const modifiedCount = d.changes.filter(c => c.type === 'modified').length;
-  
   document.getElementById('modal-root').innerHTML = `
     <div class="modal-overlay" onclick="closeDiffViewer()">
       <div class="modal-content" onclick="event.stopPropagation()" style="width: 900px;">
         <div class="p-6" style="border-bottom: 1px solid var(--border);">
           <div class="flex items-start justify-between">
-            <div>
-              <h2 class="text-lg font-semibold">${template.name}</h2>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="pill pill-pend mono">${d.v1}</span>
-                <span style="color: var(--text-dim);">→</span>
-                <span class="pill pill-run mono">${d.v2} (current)</span>
-              </div>
-            </div>
+            <div><h2 class="text-lg font-semibold">${template.name}</h2><div class="flex items-center gap-2 mt-1"><span class="pill pill-pend mono">${d.v1}</span><span style="color: var(--text-dim);">→</span><span class="pill pill-run mono">${d.v2} (current)</span></div></div>
             <button class="btn btn-ghost p-1" onclick="closeDiffViewer()">✕</button>
-          </div>
-          <div class="flex gap-4 mt-4 text-xs">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background: rgba(16,185,129,0.3); border-left: 3px solid var(--success);"></span>${addedCount} added</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background: rgba(239,68,68,0.3); border-left: 3px solid var(--danger);"></span>${removedCount} removed</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background: rgba(245,158,11,0.3); border-left: 3px solid var(--warning);"></span>${modifiedCount} modified</span>
           </div>
         </div>
         <div class="p-4 max-h-[60vh] overflow-y-auto scroll" style="background: var(--bg);">
@@ -1095,150 +1522,68 @@ function renderDiffViewer() {
             }).join('')}
           </div>
         </div>
-        <div class="p-4" style="border-top: 1px solid var(--border); background: var(--bg);">
-          <div class="grid grid-cols-3 gap-3 text-xs mb-3">
-            <div><span style="color: var(--text-muted);">Approved by:</span> <strong>${d.approvedBy}</strong></div>
-            <div><span style="color: var(--text-muted);">Date:</span> <strong>${d.approvedAt}</strong></div>
-            <div><span style="color: var(--text-muted);">Reason:</span> <span>${d.reason}</span></div>
-          </div>
-          <div class="flex gap-2">
-            <button class="btn btn-subtle flex-1 text-xs">📥 Export Diff</button>
-            <button class="btn btn-subtle flex-1 text-xs">🔗 Share Link</button>
-            <button class="btn btn-primary flex-1 text-xs" onclick="closeDiffViewer()">Done</button>
-          </div>
+        <div class="p-4" style="border-top: 1px solid var(--border);">
+          <div class="flex gap-2"><button class="btn btn-subtle flex-1 text-xs">📥 Export</button><button class="btn btn-primary flex-1 text-xs" onclick="closeDiffViewer()">Done</button></div>
         </div>
       </div>
     </div>
   `;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE 4: SUGGESTION SUBMISSION & DETAIL
-// ═══════════════════════════════════════════════════════════════
 function openSuggestionSubmission() {
-  state.suggestionSubmission = {
-    title: '', type: 'test', priority: 'medium',
-    context: '', reason: '', attachments: []
-  };
+  state.suggestionSubmission = { title: '', type: 'test', priority: 'medium', context: '', reason: '', attachments: [] };
   renderSuggestionSubmission();
 }
-
-function closeSuggestionSubmission() {
-  state.suggestionSubmission = null;
-  document.getElementById('modal-root').innerHTML = '';
-}
-
+function closeSuggestionSubmission() { state.suggestionSubmission = null; document.getElementById('modal-root').innerHTML = ''; }
 function submitSuggestion() {
   const s = state.suggestionSubmission;
-  if (!s.title.trim() || !s.reason.trim()) { toast('Title and reason are required', 'error'); return; }
-  SUGGESTIONS.unshift({
-    id: 's' + (SUGGESTIONS.length + 1),
-    title: s.title, type: s.type, priority: s.priority,
-    status: 'submitted', submitter: state.user.name,
-    time: 'just now', context: s.context || 'General',
-    reason: s.reason, attachments: s.attachments.length, comments: 0
-  });
-  closeSuggestionSubmission();
-  toast('✓ Suggestion submitted for review', 'success');
+  if (!s.title.trim() || !s.reason.trim()) { toast('Title and reason required', 'error'); return; }
+  SUGGESTIONS.unshift({ id: 's' + (SUGGESTIONS.length + 1), title: s.title, type: s.type, priority: s.priority, status: 'submitted', submitter: state.user.name, time: 'just now', context: s.context || 'General', reason: s.reason, attachments: s.attachments.length, comments: 0 });
+  closeSuggestionSubmission(); toast('✓ Suggestion submitted', 'success');
   if (state.view === 'suggestions') renderSuggestions();
 }
-
 function renderSuggestionSubmission() {
   const s = state.suggestionSubmission;
   document.getElementById('modal-root').innerHTML = `
     <div class="modal-overlay" onclick="closeSuggestionSubmission()">
       <div class="modal-content p-6" onclick="event.stopPropagation()">
         <div class="flex items-start justify-between mb-4">
-          <div>
-            <h2 class="text-lg font-semibold">Submit Suggestion</h2>
-            <p class="text-sm mt-1" style="color: var(--text-muted);">Propose an improvement to templates, tests, or processes</p>
-          </div>
+          <div><h2 class="text-lg font-semibold">Submit Suggestion</h2><p class="text-sm mt-1" style="color: var(--text-muted);">Propose an improvement</p></div>
           <button class="btn btn-ghost p-1" onclick="closeSuggestionSubmission()">✕</button>
         </div>
         <div class="space-y-3">
-          <div>
-            <label class="text-xs block mb-1" style="color: var(--text-muted);">Title *</label>
-            <input value="${s.title}" oninput="state.suggestionSubmission.title = this.value" placeholder="Brief, descriptive title">
-          </div>
+          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Title *</label><input value="${s.title}" oninput="state.suggestionSubmission.title = this.value" placeholder="Brief, descriptive title"></div>
           <div class="grid grid-cols-3 gap-3">
-            <div>
-              <label class="text-xs block mb-1" style="color: var(--text-muted);">Type</label>
-              <select onchange="state.suggestionSubmission.type = this.value">
-                <option value="test" ${s.type === 'test' ? 'selected' : ''}>Test Case</option>
-                <option value="deployment" ${s.type === 'deployment' ? 'selected' : ''}>Deployment Step</option>
-                <option value="process" ${s.type === 'process' ? 'selected' : ''}>Process</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-xs block mb-1" style="color: var(--text-muted);">Priority</label>
-              <select onchange="state.suggestionSubmission.priority = this.value">
-                <option value="low" ${s.priority === 'low' ? 'selected' : ''}>Low</option>
-                <option value="medium" ${s.priority === 'medium' ? 'selected' : ''}>Medium</option>
-                <option value="high" ${s.priority === 'high' ? 'selected' : ''}>High</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-xs block mb-1" style="color: var(--text-muted);">Context</label>
-              <input value="${s.context}" oninput="state.suggestionSubmission.context = this.value" placeholder="e.g. Sprint 24">
-            </div>
+            <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Type</label><select onchange="state.suggestionSubmission.type = this.value"><option value="test" ${s.type === 'test' ? 'selected' : ''}>Test Case</option><option value="deployment" ${s.type === 'deployment' ? 'selected' : ''}>Deployment Step</option><option value="process" ${s.type === 'process' ? 'selected' : ''}>Process</option></select></div>
+            <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Priority</label><select onchange="state.suggestionSubmission.priority = this.value"><option value="low" ${s.priority === 'low' ? 'selected' : ''}>Low</option><option value="medium" ${s.priority === 'medium' ? 'selected' : ''}>Medium</option><option value="high" ${s.priority === 'high' ? 'selected' : ''}>High</option></select></div>
+            <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Context</label><input value="${s.context}" oninput="state.suggestionSubmission.context = this.value" placeholder="e.g. Sprint 24"></div>
           </div>
-          <div>
-            <label class="text-xs block mb-1" style="color: var(--text-muted);">Justification *</label>
-            <textarea rows="4" oninput="state.suggestionSubmission.reason = this.value" placeholder="Why should this change be made? Include evidence, impact, or past incidents.">${s.reason}</textarea>
-          </div>
-          <div>
-            <label class="text-xs block mb-1" style="color: var(--text-muted);">Attachments</label>
-            <div class="drop-zone" style="padding: 16px;" onclick="toast('File picker would open here', 'info')">
-              <div class="text-xs">📎 Drop files or click to upload evidence, screenshots, logs</div>
-            </div>
-          </div>
+          <div><label class="text-xs block mb-1" style="color: var(--text-muted);">Justification *</label><textarea rows="4" oninput="state.suggestionSubmission.reason = this.value" placeholder="Why should this change be made?">${s.reason}</textarea></div>
         </div>
         <div class="flex gap-2 mt-5 pt-4" style="border-top: 1px solid var(--border);">
           <button class="btn btn-ghost flex-1" onclick="closeSuggestionSubmission()">Cancel</button>
-          <button class="btn btn-primary flex-1" onclick="submitSuggestion()">Submit for Review</button>
+          <button class="btn btn-primary flex-1" onclick="submitSuggestion()">Submit</button>
         </div>
       </div>
     </div>
   `;
 }
-
-function openSuggestionDetail(id) {
-  state.suggestionDetail = SUGGESTIONS.find(s => s.id === id);
-  renderSuggestionDetail();
-}
-
-function closeSuggestionDetail() {
-  state.suggestionDetail = null;
-  document.getElementById('modal-root').innerHTML = '';
-}
-
+function openSuggestionDetail(id) { state.suggestionDetail = SUGGESTIONS.find(s => s.id === id); renderSuggestionDetail(); }
+function closeSuggestionDetail() { state.suggestionDetail = null; document.getElementById('modal-root').innerHTML = ''; }
 function approveSuggestion(id, applyType) {
   const s = SUGGESTIONS.find(x => x.id === id);
   if (!s) return;
-  s.status = 'approved';
-  s.approvedBy = state.user.name;
-  s.approvedAt = 'just now';
-  s.appliedTo = applyType === 'master' ? 'v3.3' : 'current run';
-  closeSuggestionDetail();
-  toast(`✓ Suggestion ${applyType === 'master' ? 'merged to master template' : 'applied to current run'}`, 'success');
-  renderSuggestions();
+  s.status = 'approved'; s.approvedBy = state.user.name; s.approvedAt = 'just now'; s.appliedTo = applyType === 'master' ? 'v3.3' : 'current run';
+  closeSuggestionDetail(); toast(`✓ ${applyType === 'master' ? 'Merged to master' : 'Applied to run'}`, 'success'); renderSuggestions();
 }
-
 function rejectSuggestion(id) {
   const s = SUGGESTIONS.find(x => x.id === id);
   if (!s) return;
-  s.status = 'rejected';
-  closeSuggestionDetail();
-  toast('✕ Suggestion rejected', 'info');
-  renderSuggestions();
+  s.status = 'rejected'; closeSuggestionDetail(); toast('✕ Rejected', 'info'); renderSuggestions();
 }
-
 function renderSuggestionDetail() {
-  const s = state.suggestionDetail;
-  if (!s) return;
+  const s = state.suggestionDetail; if (!s) return;
   const statusFlow = ['submitted', 'under_review', 'approved'];
   const currentIdx = s.status === 'submitted' ? 0 : s.status === 'under_review' ? 1 : s.status === 'approved' ? 2 : -1;
-  
   document.getElementById('modal-root').innerHTML = `
     <div class="modal-overlay" onclick="closeSuggestionDetail()">
       <div class="modal-content p-6" onclick="event.stopPropagation()">
@@ -1250,73 +1595,27 @@ function renderSuggestionDetail() {
               <span class="pill ${s.status === 'approved' ? 'pill-pass' : s.status === 'rejected' ? 'pill-fail' : 'pill-run'}">● ${s.status.replace('_', ' ')}</span>
             </div>
             <h2 class="text-lg font-semibold">${s.title}</h2>
-            <div class="text-xs mt-1 flex items-center gap-2 flex-wrap" style="color: var(--text-muted);">
-              <span class="font-medium" style="color: var(--text);">${s.submitter}</span>
-              <span>·</span>
-              <span>${s.time}</span>
-              <span>·</span>
-              <span class="mono">${s.context}</span>
-            </div>
+            <div class="text-xs mt-1 flex items-center gap-2 flex-wrap" style="color: var(--text-muted);"><span class="font-medium" style="color: var(--text);">${s.submitter}</span><span>·</span><span>${s.time}</span><span>·</span><span class="mono">${s.context}</span></div>
           </div>
           <button class="btn btn-ghost p-1" onclick="closeSuggestionDetail()">✕</button>
         </div>
-
-        <!-- Status flow visualization -->
         <div class="suggestion-status-flow mb-4">
-          ${statusFlow.map((st, i) => `
-            <div class="status-dot ${i < currentIdx ? 'completed' : i === currentIdx ? 'active' : ''}">${i < currentIdx ? '✓' : i + 1}</div>
-            <span class="text-[10px] ${i === currentIdx ? '' : 'opacity-50'}" style="${i < currentIdx ? 'color: var(--success);' : i === currentIdx ? 'color: var(--accent);' : 'color: var(--text-dim);'}">${st.replace('_', ' ')}</span>
-            ${i < statusFlow.length - 1 ? `<div class="status-line ${i < currentIdx ? 'completed' : ''}"></div>` : ''}
-          `).join('')}
+          ${statusFlow.map((st, i) => `<div class="status-dot ${i < currentIdx ? 'completed' : i === currentIdx ? 'active' : ''}">${i < currentIdx ? '✓' : i + 1}</div><span class="text-[10px]" style="${i === currentIdx ? 'color: var(--accent);' : i < currentIdx ? 'color: var(--success);' : 'color: var(--text-dim);'}">${st.replace('_', ' ')}</span>${i < statusFlow.length - 1 ? `<div class="status-line ${i < currentIdx ? 'completed' : ''}"></div>` : ''}`).join('')}
         </div>
-
-        <!-- Reason -->
         <div class="card p-4 mb-4" style="background: var(--bg);">
           <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Justification</h3>
           <p class="text-sm leading-relaxed">${s.reason}</p>
         </div>
-
-        <!-- Meta -->
-        <div class="grid grid-cols-3 gap-3 mb-4 text-xs">
-          <div class="p-3 rounded" style="background: var(--bg-hover);">
-            <div class="text-[10px] uppercase mb-1" style="color: var(--text-muted);">Attachments</div>
-            <div class="font-semibold">📎 ${s.attachments || 0} files</div>
-          </div>
-          <div class="p-3 rounded" style="background: var(--bg-hover);">
-            <div class="text-[10px] uppercase mb-1" style="color: var(--text-muted);">Comments</div>
-            <div class="font-semibold">💬 ${s.comments || 0}</div>
-          </div>
-          <div class="p-3 rounded" style="background: var(--bg-hover);">
-            <div class="text-[10px] uppercase mb-1" style="color: var(--text-muted);">${s.status === 'approved' ? 'Merged into' : 'Target'}</div>
-            <div class="font-semibold">${s.appliedTo || 'Template v3.3'}</div>
-          </div>
-        </div>
-
-        ${s.status === 'approved' ? `
-          <div class="p-3 rounded text-xs" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);">
-            <div class="flex items-center gap-2 mb-1" style="color: var(--success);"><strong>✓ Approved by ${s.approvedBy}</strong></div>
-            <div style="color: var(--text-muted);">${s.approvedAt} · Applied to ${s.appliedTo}</div>
-          </div>
-        ` : s.status !== 'rejected' ? `
-          <div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);">
-            <button class="btn btn-success flex-1 text-xs" onclick="approveSuggestion('${s.id}', 'master')">✓ Approve & Merge to Master</button>
-            <button class="btn btn-subtle flex-1 text-xs" onclick="approveSuggestion('${s.id}', 'run')">▶ Apply to Current Run</button>
-            <button class="btn btn-ghost flex-1 text-xs">💬 Discuss</button>
-            <button class="btn btn-ghost text-xs" style="color: var(--danger);" onclick="rejectSuggestion('${s.id}')">✕ Reject</button>
-          </div>
-        ` : ''}
+        ${s.status !== 'approved' && s.status !== 'rejected' ? `<div class="flex gap-2 pt-3" style="border-top: 1px solid var(--border);"><button class="btn btn-success flex-1 text-xs" onclick="approveSuggestion('${s.id}', 'master')">✓ Merge to Master</button><button class="btn btn-subtle flex-1 text-xs" onclick="approveSuggestion('${s.id}', 'run')">▶ Apply to Run</button><button class="btn btn-ghost text-xs" style="color: var(--danger);" onclick="rejectSuggestion('${s.id}')">✕</button></div>` : ''}
       </div>
     </div>
   `;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// FOCUS MODE (Test + Deploy)
-// ═══════════════════════════════════════════════════════════════
 function openTestFocusMode(startIdx = 0) {
   state.focusMode = { type: 'test', items: JSON.parse(JSON.stringify(state.testCases)), currentIdx: startIdx };
   renderFocusMode();
-  toast('Focus Mode — P/F/B to mark, ↓/↑ navigate, ESC exit', 'info', 4000);
+  toast('Focus Mode — P/F/B to mark', 'info', 3000);
 }
 function closeFocusMode() {
   stopAllTimers();
@@ -1326,8 +1625,7 @@ function closeFocusMode() {
       if (original) original.status = fmItem.status;
     });
   }
-  state.focusMode = null;
-  navigate(state.view);
+  state.focusMode = null; navigate(state.view);
 }
 function markCurrentTest(status) {
   if (!state.focusMode || state.focusMode.type !== 'test') return;
@@ -1342,135 +1640,42 @@ function moveFocusItem(dir) {
   if (n >= 0 && n < state.focusMode.items.length) { state.focusMode.currentIdx = n; renderFocusMode(); }
 }
 function renderFocusMode() {
-  const fm = state.focusMode;
-  if (!fm) return;
+  const fm = state.focusMode; if (!fm) return;
   const app = document.getElementById('app');
-  
-  if (fm.type === 'rollback') {
-    renderRollbackExecution();
-    return;
-  }
-  
+  if (fm.type === 'rollback') { renderRollbackExecution(); return; }
   if (fm.type === 'deploy') {
     const de = state.deployExecution;
     if (!de) { state.focusMode = null; navigate('deployments'); return; }
     const totalSteps = de.steps.length;
     const progress = (de.completed / totalSteps) * 100;
     const overallElapsed = Math.floor((Date.now() - de.startTime - de.totalPausedTime) / 1000);
-    
     app.innerHTML = `
       <div class="focus-overlay">
         <div class="h-14 flex items-center px-5 gap-4 flex-wrap" style="border-bottom: 1px solid var(--border);">
-          <button class="btn btn-ghost" onclick="if(confirm('Exit deployment? Progress will be paused.')) closeFocusMode()">← Exit</button>
-          <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-            <span class="pill ${de.paused ? 'pill-block' : 'pill-run'}">● ${de.paused ? 'Paused' : 'Running'}</span>
-            <span class="font-semibold text-sm">${de.name}</span>
-            <span class="text-xs mono" style="color: var(--text-dim);">template ${de.template}</span>
-            <span class="pill pill-info">🔒 Locked snapshot</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="text-right text-xs">
-              <div class="font-semibold mono">${de.completed}/${totalSteps} steps</div>
-              <div style="color: var(--text-muted);">Total: ${formatElapsed(overallElapsed)}</div>
-            </div>
-            <div class="w-32">
-              <div class="progress-bar"><div style="background: var(--accent); width: ${progress}%;"></div></div>
-              <div class="text-[10px] mono mt-0.5" style="color: var(--text-muted);">${Math.round(progress)}%</div>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            ${de.paused ? `<button class="btn btn-success text-xs" onclick="resumeDeploymentExecution()">▶ Resume</button>` : `<button class="btn btn-subtle text-xs" onclick="pauseDeploymentExecution()">⏸ Pause</button>`}
-            <button class="btn btn-danger text-xs" onclick="openRollbackModal()">↺ Rollback</button>
-          </div>
+          <button class="btn btn-ghost" onclick="if(confirm('Exit?')) closeFocusMode()">← Exit</button>
+          <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap"><span class="pill ${de.paused ? 'pill-block' : 'pill-run'}">● ${de.paused ? 'Paused' : 'Running'}</span><span class="font-semibold text-sm">${de.name}</span></div>
+          <div class="flex items-center gap-3"><div class="text-right text-xs"><div class="font-semibold mono">${de.completed}/${totalSteps}</div><div style="color: var(--text-muted);">Total: ${formatElapsed(overallElapsed)}</div></div><div class="w-32"><div class="progress-bar"><div style="background: var(--accent); width: ${progress}%;"></div></div></div></div>
+          <div class="flex gap-2">${de.paused ? `<button class="btn btn-success text-xs" onclick="resumeDeploymentExecution()">▶ Resume</button>` : `<button class="btn btn-subtle text-xs" onclick="pauseDeploymentExecution()">⏸ Pause</button>`}<button class="btn btn-danger text-xs" onclick="openRollbackModal()">↺</button></div>
         </div>
         <div class="flex-1 flex overflow-hidden">
-          <!-- Steps list -->
           <div class="flex-1 overflow-y-auto scroll p-6">
             <div class="max-w-3xl mx-auto space-y-2">
               ${de.steps.map((s, i) => {
                 const isCurrent = i === de.currentIdx && s.status === 'running';
                 const isDone = s.status === 'completed';
-                const isPending = s.status === 'pending' || s.status === 'running' && i !== de.currentIdx;
+                const isPending = !isDone && !isCurrent;
                 const elapsed = de.elapsedPerStep[i];
-                return `
-                  <div class="deploy-step-card card p-4 ${isCurrent ? 'running' : isDone ? 'completed' : 'pending'}" style="cursor: ${isCurrent ? 'pointer' : 'default'};" ${isCurrent && s.gate ? `onclick="openApprovalModal(${i})"` : ''}>
-                    <div class="flex items-start gap-3">
-                      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isCurrent ? 'bg-indigo-500 text-white' : ''}" style="${isPending ? 'background: var(--border); color: var(--text-dim);' : ''}">
-                        ${isDone ? '✓' : isCurrent && !s.gate ? '<div class="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>' : isCurrent && s.gate ? '🛡' : s.id}
-                      </div>
-                      <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1 flex-wrap">
-                          <span class="font-semibold text-sm">Step ${s.id}: ${s.name}</span>
-                          ${s.crit ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}
-                          ${s.gate ? '<span class="pill pill-block text-[10px]">🛡 Approval Gate</span>' : ''}
-                        </div>
-                        <div class="text-xs mb-2" style="color: var(--text-muted);">${s.desc}</div>
-                        ${s.command ? `<div class="text-[11px] mono p-2 rounded mb-2" style="background: var(--bg); color: var(--text-muted);">$ ${s.command}</div>` : ''}
-                        <div class="flex items-center gap-3 text-xs flex-wrap">
-                          ${s.expectedDur !== null ? `<span style="color: var(--text-muted);">Expected: ${formatElapsed(s.expectedDur)}</span>` : ''}
-                          ${isDone ? `<span style="color: var(--success);">✓ ${s.dur}</span>` : ''}
-                          ${isCurrent && !s.gate ? `<span class="timer-display" id="step-timer-${i}">${elapsed ? formatElapsed(elapsed) : '0m 00s'}</span>` : ''}
-                          ${isCurrent && s.gate ? `<button class="btn btn-primary text-xs" onclick="openApprovalModal(${i})">Review & Approve →</button>` : ''}
-                          ${isPending ? `<span style="color: var(--text-dim);">Pending</span>` : ''}
-                        </div>
-                      </div>
-                      ${isCurrent && !s.gate ? `
-                        <div class="flex flex-col gap-1">
-                          <button class="btn btn-success text-xs" onclick="completeCurrentStep()">✓ Complete</button>
-                          <button class="btn btn-danger text-xs" onclick="failCurrentStep()">✕ Fail</button>
-                        </div>
-                      ` : ''}
-                    </div>
-                  </div>
-                `;
+                return `<div class="deploy-step-card card p-4 ${isCurrent ? 'running' : isDone ? 'completed' : 'pending'}" ${isCurrent && s.gate ? `onclick="openApprovalModal(${i})" style="cursor: pointer;"` : ''}><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isCurrent ? 'bg-indigo-500 text-white' : ''}" style="${isPending ? 'background: var(--border); color: var(--text-dim);' : ''}">${isDone ? '✓' : isCurrent && !s.gate ? '<div class="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>' : isCurrent && s.gate ? '🛡' : s.id}</div><div class="flex-1"><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="font-semibold text-sm">Step ${s.id}: ${s.name}</span>${s.crit ? '<span class="pill pill-fail text-[10px]">Critical</span>' : ''}${s.gate ? '<span class="pill pill-block text-[10px]">🛡 Gate</span>' : ''}</div><div class="text-xs mb-2" style="color: var(--text-muted);">${s.desc}</div><div class="flex items-center gap-3 text-xs flex-wrap">${isDone ? `<span style="color: var(--success);">✓ ${s.dur}</span>` : ''}${isCurrent && !s.gate ? `<span class="timer-display" id="step-timer-${i}">${elapsed ? formatElapsed(elapsed) : '0m 00s'}</span>` : ''}${isCurrent && s.gate ? `<button class="btn btn-primary text-xs" onclick="openApprovalModal(${i})">Review →</button>` : ''}</div></div>${isCurrent && !s.gate ? `<div class="flex flex-col gap-1"><button class="btn btn-success text-xs" onclick="completeCurrentStep()">✓</button><button class="btn btn-danger text-xs" onclick="failCurrentStep()">✕</button></div>` : ''}</div></div>`;
               }).join('')}
             </div>
           </div>
-          <!-- Right panel: Metrics & Activity -->
           <div class="w-80 flex flex-col overflow-y-auto scroll" style="border-left: 1px solid var(--border);">
             <div class="p-4" style="border-bottom: 1px solid var(--border);">
               <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Live Metrics</h3>
               <div class="space-y-2">
-                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
-                  <span>Error Rate</span><span class="mono font-semibold" style="color: var(--success);">0.02%</span>
-                </div>
-                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
-                  <span>p95 Latency</span><span class="mono font-semibold" style="color: var(--success);">142ms</span>
-                </div>
-                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
-                  <span>CPU Usage</span><span class="mono font-semibold">34%</span>
-                </div>
-                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);">
-                  <span>Memory</span><span class="mono font-semibold">2.1 GB</span>
-                </div>
-              </div>
-            </div>
-            <div class="p-4" style="border-bottom: 1px solid var(--border);">
-              <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Evidence (4)</h3>
-              <div class="space-y-2">
-                ${['health-check.log', 'smoke-tests.json', 'metrics.png', 'rollback.pdf'].map(f => `
-                  <div class="evidence-item">
-                    <span style="color: var(--text-muted);">${icons.file}</span>
-                    <div class="flex-1 min-w-0">
-                      <div class="text-xs font-medium truncate">${f}</div>
-                      <div class="text-[10px] mono" style="color: var(--text-dim);">sha256: a3f9…</div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-            <div class="p-4 flex-1">
-              <h3 class="text-xs uppercase font-semibold mb-3" style="color: var(--text-muted);">Activity Log</h3>
-              <div class="space-y-2 text-xs">
-                ${de.steps.filter(s => s.status === 'completed').reverse().slice(0, 5).map(s => `
-                  <div class="flex items-start gap-2 py-1">
-                    <span class="mono" style="color: var(--text-dim);">${s.dur}</span>
-                    <div class="flex-1">
-                      <div style="color: var(--success);">✓ ${s.name}</div>
-                      <div style="color: var(--text-dim);">${state.user.name}</div>
-                    </div>
-                  </div>
-                `).join('')}
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);"><span>Error Rate</span><span class="mono font-semibold" style="color: var(--success);">0.02%</span></div>
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);"><span>p95 Latency</span><span class="mono font-semibold" style="color: var(--success);">142ms</span></div>
+                <div class="flex justify-between p-2 rounded text-xs" style="background: var(--bg-hover);"><span>CPU Usage</span><span class="mono font-semibold">34%</span></div>
               </div>
             </div>
           </div>
@@ -1479,7 +1684,6 @@ function renderFocusMode() {
     `;
     return;
   }
-  
   // Test focus mode
   const c = fm.items[fm.currentIdx];
   const stats = { passed: fm.items.filter(i => i.status === 'passed').length, failed: fm.items.filter(i => i.status === 'failed').length, blocked: fm.items.filter(i => i.status === 'blocked').length, total: fm.items.length };
@@ -1495,7 +1699,7 @@ function renderFocusMode() {
           <span style="color: var(--warning);">⊘ ${stats.blocked}</span>
           <span style="color: var(--text-dim);">${fm.currentIdx + 1}/${stats.total}</span>
         </div>
-        <div class="flex items-center gap-2 text-xs" style="color: var(--text-muted);"><kbd class="kbd">P</kbd><kbd class="kbd">F</kbd><kbd class="kbd">B</kbd><kbd class="kbd">↓</kbd></div>
+        <div class="flex items-center gap-2 text-xs" style="color: var(--text-muted);"><kbd class="kbd">P</kbd><kbd class="kbd">F</kbd><kbd class="kbd">B</kbd></div>
       </div>
       <div class="flex-1 flex overflow-hidden">
         <div class="w-72 flex flex-col" style="border-right: 1px solid var(--border);">
@@ -1513,10 +1717,6 @@ function renderFocusMode() {
               <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--danger);" onclick="markCurrentTest('failed')">✕ Fail</button>
               <button class="btn py-3 text-sm font-semibold text-white" style="background: var(--warning);" onclick="markCurrentTest('blocked')">⊘ Block</button>
             </div>
-            <div class="card p-4">
-              <h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Notes</h3>
-              <textarea rows="3" placeholder="Add observation..." id="focus-notes"></textarea>
-            </div>
           </div>
         </div>
         <div class="w-80 flex flex-col overflow-y-auto scroll" style="border-left: 1px solid var(--border);">
@@ -1527,12 +1727,6 @@ function renderFocusMode() {
               <input type="file" id="focus-file-input" multiple style="display:none" onchange="handleEvidenceUpload('${c.id}', this.files)">
             </div>
             ${evidence.map((e, i) => `<div class="evidence-item"><span style="color: var(--text-muted);">${icons.file}</span><div class="flex-1 min-w-0"><div class="text-xs font-medium truncate">${e.name}</div><div class="hash-display">sha256: ${e.hash.substring(0, 16)}…</div></div><button onclick="removeEvidence('${c.id}', ${i})" style="color: var(--danger); background: transparent; border: none; cursor: pointer;">✕</button></div>`).join('')}
-            <h3 class="text-xs uppercase font-semibold mb-3 mt-4" style="color: var(--text-muted);">Execution Info</h3>
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between"><span style="color: var(--text-muted);">Started</span><span class="mono">09:14:22</span></div>
-              <div class="flex justify-between"><span style="color: var(--text-muted);">Progress</span><span class="mono">${Math.round((stats.passed + stats.failed + stats.blocked) / stats.total * 100)}%</span></div>
-              <div class="flex justify-between"><span style="color: var(--text-muted);">Template</span><span class="mono">v5.0 (locked)</span></div>
-            </div>
           </div>
         </div>
       </div>
@@ -1550,6 +1744,8 @@ document.addEventListener('keydown', (e) => {
     else if (state.diffViewer) closeDiffViewer();
     else if (state.suggestionSubmission) closeSuggestionSubmission();
     else if (state.suggestionDetail) closeSuggestionDetail();
+    else if (state.notifDropdownOpen) { state.notifDropdownOpen = false; renderHeader(); }
+    else if (state.fabOpen) { state.fabOpen = false; renderFab(); }
     else if (state.showTreeAddMenu) { state.showTreeAddMenu = null; renderTesting(); }
     else if (state.focusMode && state.focusMode.type !== 'rollback') closeFocusMode();
   }
@@ -1572,7 +1768,53 @@ const render = html => {
   if (state.focusMode) { renderFocusMode(); return; }
   $('#app').innerHTML = html;
   attachEvents();
+  // Render FAB and mobile bottom nav separately
+  renderFabContainer();
+  renderMobileBottomNavContainer();
 };
+function renderFabContainer() {
+  let fabContainer = document.getElementById('fab-container');
+  if (!fabContainer) {
+    fabContainer = document.createElement('div');
+    fabContainer.id = 'fab-container';
+    document.body.appendChild(fabContainer);
+  }
+  fabContainer.innerHTML = renderFab();
+}
+function renderMobileBottomNavContainer() {
+  let navContainer = document.getElementById('mobile-nav-container');
+  if (!navContainer) {
+    navContainer = document.createElement('div');
+    navContainer.id = 'mobile-nav-container';
+    document.body.appendChild(navContainer);
+  }
+  navContainer.innerHTML = renderMobileBottomNav();
+}
+function renderHeader() {
+  // Re-render just the header to update notification dropdown
+  if (state.view !== 'login' && !state.focusMode) {
+    const headerEl = document.getElementById('app-header');
+    if (headerEl) headerEl.outerHTML = renderHeaderHtml();
+  }
+}
+function renderHeaderHtml() {
+  const unreadCount = state.notifications.filter(n => !n.read).length;
+  return `
+    <header id="app-header" class="h-14 flex items-center px-5 gap-4 relative" style="border-bottom: 1px solid var(--border);">
+      <div class="text-sm flex items-center gap-1"><span style="color: var(--text-muted);">Workspace</span><span style="color: var(--text-dim);">/</span><span class="font-medium capitalize">${state.view.replace('-', ' ')}</span></div>
+      <div class="flex-1"></div>
+      <button data-action="open-cmd" class="btn btn-subtle text-xs flex items-center gap-2">${icons.search}<span class="hidden sm:inline">Search...</span><kbd class="kbd hidden sm:inline">⌘K</kbd></button>
+      <button data-action="theme-toggle" class="btn btn-ghost p-2">${state.theme === 'dark' ? icons.sun : icons.moon}</button>
+      <div class="relative">
+        <button class="btn btn-ghost p-2 relative" onclick="event.stopPropagation(); toggleNotifications()">
+          ${icons.bell}
+          ${unreadCount > 0 ? `<span class="absolute top-1 right-1 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center" style="background: var(--danger); color: white;">${unreadCount}</span>` : ''}
+        </button>
+        ${renderNotificationsDropdown()}
+      </div>
+    </header>
+  `;
+}
 function attachEvents() {
   const app = $('#app');
   app.onclick = e => {
@@ -1604,12 +1846,15 @@ function attachEvents() {
     if (action === 'expand-test') { state.expandedTest = state.expandedTest === val ? null : val; renderTesting(); }
     if (action === 'new-test') openTestCaseEditor();
     if (action === 'add-comment') addComment(val);
+    if (action === 'toggle-filters') toggleFilters();
   };
   app.onsubmit = e => { if (e.target.id === 'loginForm') { e.preventDefault(); handleLogin('manager'); } };
 }
 function navigate(view) {
   if (state.focusMode && state.focusMode.type !== 'rollback') closeFocusMode();
   state.view = view;
+  state.filtersOpen = false; // Reset filters panel on navigation
+  state.fabOpen = false; // Close FAB menu
   if (view !== 'testing') { state.selectedTests.clear(); state.expandedTest = null; state.showTreeAddMenu = null; }
   const views = { login: renderLogin, dashboard: renderDashboard, mywork: renderMyWork, projects: renderProjects, testing: renderTesting, deployments: renderDeployments, templates: renderTemplates, suggestions: renderSuggestions, audit: renderAudit, reports: renderReports, settings: renderSettings };
   (views[view] || renderDashboard)();
@@ -1619,10 +1864,23 @@ function handleLogin(role) {
   state.user = USERS[role] || USERS.manager;
   if (!state.testCases.length) state.testCases = JSON.parse(JSON.stringify(INITIAL_TEST_CASES));
   if (!state.hierarchy) state.hierarchy = JSON.parse(JSON.stringify(INITIAL_HIERARCHY));
+  if (!state.notifications.length) state.notifications = JSON.parse(JSON.stringify(INITIAL_NOTIFICATIONS));
   const home = { manager: 'dashboard', tester: 'testing', engineer: 'deployments', auditor: 'audit' }[role];
   toast(`Welcome, ${state.user.name.split(' ')[0]}!`, 'success');
   navigate(home || 'dashboard');
 }
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+  if (state.notifDropdownOpen && !e.target.closest('.notif-dropdown') && !e.target.closest('[data-action]')) {
+    state.notifDropdownOpen = false;
+    renderHeader();
+  }
+  if (state.fabOpen && !e.target.closest('.fab-container')) {
+    state.fabOpen = false;
+    renderFabContainer();
+  }
+});
 
 function renderDatePicker() {
   const ranges = [{id:'7d',label:'7d'},{id:'30d',label:'30d'},{id:'90d',label:'90d'},{id:'1y',label:'1y'}];
@@ -1643,11 +1901,10 @@ function shell(content) {
     { id: 'reports', label: 'Reports', icon: 'chart' },
     { id: 'settings', label: 'Settings', icon: 'settings' }
   ];
-  // Role-specific nav filtering (for auditor, show only audit + reports)
   const filteredNav = state.user.role === 'auditor' ? nav.filter(n => ['audit','reports','dashboard','settings'].includes(n.id)) : nav;
   return `
     <div class="flex h-screen">
-      <aside class="w-60 flex flex-col" style="border-right: 1px solid var(--border);">
+      <aside class="w-60 flex-col desktop-sidebar" style="border-right: 1px solid var(--border); display: flex;">
         <div class="h-14 px-4 flex items-center gap-2" style="border-bottom: 1px solid var(--border);">
           <div class="w-7 h-7 rounded flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M6 8.5H16"/><path d="M8 12H16"/><path d="M8 15.5H18"/><circle cx="18" cy="18" r="1.5" fill="white"/></svg></div>
           <div class="font-semibold text-sm">SENTRA</div>
@@ -1662,22 +1919,13 @@ function shell(content) {
         </div>
       </aside>
       <main class="flex-1 flex flex-col min-w-0">
-        <header class="h-14 flex items-center px-5 gap-4" style="border-bottom: 1px solid var(--border);">
-          <div class="text-sm flex items-center gap-1"><span style="color: var(--text-muted);">Workspace</span><span style="color: var(--text-dim);">/</span><span class="font-medium capitalize">${state.view.replace('-', ' ')}</span></div>
-          <div class="flex-1"></div>
-          <button data-action="open-cmd" class="btn btn-subtle text-xs flex items-center gap-2">${icons.search}<span>Search...</span><kbd class="kbd">⌘K</kbd></button>
-          <button data-action="theme-toggle" class="btn btn-ghost p-2">${state.theme === 'dark' ? icons.sun : icons.moon}</button>
-          <button class="relative p-2" style="color: var(--text-muted);">${icons.bell}<span class="absolute top-1 right-1 w-2 h-2 rounded-full" style="background: var(--danger);"></span></button>
-        </header>
+        ${renderHeaderHtml()}
         <div class="flex-1 overflow-y-auto scroll p-5 fade-in relative">${content}</div>
       </main>
     </div>
   `;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VIEWS
-// ═══════════════════════════════════════════════════════════════
 function renderLogin() {
   render(`
     <div class="min-h-screen flex">
@@ -1714,7 +1962,6 @@ function renderLogin() {
 function renderDashboard() {
   const tab = state.dashboardTab;
   const u = state.user;
-  // Role-specific greeting
   const greetings = { manager: 'Good morning', tester: 'Ready to test', engineer: 'Let\'s ship', auditor: 'Audit overview' };
   const subtitles = {
     manager: '3 active executions · 5 pending approvals · 2 suggestions awaiting review',
@@ -1729,18 +1976,22 @@ function renderDashboard() {
         <h1 class="text-xl font-semibold">${greetings[u.role]}, ${u.name.split(' ')[0]}</h1>
         <p class="text-sm mt-1" style="color: var(--text-muted);">${subtitles[u.role]}</p>
       </div>
-      <div class="flex gap-2 flex-wrap">${renderDatePicker()}<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button>${u.role === 'manager' ? `<button class="btn btn-primary text-xs">${icons.plus} New execution</button>` : ''}</div>
+      <div class="flex gap-2 flex-wrap">${renderDatePicker()}<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button></div>
     </div>
+    
+    <!-- Role-specific widgets -->
+    ${renderRoleSpecificWidgets()}
+    
     <div class="mb-6 flex gap-4" style="border-bottom: 1px solid var(--border);">
       ${['deployments','testing','activity'].map(t => `<button data-action="tab" data-value="${t}" class="pb-2 text-sm font-medium border-b-2 transition capitalize ${tab === t ? 'border-indigo-500' : 'border-transparent hover:opacity-80'}" style="${tab === t ? 'color: var(--accent);' : 'color: var(--text-muted);'}">${t}</button>`).join('')}
     </div>
     <div>
       ${tab === 'deployments' ? `
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-          <div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">Active</div><div class="text-2xl font-bold">2</div><div class="text-xs mt-1" style="color: var(--success);">↑ +1</div></div>
+          <div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">Active</div><div class="text-2xl font-bold">2</div></div>
           <div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">Pending</div><div class="text-2xl font-bold">1</div></div>
           <div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">Completed</div><div class="text-2xl font-bold">2</div></div>
-          <div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">Success Rate</div><div class="text-2xl font-bold">94%</div><div class="text-xs mt-1" style="color: var(--success);">↑ +2%</div></div>
+          <div class="card p-4"><div class="text-xs mb-1" style="color: var(--text-muted);">Success Rate</div><div class="text-2xl font-bold">94%</div></div>
         </div>
         ${renderTimeline()}
       ` : tab === 'testing' ? `
@@ -1797,24 +2048,72 @@ function renderTesting() {
   const selectedCount = state.selectedTests.size;
   const allSelected = state.testCases.length > 0 && selectedCount === state.testCases.length;
   const partialSelected = selectedCount > 0 && selectedCount < state.testCases.length;
+  
+  // Apply filters
+  const filteredTestCases = applyFilters(state.testCases, {
+    status: 'status',
+    assignee: 'assignee',
+    module: 'module'
+  });
+  
+  const hasActiveFilters = getActiveFilterCount() > 0;
+  const showEmptyState = filteredTestCases.length === 0 && hasActiveFilters;
+  
   const bulkBar = selectedCount > 0 ? `<div class="bulk-action-bar"><span class="text-sm"><strong>${selectedCount}</strong> selected</span><div class="flex-1"></div><button class="btn btn-subtle text-xs" data-action="bulk-clear">Clear</button><button class="btn text-xs text-white" style="background: var(--success);" data-action="bulk-pass">✓ Pass</button><button class="btn text-xs text-white" style="background: var(--danger);" data-action="bulk-fail">✕ Fail</button><button class="btn text-xs text-white" style="background: var(--warning);" data-action="bulk-block">⊘ Block</button></div>` : '';
-  const testListHtml = state.testCases.map(tc => {
+  
+  const testListHtml = showEmptyState ? renderEmptyState('filters') : filteredTestCases.map(tc => {
     const isSelected = state.selectedTests.has(tc.id);
     const isExpanded = state.expandedTest === tc.id;
     const evidence = state.evidencePerTest[tc.id] || [];
     const comments = state.commentsPerTest[tc.id] || [];
     const statusPill = tc.status === 'passed' ? 'pill-pass' : tc.status === 'failed' ? 'pill-fail' : tc.status === 'blocked' ? 'pill-block' : 'pill-pend';
-    return `<div class="test-row ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}" style="border-bottom: 1px solid var(--border);"><div class="px-4 py-2.5 flex items-center gap-3 cursor-pointer" data-action="expand-test" data-value="${tc.id}"><div class="checkbox-custom ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleTestSelection('${tc.id}', event)"></div><span class="mono text-xs w-16" style="color: var(--text-dim);">${tc.id}</span><div class="flex-1 min-w-0"><div class="text-sm truncate">${tc.name}</div>${evidence.length > 0 || comments.length > 0 ? `<div class="flex gap-2 mt-1 text-[10px]" style="color: var(--text-dim);">${evidence.length > 0 ? `<span>📎 ${evidence.length}</span>` : ''}${comments.length > 0 ? `<span>💬 ${comments.length}</span>` : ''}</div>` : ''}</div><span class="pill ${statusPill}">${tc.status}</span><span style="color: var(--text-dim); transform: rotate(${isExpanded ? '180deg' : '0deg'}); transition: transform 0.2s;">${icons.chevDown}</span></div>${isExpanded ? `<div class="px-4 pb-4 pt-2 space-y-3" style="background: var(--bg);"><div class="text-xs" style="color: var(--text-muted);"><strong>Description:</strong> ${tc.desc || 'No description'}</div><div class="flex gap-2 flex-wrap"><button class="btn text-xs text-white" style="background: var(--success);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'passed'; toast('Marked passed', 'success'); renderTesting();">✓ Pass</button><button class="btn text-xs text-white" style="background: var(--danger);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'failed'; toast('Marked failed', 'error'); renderTesting();">✕ Fail</button><button class="btn btn-subtle text-xs" onclick="openTestFocusMode(${state.testCases.findIndex(t => t.id === '${tc.id}')})">▶ Focus Mode</button></div><div><h4 class="text-xs font-semibold mb-2" style="color: var(--text-muted);">📎 Evidence (${evidence.length})</h4><div class="drop-zone" style="padding: 16px;" onclick="document.getElementById('file-input-${tc.id}').click()" ondragover="event.preventDefault(); this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="event.preventDefault(); this.classList.remove('dragging'); handleEvidenceUpload('${tc.id}', event.dataTransfer.files)"><div class="text-xs">Drop files or click</div><input type="file" id="file-input-${tc.id}" multiple style="display:none" onchange="handleEvidenceUpload('${tc.id}', this.files)"></div>${evidence.map((e, i) => `<div class="evidence-item"><span style="color: var(--text-muted);">${icons.file}</span><div class="flex-1 min-w-0"><div class="text-xs font-medium truncate">${e.name}</div><div class="hash-display">sha256: ${e.hash.substring(0, 16)}…</div></div><button onclick="removeEvidence('${tc.id}', ${i})" style="color: var(--danger); background: transparent; border: none; cursor: pointer;">✕</button></div>`).join('')}</div><div><h4 class="text-xs font-semibold mb-2" style="color: var(--text-muted);">💬 Comments (${comments.length})</h4>${comments.map(cm => `<div class="comment-item"><div class="text-[10px] mb-1" style="color: var(--text-dim);">${cm.author} · ${cm.time}</div><div>${cm.text}</div></div>`).join('')}<div class="flex gap-2 mt-2"><input id="comment-input-${tc.id}" placeholder="Add a comment..." class="flex-1"><button class="btn btn-primary text-xs" data-action="add-comment" data-value="${tc.id}">Add</button></div></div></div>` : ''}</div>`;
+    return `<div class="test-row ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}" style="border-bottom: 1px solid var(--border);"><div class="px-4 py-2.5 flex items-center gap-3 cursor-pointer" data-action="expand-test" data-value="${tc.id}"><div class="checkbox-custom ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleTestSelection('${tc.id}', event)"></div><span class="mono text-xs w-16" style="color: var(--text-dim);">${tc.id}</span><div class="flex-1 min-w-0"><div class="text-sm truncate">${tc.name}</div><div class="text-[10px] mt-0.5" style="color: var(--text-dim);">${tc.assignee} · ${tc.module}</div>${evidence.length > 0 || comments.length > 0 ? `<div class="flex gap-2 mt-1 text-[10px]" style="color: var(--text-dim);">${evidence.length > 0 ? `<span>📎 ${evidence.length}</span>` : ''}${comments.length > 0 ? `<span>💬 ${comments.length}</span>` : ''}</div>` : ''}</div><span class="pill ${statusPill}">${tc.status}</span><span style="color: var(--text-dim); transform: rotate(${isExpanded ? '180deg' : '0deg'}); transition: transform 0.2s;">${icons.chevDown}</span></div>${isExpanded ? `<div class="px-4 pb-4 pt-2 space-y-3" style="background: var(--bg);"><div class="text-xs" style="color: var(--text-muted);"><strong>Description:</strong> ${tc.desc || 'No description'}</div><div class="flex gap-2 flex-wrap"><button class="btn text-xs text-white" style="background: var(--success);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'passed'; toast('Marked passed', 'success'); renderTesting();">✓ Pass</button><button class="btn text-xs text-white" style="background: var(--danger);" onclick="state.testCases.find(t => t.id === '${tc.id}').status = 'failed'; toast('Marked failed', 'error'); renderTesting();">✕ Fail</button><button class="btn btn-subtle text-xs" onclick="openTestFocusMode(${state.testCases.findIndex(t => t.id === '${tc.id}')})">▶ Focus Mode</button></div></div>` : ''}</div>`;
   }).join('');
-  render(shell(`<div class="flex flex-col lg:flex-row h-full gap-4"><aside class="w-full lg:w-64 card p-3 flex flex-col"><div class="flex-1 overflow-y-auto scroll">${state.hierarchy ? renderHierarchyNode(state.hierarchy) : ''}</div><div class="pt-3 text-xs" style="border-top: 1px solid var(--border); color: var(--text-muted);">${state.testCases.length} tests</div></aside><div class="flex-1 flex flex-col min-w-0"><div class="flex justify-between items-center mb-4 flex-wrap gap-2"><div class="text-xs flex items-center gap-1" style="color: var(--text-muted);">E-Commerce <span style="color: var(--text-dim);">/</span> Auth <span style="color: var(--text-dim);">/</span> <span class="font-medium" style="color: var(--text);">Login Flow Suite</span> <span class="pill pill-run">${state.testCases.length} cases</span></div><div class="flex gap-2"><button class="btn btn-subtle text-xs" data-action="open-test-focus">▶ Focus</button><button class="btn btn-primary text-xs" data-action="new-test">${icons.plus} New</button></div></div><div class="card overflow-hidden flex-1"><div class="px-4 py-2 flex justify-between items-center" style="border-bottom: 1px solid var(--border); background: var(--bg-hover);"><div class="flex items-center gap-3"><div class="checkbox-custom ${allSelected ? 'checked' : partialSelected ? 'partial' : ''}" data-action="toggle-select-all"></div><h3 class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Test Cases</h3>${selectedCount > 0 ? `<span class="pill pill-info">${selectedCount} selected</span>` : ''}</div></div>${testListHtml}</div></div></div>${bulkBar}`));
+  
+  render(shell(`
+    <div class="flex flex-col lg:flex-row h-full gap-4">
+      <aside class="w-full lg:w-64 card p-3 flex flex-col">
+        <div class="flex-1 overflow-y-auto scroll">${state.hierarchy ? renderHierarchyNode(state.hierarchy) : ''}</div>
+        <div class="pt-3 text-xs" style="border-top: 1px solid var(--border); color: var(--text-muted);">${state.testCases.length} tests</div>
+      </aside>
+      <div class="flex-1 flex flex-col min-w-0">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <div class="text-xs flex items-center gap-1" style="color: var(--text-muted);">E-Commerce <span style="color: var(--text-dim);">/</span> Auth <span style="color: var(--text-dim);">/</span> <span class="font-medium" style="color: var(--text);">Login Flow Suite</span> <span class="pill pill-run">${filteredTestCases.length} cases</span></div>
+          <div class="flex gap-2">
+            <button class="btn btn-subtle text-xs" data-action="toggle-filters">${icons.filter} Filters ${hasActiveFilters ? `<span class="pill pill-info ml-1">${getActiveFilterCount()}</span>` : ''}</button>
+            <button class="btn btn-subtle text-xs" data-action="open-test-focus">▶ Focus</button>
+            <button class="btn btn-primary text-xs" data-action="new-test">${icons.plus} New</button>
+          </div>
+        </div>
+        ${renderFilterPanel('testing')}
+        <div class="card overflow-hidden flex-1">
+          <div class="px-4 py-2 flex justify-between items-center" style="border-bottom: 1px solid var(--border); background: var(--bg-hover);">
+            <div class="flex items-center gap-3">
+              <div class="checkbox-custom ${allSelected ? 'checked' : partialSelected ? 'partial' : ''}" data-action="toggle-select-all"></div>
+              <h3 class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Test Cases</h3>
+              ${selectedCount > 0 ? `<span class="pill pill-info">${selectedCount} selected</span>` : ''}
+            </div>
+          </div>
+          ${testListHtml}
+        </div>
+      </div>
+    </div>
+    ${bulkBar}
+  `));
 }
 
 function renderDeployments() {
+  const hasActiveFilters = getActiveFilterCount() > 0;
+  
   render(shell(`
     <div class="flex justify-between items-end mb-6">
       <div><h1 class="text-xl font-semibold">Deployments</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Live execution with approval gates & rollback</p></div>
-      <button class="btn btn-primary text-xs" data-action="open-deploy-focus">${icons.plus} Start New Deployment</button>
+      <div class="flex gap-2">
+        <button class="btn btn-subtle text-xs" data-action="toggle-filters">${icons.filter} Filters ${hasActiveFilters ? `<span class="pill pill-info ml-1">${getActiveFilterCount()}</span>` : ''}</button>
+        <button class="btn btn-primary text-xs" data-action="open-deploy-focus">${icons.plus} Start New</button>
+      </div>
     </div>
+    ${renderFilterPanel('deployments')}
     <div class="card overflow-hidden mb-6">
       ${DEPLOYS.map(d => `<div class="px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-[var(--bg-hover)]" style="border-bottom: 1px solid var(--border);" onclick="startDeploymentExecution()"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${d.name}</span><span class="pill ${d.status === 'running' ? 'pill-run' : d.status === 'completed' ? 'pill-pass' : 'pill-pend'}">● ${d.status}</span></div><div class="text-xs" style="color: var(--text-muted);">${d.project} · ${d.engineer}</div></div><div class="text-right text-xs mono"><div class="font-semibold">${d.done}/${d.steps}</div></div></div>`).join('')}
     </div>
@@ -1823,11 +2122,11 @@ function renderDeployments() {
 }
 
 function renderTemplates() {
-  const modal = state.selectedTemplate ? `<div class="modal-overlay" style="padding-top: 80px; align-items: center;" data-action="close-modal"><div class="modal-content p-6" onclick="event.stopPropagation()" style="max-height: 85vh;"><div class="flex justify-between items-start mb-4"><div><h2 class="text-lg font-semibold">${state.selectedTemplate.name}</h2><div class="text-xs mt-1" style="color: var(--text-muted);">${state.selectedTemplate.ver} · ${state.selectedTemplate.uses} uses</div></div><button data-action="close-modal" class="btn btn-ghost p-1">✕</button></div><div class="grid grid-cols-2 gap-4"><div><h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Version History</h3><div class="space-y-2"><div class="p-2 rounded text-xs" style="background: rgba(99,102,241,0.1); border: 1px solid var(--accent);"><div class="font-bold">${state.selectedTemplate.ver} (current)</div><div style="color: var(--text-muted);">Added pre-flight validation</div></div><div class="p-2 rounded text-xs" style="background: var(--bg-hover);"><div class="font-bold">v3.1</div><div style="color: var(--text-muted);">Updated rollback procedure</div></div><div class="p-2 rounded text-xs" style="background: var(--bg-hover);"><div class="font-bold">v3.0</div><div style="color: var(--text-muted);">Major restructure</div></div></div></div><div><h3 class="text-xs uppercase font-semibold mb-2" style="color: var(--text-muted);">Changes</h3><div class="space-y-2 text-xs"><div class="p-2 rounded" style="background: rgba(16,185,129,0.05); border-left: 2px solid var(--success);"><div class="font-bold" style="color: var(--success);">+ Added</div><div>Pre-flight validation</div></div></div></div></div><div class="flex gap-2 mt-4 pt-4" style="border-top: 1px solid var(--border);"><button class="btn btn-subtle flex-1 text-xs" data-action="open-diff-viewer" data-value="${state.selectedTemplate.id}">🔀 View Full Diff</button><button class="btn btn-primary flex-1 text-xs">➕ New Version</button></div></div></div>` : '';
+  const modal = state.selectedTemplate ? `<div class="modal-overlay" style="padding-top: 80px; align-items: center;" data-action="close-modal"><div class="modal-content p-6" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><div><h2 class="text-lg font-semibold">${state.selectedTemplate.name}</h2><div class="text-xs mt-1" style="color: var(--text-muted);">${state.selectedTemplate.ver} · ${state.selectedTemplate.uses} uses</div></div><button data-action="close-modal" class="btn btn-ghost p-1">✕</button></div><div class="flex gap-2 pt-4" style="border-top: 1px solid var(--border);"><button class="btn btn-subtle flex-1 text-xs" data-action="open-diff-viewer" data-value="${state.selectedTemplate.id}">🔀 View Diff</button><button class="btn btn-primary flex-1 text-xs">➕ New Version</button></div></div></div>` : '';
   render(shell(`
-    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Templates</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Version-controlled master definitions</p></div><button class="btn btn-primary text-xs">${icons.plus} New template</button></div>
+    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Templates</h1></div><button class="btn btn-primary text-xs">${icons.plus} New</button></div>
     <div class="card overflow-hidden">
-      ${TEMPLATES.map(t => `<div class="px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--bg-hover)]" style="border-bottom: 1px solid var(--border);" data-action="template-modal" data-value="${t.id}"><span class="text-lg">${t.type === 'test' ? '🧪' : '🚀'}</span><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><span class="font-medium text-sm">${t.name}</span><span class="pill pill-run mono">${t.ver}</span></div><div class="text-xs" style="color: var(--text-muted);">${t.author} · ${t.updated}</div></div><button class="btn btn-ghost text-xs" onclick="event.stopPropagation(); openTemplateDiffViewer('${t.id}')">🔀 Diff</button></div>`).join('')}
+      ${TEMPLATES.map(t => `<div class="px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--bg-hover)]" style="border-bottom: 1px solid var(--border);" data-action="template-modal" data-value="${t.id}"><span class="text-lg">${t.type === 'test' ? '🧪' : '🚀'}</span><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><span class="font-medium text-sm">${t.name}</span><span class="pill pill-run mono">${t.ver}</span></div><div class="text-xs" style="color: var(--text-muted);">${t.author} · ${t.updated}</div></div><button class="btn btn-ghost text-xs" onclick="event.stopPropagation(); openTemplateDiffViewer('${t.id}')">🔀</button></div>`).join('')}
     </div>
     ${modal}
   `));
@@ -1835,13 +2134,27 @@ function renderTemplates() {
 
 function renderSuggestions() {
   const canSubmit = state.user.role !== 'auditor';
+  const hasActiveFilters = getActiveFilterCount() > 0;
+  
+  // Apply filters
+  const filteredSuggestions = applyFilters(SUGGESTIONS, {
+    status: 'status',
+    priority: 'priority',
+    type: 'type',
+    submitter: 'submitter'
+  });
+  
   render(shell(`
     <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
       <div><h1 class="text-xl font-semibold">Suggestions</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Continuous improvement from the team</p></div>
-      ${canSubmit ? `<button class="btn btn-primary text-xs" data-action="submit-suggestion">${icons.plus} Submit Suggestion</button>` : ''}
+      <div class="flex gap-2">
+        <button class="btn btn-subtle text-xs" data-action="toggle-filters">${icons.filter} Filters ${hasActiveFilters ? `<span class="pill pill-info ml-1">${getActiveFilterCount()}</span>` : ''}</button>
+        ${canSubmit ? `<button class="btn btn-primary text-xs" data-action="submit-suggestion">${icons.plus} Submit</button>` : ''}
+      </div>
     </div>
+    ${renderFilterPanel('suggestions')}
     <div class="space-y-3">
-      ${SUGGESTIONS.map(s => `
+      ${filteredSuggestions.length === 0 ? renderEmptyState(hasActiveFilters ? 'filters' : 'suggestions') : filteredSuggestions.map(s => `
         <div class="card p-4 cursor-pointer hover:border-[var(--border-hover)]" data-action="open-suggestion-detail" data-value="${s.id}">
           <div class="flex items-start justify-between gap-3">
             <div class="flex-1 min-w-0">
@@ -1851,18 +2164,8 @@ function renderSuggestions() {
                 <span class="pill pill-info">${s.type}</span>
                 <span class="pill ${s.status === 'approved' ? 'pill-pass' : s.status === 'rejected' ? 'pill-fail' : s.status === 'under_review' ? 'pill-run' : 'pill-pend'}">● ${s.status.replace('_', ' ')}</span>
               </div>
-              <div class="text-xs mb-2 flex items-center gap-2 flex-wrap" style="color: var(--text-muted);">
-                <span>${s.submitter}</span>
-                <span>·</span>
-                <span>${s.time}</span>
-                <span>·</span>
-                <span class="mono">${s.context}</span>
-              </div>
+              <div class="text-xs mb-2 flex items-center gap-2 flex-wrap" style="color: var(--text-muted);"><span>${s.submitter}</span><span>·</span><span>${s.time}</span><span>·</span><span class="mono">${s.context}</span></div>
               <div class="text-sm line-clamp-2" style="color: var(--text-muted);">${s.reason}</div>
-            </div>
-            <div class="flex flex-col gap-1 text-[10px]" style="color: var(--text-dim);">
-              ${s.attachments > 0 ? `<span>📎 ${s.attachments}</span>` : ''}
-              ${s.comments > 0 ? `<span>💬 ${s.comments}</span>` : ''}
             </div>
           </div>
         </div>
@@ -1875,8 +2178,8 @@ function renderAudit() {
   const isAuditor = state.user.role === 'auditor';
   render(shell(`
     <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
-      <div><h1 class="text-xl font-semibold">Audit Center ${isAuditor ? '<span class="pill pill-info ml-2">Read-only</span>' : ''}</h1><p class="text-sm mt-1" style="color: var(--text-muted);">Immutable execution history & compliance</p></div>
-      <div class="flex gap-2">${!isAuditor ? `<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button>` : ''}<button class="btn btn-subtle text-xs">📄 PDF</button></div>
+      <div><h1 class="text-xl font-semibold">Audit Center ${isAuditor ? '<span class="pill pill-info ml-2">Read-only</span>' : ''}</h1></div>
+      <div class="flex gap-2">${!isAuditor ? `<button class="btn btn-subtle text-xs" data-action="export-csv">${icons.download} CSV</button>` : ''}</div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
       ${[{l:'Trail Integrity',v:'Verified'},{l:'Evidence Hashes',v:'1,284 valid'},{l:'Execution Locking',v:'Enforced'},{l:'Versioning',v:'Active'}].map(k => `<div class="card p-4 flex items-center gap-3"><div class="w-8 h-8 rounded flex items-center justify-center" style="background: rgba(16,185,129,0.1);">🛡️</div><div><div class="text-[10px] uppercase" style="color: var(--text-muted);">${k.l}</div><div class="text-sm font-bold" style="color: var(--success);">${k.v}</div></div></div>`).join('')}
@@ -1911,6 +2214,26 @@ function renderSettings() {
   render(shell(`
     <div class="mb-6"><h1 class="text-xl font-semibold">Settings</h1></div>
     <div class="card p-5 mb-4"><h3 class="text-sm font-semibold mb-4">Profile</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Full name</label><input value="${state.user.name}"></div><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Email</label><input value="${state.user.email}"></div><div><label class="text-xs block mb-1" style="color: var(--text-muted);">Role</label><input value="${state.user.role}" readonly style="opacity: 0.6;"></div></div></div>
+    <div class="card p-5 mb-4">
+      <h3 class="text-sm font-semibold mb-4">Notifications</h3>
+      <div class="space-y-2">
+        ${[
+          { l: 'Approval requests', d: 'When someone requests your approval', on: true },
+          { l: 'Test failures', d: 'Critical test failures in your cycles', on: true },
+          { l: 'Deployment completions', d: 'When deployments finish', on: true },
+          { l: 'New suggestions', d: 'When team submits suggestions', on: false },
+          { l: 'Weekly digest', d: 'Summary email every Monday', on: false }
+        ].map((n, i) => `
+          <div class="flex items-center justify-between p-3 rounded" style="background: var(--bg-hover);">
+            <div>
+              <div class="text-sm font-medium">${n.l}</div>
+              <div class="text-xs" style="color: var(--text-muted);">${n.d}</div>
+            </div>
+            <label class="theme-toggle" style="${n.on ? 'background: var(--accent);' : ''}"><input type="checkbox" ${n.on ? 'checked' : ''} style="display: none;" onchange="toast('Notification preference updated', 'success')"></label>
+          </div>
+        `).join('')}
+      </div>
+    </div>
     <div class="card p-5 mb-4"><h3 class="text-sm font-semibold mb-4">Appearance</h3><div class="flex items-center justify-between p-3 rounded" style="background: var(--bg-hover);"><div><div class="text-sm font-medium">Theme</div><div class="text-xs" style="color: var(--text-muted);">Currently ${state.theme}</div></div><div class="theme-toggle" data-action="theme-toggle"></div></div></div>
   `));
 }
