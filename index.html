@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SENTRA — Core Execution Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    body { background: #020617; color: #e2e8f0; }
+    .scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scroll::-webkit-scrollbar-track { background: transparent; }
+    .scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .fade-in { animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-active { background: #1e293b; color: #f8fafc; border-left: 3px solid #6366f1; }
+    .pill { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border; }
+    .pill-pass { background: rgba(16,185,129,0.1); color: #6ee7b7; border-color: rgba(16,185,129,0.2); }
+    .pill-fail { background: rgba(239,68,68,0.1); color: #fca5a5; border-color: rgba(239,68,68,0.2); }
+    .pill-run  { background: rgba(99,102,241,0.1); color: #c7d2fe; border-color: rgba(99,102,241,0.2); }
+    .pill-pend { background: rgba(100,116,139,0.1); color: #94a3b8; border-color: rgba(100,116,139,0.2); }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 0.75rem; }
+    .btn { @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition; }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-ghost { color: #94a3b8; }
+    .btn-ghost:hover { background: #1e293b; color: #f8fafc; }
+    .btn-subtle { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }
+    .btn-subtle:hover { background: #334155; }
+    input, select, textarea { background: #020617; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 13px; width: 100%; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
+  </style>
+</head>
+<body class="h-screen overflow-hidden">
+  <div id="app" class="h-full"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// STATE & MOCK DATA
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  view: 'login',
+  user: null,
+  dashboardTab: 'deployments',
+  selectedTemplate: null,
+  sidebarOpen: true
+};
+
+const USERS = {
+  manager:  { name: 'Jordan Diaz', email: 'jordan@sentra.io', role: 'manager',  initials: 'JD', color: 'bg-indigo-600' },
+  tester:   { name: 'Sarah Chen',  email: 'sarah@sentra.io',  role: 'tester',   initials: 'SC', color: 'bg-emerald-600' },
+  engineer: { name: 'David Park',  email: 'david@sentra.io',  role: 'engineer', initials: 'DP', color: 'bg-violet-600' },
+  auditor:  { name: 'Alex Kumar',  email: 'alex@sentra.io',   role: 'auditor',  initials: 'AK', color: 'bg-cyan-600' }
+};
+
+const PROJECTS = [
+  { id: 'p1', name: 'E-Commerce Platform', status: 'active', tests: 2847, deploys: 12, members: 14, color: '#6366f1' },
+  { id: 'p2', name: 'Payment Gateway',     status: 'active', tests: 1523, deploys: 8,  members: 9,  color: '#8b5cf6' },
+  { id: 'p3', name: 'User Management',     status: 'active', tests: 982,  deploys: 5,  members: 6,  color: '#22d3ee' },
+  { id: 'p4', name: 'Analytics Dashboard', status: 'paused', tests: 634,  deploys: 3,  members: 5,  color: '#f59e0b' }
+];
+
+const CYCLES = [
+  { id: 'tc1', name: 'Sprint 24 — Regression', project: 'E-Commerce', total: 450, passed: 387, failed: 23, blocked: 12, status: 'running', assignee: 'Sarah Chen', time: '2m ago' },
+  { id: 'tc2', name: 'Payment Module v2.1',    project: 'Payment GW', total: 234, passed: 198, failed: 8,  blocked: 3,  status: 'running', assignee: 'Mike Johnson', time: '14m ago' },
+  { id: 'tc3', name: 'Security Audit Q2',      project: 'User Mgmt',  total: 156, passed: 142, failed: 5,  blocked: 2,  status: 'completed', assignee: 'Alex Kumar', time: '2h ago' }
+];
+
+const DEPLOYS = [
+  { id: 'd1', name: 'Release 2.4.1 — Prod', project: 'E-Commerce', steps: 24, done: 18, status: 'running', engineer: 'David Park', eta: '45m' },
+  { id: 'd2', name: 'Hotfix — Payment GW',  project: 'Payment GW', steps: 12, done: 12, status: 'completed', engineer: 'Lisa Wang', duration: '32m' },
+  { id: 'd3', name: 'Staging — User v3.0',  project: 'User Mgmt',  steps: 18, done: 0,  status: 'pending', engineer: 'James Smith', eta: '60m' }
+];
+
+const TEMPLATES = [
+  { id: 't1', name: 'Prod Deployment — Standard', type: 'deploy', ver: 'v3.2', updated: 'Jun 5', author: 'Jordan Diaz', status: 'published', uses: 47 },
+  { id: 't2', name: 'Regression Suite — Ecom',    type: 'test',   ver: 'v5.0', updated: 'Jun 6', author: 'Sarah Chen', status: 'published', uses: 89 },
+  { id: 't3', name: 'Security Checklist',         type: 'test',   ver: 'v1.8', updated: 'Jun 3', author: 'Alex Kumar', status: 'draft', uses: 0 }
+];
+
+const SUGGESTIONS = [
+  { id: 's1', title: 'Add DB backup verification', type: 'deploy', priority: 'high', status: 'submitted', submitter: 'David Park', time: '2h ago', reason: 'Corrupt backup caused 45m rollback last month.' },
+  { id: 's2', title: 'Test: empty cart checkout',  type: 'test',   priority: 'medium', status: 'submitted', submitter: 'Sarah Chen', time: '4h ago', reason: 'Edge case not covered.' },
+  { id: 's3', title: 'Cache clearing in deploy',   type: 'deploy', priority: 'high', status: 'approved', submitter: 'Lisa Wang', time: '1d ago', reason: 'Stale cache caused errors.' }
+];
+
+const AUDIT = [
+  { id: '#12847', actor: 'David Park', action: 'step.completed', entity: 'Release 2.4.1', time: '09:47', result: 'Step 17 — metrics' },
+  { id: '#12846', actor: 'David Park', action: 'evidence.upload', entity: 'Release 2.4.1', time: '09:46', result: 'health-check.log' },
+  { id: '#12845', actor: 'Sarah Chen', action: 'test.failed',     entity: 'Sprint 24',     time: '09:41', result: 'TC-2805: Email SLA' },
+  { id: '#12844', actor: 'Jordan Diaz',action: 'suggestion.approved', entity: '#42',      time: '09:32', result: 'Merge to master' },
+  { id: '#12843', actor: 'System',     action: 'execution.locked', entity: 'Release 2.4.1', time: '09:30', result: 'Snapshot v3.2' }
+];
+
+const TEST_CASES = [
+  { id: 'TC-2801', name: 'Login with valid creds', status: 'passed', dur: '2.3s' },
+  { id: 'TC-2802', name: 'Login with wrong pwd',   status: 'passed', dur: '1.8s' },
+  { id: 'TC-2803', name: 'Rate limit (5 attempts)',status: 'passed', dur: '4.1s' },
+  { id: 'TC-2804', name: 'Password reset email',   status: 'failed', dur: '5.7s', note: 'Not received in 60s' },
+  { id: 'TC-2805', name: 'MFA on suspicious IP',   status: 'blocked', dur: '—', note: 'MFA service degraded' },
+  { id: 'TC-2806', name: 'Cart persistence',       status: 'not-run', dur: '—' }
+];
+
+const DEPLOY_STEPS = [
+  { id: 1, name: 'Pre-flight validation', status: 'completed', dur: '1m 12s' },
+  { id: 2, name: 'DB backup snapshot',    status: 'completed', dur: '4m 31s', crit: true },
+  { id: 3, name: 'Deploy build v2.4.1',   status: 'completed', dur: '6m 42s', crit: true },
+  { id: 4, name: 'Run migrations',        status: 'completed', dur: '3m 18s', crit: true },
+  { id: 5, name: 'Health checks',         status: 'completed', dur: '0m 52s' },
+  { id: 6, name: 'Approval gate',         status: 'running',   dur: '—', crit: true, gate: true },
+  { id: 7, name: 'Switch DNS traffic',    status: 'pending',   dur: '—', crit: true },
+  { id: 8, name: 'Monitor error rate',    status: 'pending',   dur: '—', crit: true }
+];
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════════════════════════════
+const $ = (sel) => document.querySelector(sel);
+const render = (html) => { $('#app').innerHTML = html; attachEvents(); };
+
+function attachEvents() {
+  $('#app').onclick = (e) => {
+    const t = e.target.closest('[data-action]');
+    if (!t) return;
+    const action = t.dataset.action;
+    const val = t.dataset.value;
+
+    if (action === 'nav') navigate(val);
+    if (action === 'login') handleLogin(val);
+    if (action === 'logout') { state.user = null; navigate('login'); }
+    if (action === 'tab') { state.dashboardTab = val; navigate('dashboard'); }
+    if (action === 'template-modal') { state.selectedTemplate = TEMPLATES.find(x=>x.id===val); navigate('templates'); }
+    if (action === 'close-modal') { state.selectedTemplate = null; navigate('templates'); }
+    if (action === 'toast') showToast(val);
+  };
+
+  $('#app').onsubmit = (e) => {
+    if (e.target.id === 'loginForm') {
+      e.preventDefault();
+      handleLogin('manager');
+    }
+  };
+}
+
+function navigate(view) {
+  state.view = view;
+  const views = {
+    login: renderLogin,
+    dashboard: renderDashboard,
+    mywork: renderMyWork,
+    projects: renderProjects,
+    testing: renderTesting,
+    deployments: renderDeployments,
+    templates: renderTemplates,
+    suggestions: renderSuggestions,
+    audit: renderAudit,
+    reports: renderReports,
+    settings: renderSettings
+  };
+  (views[view] || renderDashboard)();
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'fixed bottom-4 right-4 bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-lg shadow-xl text-sm fade-in z-50';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+function handleLogin(role) {
+  state.user = USERS[role] || USERS.manager;
+  const home = { manager: 'dashboard', tester: 'mywork', engineer: 'mywork', auditor: 'audit' }[role];
+  navigate(home || 'dashboard');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════════════════
+function renderLogin() {
+  render(`
+    <div class="min-h-screen flex">
+      <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-slate-900 to-slate-950 p-12 flex-col justify-between relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 30%, rgba(99,102,241,0.3), transparent 50%), radial-gradient(circle at 80% 70%, rgba(139,92,246,0.2), transparent 50%);"></div>
+        <div class="relative z-10 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M6 8.5C6 7.12 7.12 6 8.5 6H16"/><path d="M8 12H16"/><path d="M8 15.5H15.5C16.88 15.5 18 16.62 18 18"/><circle cx="18" cy="18" r="1.5" fill="white"/></svg>
+          </div>
+          <div><div class="font-bold text-lg tracking-tight">SENTRA</div><div class="text-xs text-slate-400 tracking-widest uppercase">Core Execution Platform</div></div>
+        </div>
+        <div class="relative z-10 max-w-md">
+          <h1 class="text-4xl font-semibold leading-tight mb-4">Execute with clarity.<br><span class="text-slate-400">Deliver with confidence.</span></h1>
+          <p class="text-slate-400 mb-8">One auditable source of truth for testing, deployment, and every decision in between.</p>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 text-sm text-slate-300"><div class="w-8 h-8 rounded bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">🧪</div>Testing at enterprise scale</div>
+            <div class="flex items-center gap-3 text-sm text-slate-300"><div class="w-8 h-8 rounded bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">🚀</div>Guided deployments with rollback</div>
+            <div class="flex items-center gap-3 text-sm text-slate-300"><div class="w-8 h-8 rounded bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">🛡️</div>Audit-ready by default</div>
+          </div>
+        </div>
+        <div class="relative z-10 text-xs text-slate-500 flex gap-4">🔒 SOC 2 Aligned · 🔑 SSO Ready · 📊 Encrypted at Rest</div>
+      </div>
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 bg-slate-950">
+        <div class="w-full max-w-sm fade-in">
+          <div class="mb-8"><h2 class="text-2xl font-semibold">Welcome back</h2><p class="text-slate-400 text-sm mt-1">Sign in to your workspace</p></div>
+          <form id="loginForm" class="space-y-4">
+            <div><label class="text-xs text-slate-400 mb-1 block">Work email</label><input type="email" value="jordan@sentra.io" required></div>
+            <div><label class="text-xs text-slate-400 mb-1 block">Password</label><input type="password" value="demo123" required></div>
+            <button type="submit" class="btn btn-primary w-full py-2.5">Sign in</button>
+          </form>
+          <div class="mt-6 pt-6 border-t border-slate-800">
+            <p class="text-xs text-slate-500 mb-3">Demo access (no signup)</p>
+            <div class="grid grid-cols-2 gap-2">
+              ${Object.entries(USERS).map(([k,u]) => `<button data-action="login" data-value="${k}" class="flex items-center gap-2 p-2 rounded bg-slate-900 border border-slate-800 hover:border-indigo-500 text-left transition"><div class="w-6 h-6 rounded-full ${u.color} flex items-center justify-center text-[10px] font-bold">${u.initials}</div><div class="text-xs"><div class="font-medium">${u.role}</div><div class="text-slate-500">${u.name}</div></div></button>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function shell(content) {
+  const u = state.user;
+  const nav = [
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'mywork', label: 'My Work', icon: '⚡' },
+    { id: 'projects', label: 'Projects', icon: '📁' },
+    { id: 'testing', label: 'Testing', icon: '🧪' },
+    { id: 'deployments', label: 'Deployments', icon: '🚀' },
+    { id: 'templates', label: 'Templates', icon: '📄' },
+    { id: 'suggestions', label: 'Suggestions', icon: '💡' },
+    { id: 'audit', label: 'Audit Center', icon: '🛡️' },
+    { id: 'reports', label: 'Reports', icon: '📈' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' }
+  ];
+  return `
+    <div class="flex h-screen">
+      <aside class="w-60 border-r border-slate-800 bg-slate-950 flex flex-col">
+        <div class="h-14 px-4 flex items-center gap-2 border-b border-slate-800">
+          <div class="w-7 h-7 rounded bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M6 8.5H16"/><path d="M8 12H16"/><path d="M8 15.5H18"/><circle cx="18" cy="18" r="1.5" fill="white"/></svg></div>
+          <div class="font-semibold text-sm">SENTRA</div>
+        </div>
+        <nav class="flex-1 overflow-y-auto scroll py-2 space-y-0.5">
+          ${nav.map(n => `<div data-action="nav" data-value="${n.id}" class="flex items-center gap-2.5 px-3 py-2 mx-2 rounded cursor-pointer text-sm ${state.view===n.id?'nav-active':'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}">${n.icon} ${n.label}</div>`).join('')}
+        </nav>
+        <div class="p-3 border-t border-slate-800 flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full ${u.color} flex items-center justify-center text-[10px] font-bold">${u.initials}</div>
+          <div class="flex-1 min-w-0"><div class="text-xs font-medium truncate">${u.name}</div><div class="text-[10px] text-slate-500 truncate">${u.role}</div></div>
+          <button data-action="logout" class="text-slate-500 hover:text-rose-400 p-1">🚪</button>
+        </div>
+      </aside>
+      <main class="flex-1 flex flex-col min-w-0 bg-slate-950">
+        <header class="h-14 border-b border-slate-800 flex items-center px-5 gap-4">
+          <div class="text-sm text-slate-400">Workspace <span class="text-slate-600 mx-1">/</span> <span class="text-slate-200 font-medium capitalize">${state.view.replace('-',' ')}</span></div>
+          <div class="flex-1"></div>
+          <button class="btn btn-subtle text-xs">➕ New</button>
+          <button class="relative p-2 text-slate-400 hover:text-white">🔔<span class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span></button>
+        </header>
+        <div class="flex-1 overflow-y-auto scroll p-5">${content}</div>
+      </main>
+    </div>
+  `;
+}
+
+function renderDashboard() {
+  const tab = state.dashboardTab;
+  const content = `
+    <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+      <div><h1 class="text-xl font-semibold">Good morning, ${state.user.name.split(' ')[0]}</h1><p class="text-sm text-slate-400 mt-1">3 active executions · 5 pending reviews</p></div>
+      <div class="flex gap-2"><button class="btn btn-subtle text-xs">📥 Export</button><button class="btn btn-primary text-xs">➕ New execution</button></div>
+    </div>
+    <div class="border-b border-slate-800 mb-6 flex gap-4">
+      ${['deployments','testing','activity'].map(t => `<button data-action="tab" data-value="${t}" class="pb-2 text-sm font-medium border-b-2 transition capitalize ${tab===t?'text-indigo-400 border-indigo-500':'text-slate-400 border-transparent hover:text-slate-200'}">${t}</button>`).join('')}
+    </div>
+    <div class="fade-in">
+      ${tab==='deployments' ? `
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Active</div><div class="text-2xl font-bold">2</div><div class="text-xs text-emerald-400 mt-1">↑ +1 vs yesterday</div></div>
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Pending</div><div class="text-2xl font-bold">1</div><div class="text-xs text-slate-500 mt-1">Scheduled today</div></div>
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Completed</div><div class="text-2xl font-bold">2</div><div class="text-xs text-slate-500 mt-1">Today</div></div>
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Success Rate</div><div class="text-2xl font-bold">94%</div><div class="text-xs text-emerald-400 mt-1">↑ +2% (7d)</div></div>
+        </div>
+        <div class="card overflow-hidden mb-4">
+          <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center"><h3 class="text-sm font-semibold">Active Deployments</h3><span class="text-xs text-slate-400">${DEPLOYS.filter(d=>d.status==='running').length} running</span></div>
+          ${DEPLOYS.filter(d=>d.status==='running').map(d => `
+            <div class="px-4 py-3 border-b border-slate-800 last:border-0 hover:bg-slate-900/50 flex items-center gap-4 flex-wrap">
+              <div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${d.name}</span><span class="pill pill-run">● Running</span></div><div class="text-xs text-slate-400">${d.project} · ${d.engineer}</div></div>
+              <div class="flex items-center gap-4">
+                <div class="text-right text-xs"><div class="font-mono">${d.done}/${d.steps}</div><div class="text-slate-500">ETA ${d.eta}</div></div>
+                <div class="w-32 bg-slate-800 rounded-full h-1.5"><div class="bg-indigo-500 h-1.5 rounded-full" style="width:${(d.done/d.steps)*100}%"></div></div>
+                <button data-action="nav" data-value="deployments" class="btn btn-subtle text-xs">Resume →</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : tab==='testing' ? `
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Active Cycles</div><div class="text-2xl font-bold">3</div></div>
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Pass Rate</div><div class="text-2xl font-bold text-emerald-400">86%</div></div>
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Failed</div><div class="text-2xl font-bold text-rose-400">48</div></div>
+          <div class="card p-4"><div class="text-xs text-slate-400 mb-1">Blocked</div><div class="text-2xl font-bold text-amber-400">21</div></div>
+        </div>
+        <div class="card overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-800"><h3 class="text-sm font-semibold">Active Test Cycles</h3></div>
+          ${CYCLES.filter(c=>c.status==='running').map(c => `
+            <div class="px-4 py-3 border-b border-slate-800 last:border-0 hover:bg-slate-900/50 flex items-center gap-4 flex-wrap">
+              <div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${c.name}</span><span class="pill pill-run">● Running</span></div><div class="text-xs text-slate-400">${c.project} · ${c.assignee} · ${c.time}</div></div>
+              <div class="flex items-center gap-4">
+                <div class="flex gap-3 text-xs font-mono"><span class="text-emerald-400">${c.passed}</span><span class="text-rose-400">${c.failed}</span><span class="text-amber-400">${c.blocked}</span></div>
+                <div class="w-32 bg-slate-800 rounded-full h-1.5 flex overflow-hidden">
+                  <div class="bg-emerald-500" style="width:${(c.passed/c.total)*100}%"></div>
+                  <div class="bg-rose-500" style="width:${(c.failed/c.total)*100}%"></div>
+                  <div class="bg-amber-500" style="width:${(c.blocked/c.total)*100}%"></div>
+                </div>
+                <button data-action="nav" data-value="testing" class="btn btn-subtle text-xs">Resume →</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : `
+        <div class="card p-4">
+          <div class="flex items-center gap-2 mb-4"><h3 class="text-sm font-semibold">Live Activity</h3><span class="flex items-center gap-1 text-xs text-emerald-400"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Streaming</span></div>
+          <div class="space-y-3">
+            ${AUDIT.map(a => `<div class="flex items-start gap-3 text-sm"><div class="w-2 h-2 rounded-full bg-indigo-500 mt-1.5"></div><div><div class="text-slate-200"><span class="font-medium">${a.actor}</span> ${a.action} <span class="font-medium">${a.entity}</span></div><div class="text-xs text-slate-500 mt-0.5">${a.time} · ${a.result}</div></div></div>`).join('')}
+          </div>
+        </div>
+      `}
+    </div>
+  `;
+  render(shell(content));
+}
+
+function renderMyWork() {
+  render(shell(`
+    <div class="mb-6"><h1 class="text-xl font-semibold">My work today</h1><p class="text-sm text-slate-400 mt-1">7 items · 3 high priority</p></div>
+    <div class="card overflow-hidden mb-5">
+      <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center"><h3 class="text-sm font-semibold">Priorities</h3><span class="text-xs text-slate-400">Auto-sorted</span></div>
+      <div class="divide-y divide-slate-800">
+        <div class="p-4 flex items-center gap-3 hover:bg-slate-900/50"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><div class="flex-1"><div class="text-sm font-medium">Complete Sprint 24 regression</div><div class="text-xs text-slate-400">63 tests remaining</div></div><span class="pill pill-fail">High</span><button data-action="nav" data-value="testing" class="btn btn-primary text-xs">Resume</button></div>
+        <div class="p-4 flex items-center gap-3 hover:bg-slate-900/50"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><div class="flex-1"><div class="text-sm font-medium">Approve deployment gate</div><div class="text-xs text-slate-400">Release 2.4.1 Step 18</div></div><span class="pill pill-fail">High</span><button data-action="nav" data-value="deployments" class="btn btn-primary text-xs">Review</button></div>
+        <div class="p-4 flex items-center gap-3 hover:bg-slate-900/50"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><div class="flex-1"><div class="text-sm font-medium">Review 3 suggestions</div><div class="text-xs text-slate-400">Submitted this week</div></div><span class="pill pill-pend">Medium</span><button data-action="nav" data-value="suggestions" class="btn btn-subtle text-xs">Open</button></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="card p-4"><h3 class="text-sm font-semibold mb-3">Resume last execution</h3><div class="bg-slate-900 p-3 rounded border border-slate-800 mb-3"><div class="flex justify-between text-xs mb-2"><span class="pill pill-run">● In progress</span><span class="text-slate-500">paused 23m ago</span></div><div class="font-medium text-sm">Sprint 24 — Regression</div><div class="w-full bg-slate-800 h-1.5 rounded mt-2"><div class="bg-emerald-500 h-1.5 rounded" style="width:86%"></div></div></div><button data-action="nav" data-value="testing" class="btn btn-primary w-full text-xs">▶ Resume execution</button></div>
+      <div class="card p-4"><h3 class="text-sm font-semibold mb-3">Your week</h3><div class="grid grid-cols-2 gap-3"><div class="bg-slate-900 p-3 rounded border border-slate-800"><div class="text-[10px] text-slate-400 uppercase">Tests</div><div class="text-lg font-bold">312</div><div class="text-[10px] text-emerald-400">+18%</div></div><div class="bg-slate-900 p-3 rounded border border-slate-800"><div class="text-[10px] text-slate-400 uppercase">Deploys</div><div class="text-lg font-bold">4</div><div class="text-[10px] text-emerald-400">+2</div></div><div class="bg-slate-900 p-3 rounded border border-slate-800"><div class="text-[10px] text-slate-400 uppercase">Suggestions</div><div class="text-lg font-bold">6</div><div class="text-[10px] text-emerald-400">3 approved</div></div><div class="bg-slate-900 p-3 rounded border border-slate-800"><div class="text-[10px] text-slate-400 uppercase">Pass Rate</div><div class="text-lg font-bold">89%</div><div class="text-[10px] text-emerald-400">+4%</div></div></div></div>
+    </div>
+  `));
+}
+
+function renderProjects() {
+  render(shell(`
+    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Projects</h1><p class="text-sm text-slate-400 mt-1">4 active projects</p></div><button class="btn btn-primary text-xs">➕ New project</button></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ${PROJECTS.map(p => `
+        <div class="card p-5 hover:border-slate-700 transition cursor-pointer">
+          <div class="flex justify-between items-start mb-4"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold" style="background:${p.color}">${p.name[0]}</div><div><div class="font-semibold">${p.name}</div><div class="text-xs text-slate-500 mono">${p.id}</div></div></div><span class="pill ${p.status==='active'?'pill-pass':'pill-pend'}">● ${p.status}</span></div>
+          <div class="grid grid-cols-3 gap-2 mb-3"><div class="bg-slate-900 p-2 rounded text-center"><div class="text-[10px] text-slate-400">Tests</div><div class="font-bold">${p.tests}</div></div><div class="bg-slate-900 p-2 rounded text-center"><div class="text-[10px] text-slate-400">Deploys</div><div class="font-bold">${p.deploys}</div></div><div class="bg-slate-900 p-2 rounded text-center"><div class="text-[10px] text-slate-400">Members</div><div class="font-bold">${p.members}</div></div></div>
+          <div class="text-xs text-slate-500 flex justify-between"><span>Updated 2h ago</span><span>⋯</span></div>
+        </div>
+      `).join('')}
+    </div>
+  `));
+}
+
+function renderTesting() {
+  render(shell(`
+    <div class="flex flex-col lg:flex-row h-full gap-4">
+      <aside class="w-full lg:w-64 card p-3 flex flex-col">
+        <input placeholder="Filter hierarchy..." class="mb-3 text-xs">
+        <div class="flex-1 overflow-y-auto scroll space-y-1 text-sm">
+          <div class="px-2 py-1 rounded bg-indigo-500/10 text-indigo-300 font-medium">📦 E-Commerce Platform</div>
+          <div class="pl-6 px-2 py-1 rounded hover:bg-slate-900 cursor-pointer">📂 Authentication</div>
+          <div class="pl-10 px-2 py-1 rounded bg-slate-900 text-slate-200 cursor-pointer">🧩 Login & SSO</div>
+          <div class="pl-14 px-2 py-1 rounded text-emerald-400 cursor-pointer">🧪 Login Flow (42)</div>
+          <div class="pl-14 px-2 py-1 rounded text-slate-400 cursor-pointer">🧪 SSO Integration (28)</div>
+          <div class="pl-6 px-2 py-1 rounded hover:bg-slate-900 cursor-pointer">📂 Shopping Cart</div>
+          <div class="pl-6 px-2 py-1 rounded hover:bg-slate-900 cursor-pointer">📂 Payments</div>
+        </div>
+        <div class="pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between"><span>2,847 cases</span><button class="hover:text-white">📥 Import</button></div>
+      </aside>
+      <div class="flex-1 flex flex-col min-w-0">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <div class="text-xs text-slate-400 flex items-center gap-1">E-Commerce <span class="text-slate-600">/</span> Auth <span class="text-slate-600">/</span> <span class="text-slate-200 font-medium">Login Flow Suite</span> <span class="pill pill-run">42 cases</span></div>
+          <div class="flex gap-2"><button class="btn btn-subtle text-xs">🔍 Filter</button><button class="btn btn-primary text-xs">▶ Start cycle</button></div>
+        </div>
+        <div class="card overflow-hidden flex-1">
+          <div class="px-4 py-2 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-semibold uppercase text-slate-400">Test Cases</h3><div class="flex gap-1 text-[11px]"><button class="px-2 py-1 rounded bg-slate-800 text-white">All</button><button class="px-2 py-1 rounded text-slate-400 hover:bg-slate-900">Failed</button><button class="px-2 py-1 rounded text-slate-400 hover:bg-slate-900">Blocked</button></div></div>
+          ${TEST_CASES.map(tc => `
+            <div class="px-4 py-2.5 border-b border-slate-800 last:border-0 hover:bg-slate-900/50 flex items-center gap-3 flex-wrap">
+              <span class="mono text-xs text-slate-500 w-16">${tc.id}</span>
+              <div class="flex-1 min-w-0"><div class="text-sm truncate">${tc.name}</div>${tc.note?`<div class="text-[11px] text-slate-400 truncate">${tc.note}</div>`:''}</div>
+              <span class="mono text-xs text-slate-500">${tc.dur}</span>
+              <span class="pill ${tc.status==='passed'?'pill-pass':tc.status==='failed'?'pill-fail':tc.status==='blocked'?'pill-pend':'pill-pend'}">${tc.status}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `));
+}
+
+function renderDeployments() {
+  render(shell(`
+    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Deployments</h1><p class="text-sm text-slate-400 mt-1">Guided execution with audit trail</p></div><button class="btn btn-primary text-xs">➕ New deployment</button></div>
+    <div class="card overflow-hidden mb-6">
+      <div class="px-4 py-2 border-b border-slate-800 flex gap-3 text-sm"><button class="pb-2 border-b-2 border-indigo-500 text-indigo-400 font-medium">All</button><button class="pb-2 border-b-2 border-transparent text-slate-400">Running</button><button class="pb-2 border-b-2 border-transparent text-slate-400">Completed</button></div>
+      ${DEPLOYS.map(d => `
+        <div class="px-4 py-3 border-b border-slate-800 last:border-0 hover:bg-slate-900/50 flex items-center gap-4 flex-wrap">
+          <div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="font-medium text-sm">${d.name}</span><span class="pill ${d.status==='running'?'pill-run':d.status==='completed'?'pill-pass':'pill-pend'}">● ${d.status}</span></div><div class="text-xs text-slate-400">${d.project} · ${d.engineer}</div></div>
+          <div class="flex items-center gap-4"><div class="text-right text-xs font-mono"><div>${d.done}/${d.steps}</div><div class="text-slate-500">${d.status==='running'?'ETA '+d.eta:d.duration||''}</div></div><div class="w-24 bg-slate-800 rounded-full h-1.5"><div class="${d.status==='completed'?'bg-emerald-500':'bg-indigo-500'} h-1.5 rounded-full" style="width:${(d.done/d.steps)*100}%"></div></div></div>
+        </div>
+      `).join('')}
+    </div>
+    <h3 class="text-xs font-semibold uppercase text-slate-400 mb-3">Execution Preview (Release 2.4.1)</h3>
+    <div class="card p-4 max-h-[400px] overflow-y-auto scroll space-y-2">
+      <div class="flex items-center gap-2 mb-3 text-xs text-slate-400"><span class="pill pill-run">🔒 Locked snapshot v3.2</span> Master changes won't affect this run.</div>
+      ${DEPLOY_STEPS.map(s => `
+        <div class="flex items-start gap-3 p-3 rounded border ${s.status==='running'?'border-indigo-500 bg-indigo-500/5':'border-slate-800 bg-slate-900/50'}">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${s.status==='completed'?'bg-emerald-500 text-white':s.status==='running'?'bg-indigo-500 text-white':'bg-slate-800 text-slate-500 border border-slate-700'}">${s.status==='completed'?'✓':s.status==='running'?'⏳':s.id}</div>
+          <div class="flex-1"><div class="flex items-center gap-2 text-sm font-medium">${s.name} ${s.crit?'<span class="pill pill-fail text-[10px]">⚠ Critical</span>':''} ${s.gate?'<span class="pill pill-pend text-[10px]">🛡 Approval Gate</span>':''}</div><div class="text-xs text-slate-400 mt-0.5 mono">${s.dur} · ${s.status}</div></div>
+        </div>
+      `).join('')}
+    </div>
+  `));
+}
+
+function renderTemplates() {
+  const modal = state.selectedTemplate ? `
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" data-action="close-modal">
+      <div class="card w-full max-w-2xl p-6 fade-in" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-start mb-4"><div><h2 class="text-lg font-semibold">${state.selectedTemplate.name}</h2><div class="text-xs text-slate-400 mt-1">${state.selectedTemplate.type==='test'?'Test Suite':'Deployment Plan'} · ${state.selectedTemplate.ver} · ${state.selectedTemplate.uses} uses</div></div><button data-action="close-modal" class="text-slate-400 hover:text-white">✕</button></div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div><h3 class="text-xs uppercase text-slate-400 font-semibold mb-2">Version History</h3><div class="space-y-2"><div class="p-2 rounded bg-indigo-500/10 border border-indigo-500 text-xs"><div class="font-bold">${state.selectedTemplate.ver} (current)</div><div class="text-slate-400">Added pre-flight validation</div><div class="text-[10px] text-slate-500 mt-1">${state.selectedTemplate.updated} · ${state.selectedTemplate.author}</div></div><div class="p-2 rounded bg-slate-900 border border-slate-800 text-xs"><div class="font-bold">v3.1</div><div class="text-slate-400">Updated rollback procedure</div></div></div></div>
+          <div><h3 class="text-xs uppercase text-slate-400 font-semibold mb-2">Changes in ${state.selectedTemplate.ver}</h3><div class="space-y-2 text-xs"><div class="p-2 rounded bg-emerald-500/5 border-l-2 border-emerald-500"><div class="text-emerald-400 font-bold">+ Added</div><div>Pre-flight environment validation</div></div><div class="p-2 rounded bg-rose-500/5 border-l-2 border-rose-500"><div class="text-rose-400 font-bold">− Removed</div><div>Manual cache clearing step</div></div></div></div>
+        </div>
+        <div class="flex gap-2 pt-4 border-t border-slate-800"><button class="btn btn-subtle text-xs flex-1">📥 Export</button><button class="btn btn-subtle text-xs flex-1">🔀 Compare</button><button class="btn btn-primary text-xs flex-1">➕ New Version</button></div>
+      </div>
+    </div>
+  ` : '';
+  render(shell(`
+    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Templates</h1><p class="text-sm text-slate-400 mt-1">Version-controlled master definitions</p></div><div class="flex gap-2"><button class="btn btn-subtle text-xs">📥 Import</button><button class="btn btn-primary text-xs">➕ New template</button></div></div>
+    <div class="card overflow-hidden">
+      ${TEMPLATES.map(t => `
+        <div data-action="template-modal" data-value="${t.id}" class="px-4 py-3 border-b border-slate-800 last:border-0 hover:bg-slate-900/50 cursor-pointer flex items-center gap-3 flex-wrap">
+          <span class="text-lg">${t.type==='test'?'🧪':'🚀'}</span>
+          <div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><span class="font-medium text-sm">${t.name}</span><span class="pill pill-run mono">${t.ver}</span><span class="pill ${t.status==='published'?'pill-pass':'pill-pend'}">● ${t.status}</span></div><div class="text-xs text-slate-400">${t.author} · Updated ${t.updated} · ${t.uses} uses</div></div>
+          <button class="btn btn-ghost text-xs">History</button><button class="btn btn-subtle text-xs">Open</button>
+        </div>
+      `).join('')}
+    </div>
+    ${modal}
+  `));
+}
+
+function renderSuggestions() {
+  render(shell(`
+    <div class="flex justify-between items-end mb-6 flex-wrap gap-3"><div><h1 class="text-xl font-semibold">Suggestions</h1><p class="text-sm text-slate-400 mt-1">Continuous improvement from the team</p></div><div class="flex gap-3"><div class="card px-3 py-1.5 text-xs flex items-center gap-2"><span class="text-slate-400">Pending</span><span class="font-bold">${SUGGESTIONS.filter(s=>s.status!=='approved').length}</span></div><div class="card px-3 py-1.5 text-xs flex items-center gap-2"><span class="text-slate-400">Approved</span><span class="font-bold text-emerald-400">${SUGGESTIONS.filter(s=>s.status==='approved').length}</span></div></div></div>
+    <div class="space-y-3">
+      ${SUGGESTIONS.map(s => `
+        <div class="card p-4">
+          <div class="flex items-start gap-3 mb-2"><div class="flex-1"><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="font-medium">${s.title}</span><span class="pill ${s.priority==='high'?'pill-fail':'pill-pend'}">● ${s.priority}</span><span class="pill pill-run">${s.type}</span><span class="pill ${s.status==='approved'?'pill-pass':'pill-pend'}">● ${s.status}</span></div><div class="text-xs text-slate-400">${s.submitter} · ${s.time}</div></div></div>
+          <div class="text-sm text-slate-300 mb-3">${s.reason}</div>
+          ${s.status!=='approved'?`<div class="flex gap-2 pt-3 border-t border-slate-800 flex-wrap"><button data-action="toast" data-value="Approved & merged to master" class="btn btn-primary text-xs">✅ Approve & merge</button><button data-action="toast" data-value="Applied to current run" class="btn btn-subtle text-xs">▶ Apply now</button><button class="btn btn-ghost text-xs">💬 Clarify</button><button class="btn btn-ghost text-xs text-rose-400">✕ Reject</button></div>`:`<div class="flex items-center gap-2 pt-3 border-t border-slate-800 text-xs text-emerald-400">✅ Approved & merged into template v3.3 by Jordan Diaz</div>`}
+        </div>
+      `).join('')}
+    </div>
+  `));
+}
+
+function renderAudit() {
+  render(shell(`
+    <div class="flex justify-between items-end mb-6 flex-wrap gap-3"><div><h1 class="text-xl font-semibold">Audit Center</h1><p class="text-sm text-slate-400 mt-1">Immutable execution history & compliance</p></div><div class="flex gap-2"><button class="btn btn-subtle text-xs">📥 Export CSV</button><button class="btn btn-subtle text-xs">📄 Compliance Report</button></div></div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+      ${[{l:'Trail Integrity',v:'Verified',c:'text-emerald-400'},{l:'Evidence Hashes',v:'1,284 valid',c:'text-emerald-400'},{l:'Execution Locking',v:'Enforced',c:'text-emerald-400'},{l:'Versioning',v:'Active',c:'text-emerald-400'}].map(k=>`<div class="card p-4 flex items-center gap-3"><div class="w-8 h-8 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-400">🛡️</div><div><div class="text-[10px] text-slate-400 uppercase">${k.l}</div><div class="text-sm font-bold ${k.c}">${k.v}</div></div></div>`).join('')}
+    </div>
+    <div class="card overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center flex-wrap gap-2"><div class="flex items-center gap-3"><h3 class="text-sm font-semibold">Event Log</h3><span class="text-xs text-slate-400">Today · 12,847 events</span></div><input placeholder="Search events..." class="w-48 text-xs"></div>
+      <div class="overflow-x-auto">
+        ${AUDIT.map(e => `
+          <div class="px-4 py-2.5 border-b border-slate-800 last:border-0 hover:bg-slate-900/50 flex items-center gap-3 min-w-[700px] text-sm">
+            <span class="mono text-xs text-slate-500 w-16">${e.id}</span>
+            <span class="mono text-xs text-slate-500 w-14">${e.time}</span>
+            <div class="w-28 truncate font-medium">${e.actor}</div>
+            <span class="pill pill-pend mono text-[10px]">${e.action}</span>
+            <div class="flex-1 min-w-0"><div class="truncate">${e.entity}</div><div class="text-xs text-slate-400 truncate">${e.result}</div></div>
+            <button class="text-slate-400 hover:text-white">👁️</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `));
+}
+
+function renderReports() {
+  render(shell(`
+    <div class="flex justify-between items-end mb-6"><div><h1 class="text-xl font-semibold">Reports</h1><p class="text-sm text-slate-400 mt-1">Workspace analytics & exports</p></div><button class="btn btn-primary text-xs">➕ New report</button></div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+      ${[{l:'Total Executions',v:'247',d:'+18%'},{l:'Avg Cycle Time',v:'4.2h',d:'-12%'},{l:'Pass Rate',v:'86.3%',d:'+3.2%'},{l:'Deploy Success',v:'94.1%',d:'+1.8%'}].map(k=>`<div class="card p-4"><div class="text-xs text-slate-400 mb-1">${k.l}</div><div class="text-2xl font-bold">${k.v}</div><div class="text-xs text-emerald-400 mt-1">↑ ${k.d}</div></div>`).join('')}
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      ${[{t:'Execution Summary',d:'Testing & deployment overview',u:'Today',i:'📊'},{t:'Team Performance',d:'Productivity metrics',u:'Yesterday',i:'👥'},{t:'Compliance Report',d:'Audit & governance',u:'2 days ago',i:'🛡️'},{t:'Template Drift',d:'Version history & approvals',u:'3 days ago',i:'🔀'},{t:'Suggestion Impact',d:'Improvement adoption',u:'4 days ago',i:'💡'},{t:'Risk Analysis',d:'Failure patterns & hotspots',u:'5 days ago',i:'⚠️'}].map(r=>`
+        <div class="card p-4 hover:border-slate-700 transition cursor-pointer">
+          <div class="text-2xl mb-2">${r.i}</div>
+          <h3 class="font-semibold text-sm mb-1">${r.t}</h3>
+          <p class="text-xs text-slate-400 mb-3">${r.d}</p>
+          <div class="flex justify-between text-xs"><span class="text-slate-500">${r.u}</span><span class="text-indigo-400">📥</span></div>
+        </div>
+      `).join('')}
+    </div>
+  `));
+}
+
+function renderSettings() {
+  render(shell(`
+    <div class="mb-6"><h1 class="text-xl font-semibold">Settings</h1><p class="text-sm text-slate-400 mt-1">Profile & workspace preferences</p></div>
+    <div class="card p-5 mb-4">
+      <h3 class="text-sm font-semibold mb-4">Profile</h3>
+      <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-full ${state.user.color} flex items-center justify-center text-lg font-bold">${state.user.initials}</div><div><div class="font-medium">${state.user.name}</div><div class="text-xs text-slate-400">${state.user.email}</div></div></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="text-xs text-slate-400 block mb-1">Full name</label><input value="${state.user.name}"></div>
+        <div><label class="text-xs text-slate-400 block mb-1">Email</label><input value="${state.user.email}"></div>
+        <div><label class="text-xs text-slate-400 block mb-1">Role</label><input value="${state.user.role}" readonly class="opacity-60"></div>
+        <div><label class="text-xs text-slate-400 block mb-1">Timezone</label><input value="America/New_York"></div>
+      </div>
+      <button data-action="toast" data-value="Profile saved" class="btn btn-primary text-xs mt-4">Save changes</button>
+    </div>
+    <div class="card p-5 mb-4">
+      <h3 class="text-sm font-semibold mb-4">Notifications</h3>
+      <div class="space-y-2">
+        ${[{l:'Approval requests',d:'When someone requests approval',c:true},{l:'Execution completions',d:'When assigned runs finish',c:true},{l:'Deployment failures',d:'Critical alerts',c:true},{l:'Weekly digest',d:'Summary email',c:false}].map(n=>`
+          <label class="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded cursor-pointer">
+            <div><div class="text-sm font-medium">${n.l}</div><div class="text-xs text-slate-400">${n.d}</div></div>
+            <input type="checkbox" ${n.c?'checked':''} class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-indigo-500">
+          </label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="card p-5">
+      <h3 class="text-sm font-semibold mb-4">Workspace</h3>
+      <div class="space-y-2">
+        ${[{l:'Security & Access',d:'SSO, 2FA, sessions'},{l:'Team Members',d:'Invite & manage access'},{l:'Integrations',d:'CI/CD, monitoring tools'},{l:'API Keys',d:'External access tokens'}].map(w=>`
+          <div class="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded cursor-pointer hover:border-slate-700">
+            <div><div class="text-sm font-medium">${w.l}</div><div class="text-xs text-slate-400">${w.d}</div></div>
+            <span class="text-slate-500">→</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+navigate('login');
+</script>
+</body>
+</html>
